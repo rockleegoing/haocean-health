@@ -123,3 +123,11 @@ cd Ruoyi-Android-App
 - `rules/database.md` - 数据库管理规范（SQL 脚本、变更流程、备份恢复）
 
 在执行代码编辑、提交、审查等操作时，应主动参考相应规则文件的要求。
+
+## 规则自我完善
+
+当按照规则执行失败时：
+1. 在 `rules/CHANGELOG.md` 中记录失败情况
+2. 找到正确方法后立即更新对应规则文件
+3. 提交变更并使用 `chore(rules): 修正 xxx 规则` 的 commit message
+4. 在 `rules/CHANGELOG.md` 中记录修正方案

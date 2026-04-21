@@ -57,6 +57,32 @@
 
 如需修订规范，请提交 MR 并说明修改理由。规范修订需要经过团队讨论通过。
 
+## 规则自我完善机制
+
+本规范实行**自我完善机制**：当按照规则执行失败并找到正确方法后，必须更新规则文档。
+
+### 执行失败时的处理流程
+
+1. **记录失败原因**
+   - 在 [`rules/CHANGELOG.md`](./CHANGELOG.md) 中记录本次执行失败的情况
+   - 包含：执行的规则、失败现象、失败原因、临时解决方案
+
+2. **问题解决后更新规则**
+   - 找到正确方法后，立即更新对应的规则文件
+   - 在 `rules/CHANGELOG.md` 中标记问题已解决
+   - 提交变更并使用 `chore(rules): 修正 XXX 规则` 作为 commit message
+
+3. **提交变更**
+   ```bash
+   git add rules/CHANGELOG.md rules/<修正的规则文件>.md
+   git commit -m "chore(rules): 修正 xxx 规则"
+   git push origin main
+   ```
+
+### CHANGELOG.md 格式
+
+详见 [`rules/CHANGELOG.md`](./CHANGELOG.md)
+
 ## 相关资源
 
 - [Conventional Commits](https://www.conventionalcommits.org/)
