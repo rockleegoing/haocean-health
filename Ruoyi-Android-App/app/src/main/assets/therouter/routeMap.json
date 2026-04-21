@@ -1,0 +1,51 @@
+[
+  {
+    "path": "http://com.ruoyi/work/fragment",
+    "className": "com.ruoyi.app.fragment.WorkFragment",
+    "action": "action://scheme.com",
+    "description": "work",
+    "params": {}
+  },
+  {
+    "path": "http://com.ruoyi/mine/fragment",
+    "className": "com.ruoyi.app.fragment.MineFragment",
+    "action": "action://scheme.com",
+    "description": "minie",
+    "params": {}
+  },
+  {
+    "path": "http://com.ruoyi/home/fragment",
+    "className": "com.ruoyi.app.fragment.HomeFragment",
+    "action": "action://scheme.com",
+    "description": "home",
+    "params": {}
+  },
+  {
+    "path": "http://com.ruoyi/messages",
+    "className": "com.ruoyi.app.activity.work.MessageActivity",
+    "action": "",
+    "description": "通知公告",
+    "params": {}
+  },
+  {
+    "path": "http://com.ruoyi/log",
+    "className": "com.ruoyi.app.activity.work.LogsActivity",
+    "action": "",
+    "description": "日志",
+    "params": {}
+  },
+  {
+    "path": "http://com.ruoyi/home",
+    "className": "com.ruoyi.app.activity.MainActivity",
+    "action": "action://scheme.com",
+    "description": "首页",
+    "params": {}
+  },
+  {
+    "path": "http://com.ruoyi/login",
+    "className": "com.ruoyi.app.activity.LoginActivity",
+    "action": "action://scheme.com",
+    "description": "登录",
+    "params": {}
+  }
+]

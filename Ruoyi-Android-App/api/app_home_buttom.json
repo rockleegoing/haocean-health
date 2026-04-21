@@ -1,0 +1,33 @@
+{
+  "code": 200,
+  "msg": "查询成功",
+  "data": [
+    {
+      "id": 1,
+      "name": "首页",
+      "defaultColor": "#A4A4A4",
+      "selectColor": "#d81e06",
+      "defaultIcon": "https://gitee.com/OptimisticDevelopers/Ruoyi-Android-App/raw/ui_1.1.0/api/icon/home.png",
+      "selectIcon": "https://gitee.com/OptimisticDevelopers/Ruoyi-Android-App/raw/ui_1.1.0/api/icon/home_.png",
+      "drawable": null
+    },
+    {
+      "id": 2,
+      "name": "工作台",
+      "defaultColor": "#A4A4A4",
+      "selectColor": "#d81e06",
+      "defaultIcon": "https://gitee.com/OptimisticDevelopers/Ruoyi-Android-App/raw/ui_1.1.0/api/icon/work.png",
+      "selectIcon": "https://gitee.com/OptimisticDevelopers/Ruoyi-Android-App/raw/ui_1.1.0/api/icon/work_.png",
+      "drawable": null
+    },
+    {
+      "id": 3,
+      "name": "我的",
+      "defaultColor": "#A4A4A4",
+      "selectColor": "#d81e06",
+      "defaultIcon": "https://gitee.com/OptimisticDevelopers/Ruoyi-Android-App/raw/ui_1.1.0/api/icon/mine.png",
+      "selectIcon": "https://gitee.com/OptimisticDevelopers/Ruoyi-Android-App/raw/ui_1.1.0/api/icon/mine_.png",
+      "drawable": null
+    }
+  ]
+}

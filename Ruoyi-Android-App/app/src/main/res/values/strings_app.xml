@@ -1,0 +1,81 @@
+<resources>
+
+    <string name="login">登录</string>
+    <string name="login_title">若依移动端登录</string>
+    <string name="register">注册</string>
+    <string name="login_register">立即注册</string>
+    <string name="login_p_account">请输入账号</string>
+    <string name="login_p_pass">请输入密码</string>
+    <string name="login_p_code">请输入验证码</string>
+    <string name="login_p_email">请输入邮箱</string>
+    <string name="login_p_phone">请输入手机号</string>
+    <string name="edit_p_nickname">请输入昵称</string>
+    <string name="login_s_no_account">没有账号？</string>
+
+    <string name="login_consent">登录即代表同意</string>
+    <string name="login_agreement">《用户协议》</string>
+    <string name="login_privacy">《隐私协议》</string>
+
+    <string name="welcome">欢迎使用</string>
+    <string name="index_nav_index">首页</string>
+    <string name="work_nav_index">工作台</string>
+    <string name="mine_nav_index">我的</string>
+    <string name="mine_edit_avatar">修改头像</string>
+    <string name="mine_info">个人信息</string>
+    <string name="anonymous">匿名</string>
+    <string name="mine_edit_info">编辑资料</string>
+    <string name="mine_help">常见问题</string>
+    <string name="mine_about">关于我们</string>
+    <string name="mine_setting">应用设置</string>
+    <string name="mine_edit_pwd">修改密码</string>
+    <string name="setting_updates">检测更新</string>
+    <string name="setting_clear_cache">清除缓存</string>
+    <string name="submit">提交</string>
+    <string name="mine_qq_line">QQ群：133713780</string>
+    <string name="mine_construction">模块建设中~</string>
+    <string name="mine_discussion_group">交流群</string>
+    <string name="mine_online">在线客服</string>
+    <string name="mine_community">反馈社区</string>
+    <string name="mine_like_me">点赞我们</string>
+
+    <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
+
+    <string name="log_out">退出登录</string>
+
+    <string name="about_version">版本信息</string>
+    <string name="about_email">官方邮箱</string>
+    <string name="about_hotline">服务热线</string>
+    <string name="about_website">公司网站</string>
+
+    <string name="avatar_select_pic">请先选择图片</string>
+    <string name="avatar_success">上传成功</string>
+    <string name="select_avatar">选择头像</string>
+
+    <string name="edit_nickname">昵称</string>
+    <string name="edit_mobile">手机号码</string>
+    <string name="edit_email">邮箱</string>
+    <string name="edit_position">岗位</string>
+    <string name="edit_role">角色</string>
+    <string name="edit_create">创建日期</string>
+    <string name="edit_user_nickname">用户昵称</string>
+    <string name="male">男</string>
+    <string name="female">女</string>
+    <string name="gender">性别</string>
+
+    <string name="logs_manage">日志管理</string>
+    <string name="notice_manage">通知公告</string>
+
+    <string name="notice">通知</string>
+    <string name="announcement">公告</string>
+
+    <string name="language">中文</string>
+    <string name="setting_change_language">多语言</string>
+    <string name="setting_dart_mode">深色模式</string>
+    <string name="setting_light_mode">普通模式</string>
+    <string name="lock_icon">🔒</string>
+    <string name="privacy_title">若依隐私政策</string>
+    <string name="privacy_desc"><![CDATA[欢迎您使用“若依”，我们非常重视您的个人信息和隐私保护。在您使用“若依”服务之前，请仔细阅读<a href="privacy_policy"><font color="#FF007AFF">《若依隐私政策》</font></a>和<a href="user_agreement"><font color="#FF007AFF">《若依用户协议》</font></a>，我们将严格按照经您同意的各项条款使用您的个人信息，以便为您提供更好的服务。如您同意此政策，请点击“同意”并开始使用我们的产品和服务，我们尽全力保护您的个人信息安全。]]></string>
+    <string name="btn_refuse">拒绝</string>
+    <string name="btn_agree">同意</string>
+</resources>

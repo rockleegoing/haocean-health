@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/main_bg"
+    tools:context=".activity.mine.InfoActivity">
+
+    <com.hjq.bar.TitleBar
+        android:id="@id/titlebar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_48"
+        app:title="@string/mine_setting"
+        app:leftIcon="@mipmap/icon_title_left"
+        app:lineVisible="false"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="@dimen/dp_20"
+        android:background="@drawable/shape_bg_mine_list"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/ll_edit_pwd"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/dp_18"
+                android:layout_height="@dimen/dp_18"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="10dp"
+                android:src="@mipmap/icon_setting_mima"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginRight="15dp"
+                android:textSize="15sp"
+                android:text="@string/mine_edit_pwd" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1sp"
+            android:background="#f1f1f1"/>
+
+        <LinearLayout
+            android:id="@+id/ll_upload_app"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/dp_18"
+                android:layout_height="@dimen/dp_18"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="10dp"
+                android:src="@mipmap/icon_setting_genxin"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginEnd="15dp"
+                android:textSize="15sp"
+                android:text="@string/setting_updates" />
+
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1sp"
+            android:background="#f1f1f1"/>
+
+        <LinearLayout
+            android:id="@+id/ll_clear_cache"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/dp_18"
+                android:layout_height="@dimen/dp_18"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="10dp"
+                android:src="@mipmap/icon_setting_huancun"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginEnd="15dp"
+                android:textSize="15sp"
+                android:text="@string/setting_clear_cache" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1sp"
+            android:background="#f1f1f1"/>
+
+        <LinearLayout
+            android:id="@+id/ll_change_language"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/dp_18"
+                android:layout_height="@dimen/dp_18"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="10dp"
+                android:src="@mipmap/icon_setting_language"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginEnd="15dp"
+                android:layout_weight="1"
+                android:textSize="15sp"
+                android:text="@string/setting_change_language" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginEnd="15dp"
+                android:textSize="15sp"
+                android:text="@string/language" />
+
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1sp"
+            android:background="#f1f1f1"/>
+
+        <LinearLayout
+            android:id="@+id/ll_dark_mode"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/dp_18"
+                android:layout_height="@dimen/dp_18"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="10dp"
+                android:src="@mipmap/icon_setting_dark_mode"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginEnd="15dp"
+                android:layout_weight="1"
+                android:textSize="15sp"
+                android:text="@string/setting_dart_mode" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginEnd="15dp"
+                android:textSize="15sp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvLoginOut"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_44"
+        android:gravity="center"
+        android:layout_margin="20dp"
+        android:textSize="15sp"
+        android:text="@string/log_out"
+        android:background="@drawable/shape_bg_mine_list"
+        android:textColor="#333"/>
+
+</LinearLayout>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@color/main_bg"
+    android:id="@+id/item_view"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.AvatarActivity">
+
+    <com.hjq.bar.TitleBar
+        android:id="@id/titlebar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_48"
+        app:leftIcon="@mipmap/icon_title_left"
+        app:title="@string/mine_edit_avatar"
+        app:lineVisible="false"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="400dp" >
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:src="@mipmap/profile"/>
+
+        <com.ruoyi.app.widget.ChoiceBorderView
+            android:id="@+id/choice_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+    <com.hjq.shape.view.ShapeButton
+        android:id="@+id/btn_select_avatar"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginLeft="36dp"
+        android:layout_marginRight="36dp"
+        android:layout_marginBottom="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_20"
+        android:gravity="center"
+        android:text="@string/select_avatar"
+        android:textColor="@color/black"
+        app:shape="rectangle"
+        app:shape_radius="@dimen/dp_6"
+        app:shape_solidColor="@color/white"
+        app:shape_solidPressedColor="#AA999999"
+        />
+
+    <com.hjq.shape.view.ShapeButton
+        android:id="@+id/btn_submit"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginLeft="36dp"
+        android:layout_marginRight="36dp"
+        android:gravity="center"
+        android:text="@string/submit"
+        android:textColor="@color/white"
+        app:shape="rectangle"
+        app:shape_radius="@dimen/dp_6"
+        app:shape_solidColor="@color/red"
+        app:shape_solidPressedColor="#AAdd524d"
+        />
+
+
+</LinearLayout>

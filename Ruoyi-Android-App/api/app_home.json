@@ -1,0 +1,34 @@
+{
+    "code":200,
+    "msg":"查询成功",
+    "data": {
+        "search": {
+            "tag": [
+                {
+                    "id":1,
+                    "txt":"耳机"
+                }
+            ]
+        },
+        "banner": [
+            {
+                "id":1,
+                "source":"https://gitee.com/OptimisticDevelopers/Ruoyi-Android-App/raw/master/app/src/main/res/mipmap-xhdpi/banner01.jpg",
+                "title":"bean1",
+                "page":""
+            },
+            {
+                "id":2,
+                "source":"https://gitee.com/OptimisticDevelopers/Ruoyi-Android-App/raw/master/app/src/main/res/mipmap-xhdpi/banner02.jpg",
+                "title":"bean2",
+                "page":""
+            },
+            {
+                "id":3,
+                "source":"https://gitee.com/OptimisticDevelopers/Ruoyi-Android-App/raw/master/app/src/main/res/mipmap-xhdpi/banner03.jpg",
+                "title":"bean3",
+                "page":""
+            }
+        ]
+    }
+}

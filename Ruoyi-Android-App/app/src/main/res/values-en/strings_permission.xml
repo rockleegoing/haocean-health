@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="common_permission_description">PermissionDescription</string>
+    <string name="common_permission_message">To use this feature, permission must be granted first%s</string>
+    <string name="common_permission_granted">grant</string>
+    <string name="common_permission_denied">cancel</string>
+
+    <string name="common_permission_alert">Authorization Reminder</string>
+    <string name="common_permission_fail_hint">Authorization failed, please grant permissions correctly</string>
+    <string name="common_permission_fail_assign_hint">Authorization failed, please grant correctly%s</string>
+    <string name="common_permission_manual_fail_hint">Failed to obtain permission, please manually grant permission</string>
+    <string name="common_permission_manual_assign_fail_hint">Failed to obtain permission, please grant manually%s</string>
+    <string name="common_permission_background_location_fail_hint">Failed to obtain backend location permission, please select the 《% s》 option</string>
+    <string name="common_permission_background_sensors_fail_hint">Failed to obtain backend sensor permissions, please select the 《% s》 option</string>
+    <string name="common_permission_background_default_option_label">always allow</string>
+    <string name="common_permission_media_location_hint_fail">Failed to obtain media location permission\nPlease clear the application data and try again</string>
+    <string name="common_permission_goto_setting_page">Go to Authorization</string>
+
+    <string name="common_permission_unknown">permission</string>
+    <string name="common_permission_comma">、</string>
+
+    <string name="common_permission_calendar">Calendar permissions</string>
+    <string name="common_permission_camera">Camera permissions</string>
+    <string name="common_permission_contacts">Address book permissions</string>
+    <string name="common_permission_location">Location permission</string>
+    <string name="common_permission_location_background">Background positioning permission</string>
+    <string name="common_permission_nearby_devices">Nearby device permissions</string>
+    <string name="common_permission_microphone">Microphone permission</string>
+    <string name="common_permission_phone">Phone permissions</string>
+    <string name="common_permission_call_logs">Call log permission</string>
+    <string name="common_permission_body_sensors">Body sensor permissions</string>
+    <string name="common_permission_body_sensors_background">Background body sensor permissions</string>
+    <string name="common_permission_activity_recognition_api29">Fitness exercise permissions</string>
+    <string name="common_permission_activity_recognition_api30">Physical activity permission</string>
+    <string name="common_permission_access_media_location">Read media file location permission</string>
+    <string name="common_permission_sms">SMS permission</string>
+    <string name="common_permission_storage">Storage permission</string>
+    <string name="common_permission_post_notifications">Send notification permission</string>
+    <string name="common_permission_image_and_video">Photo and video permissions</string>
+    <string name="common_permission_music_and_audio">Music and audio permissions</string>
+    <string name="common_permission_get_installed_apps">Read application list permission</string>
+
+    <string name="common_permission_all_file_access">All file access permissions</string>
+    <string name="common_permission_install_unknown_apps">Install application permissions</string>
+    <string name="common_permission_display_over_other_apps">Floating window permission</string>
+    <string name="common_permission_modify_system_settings">Modify system settings permissions</string>
+    <string name="common_permission_allow_notifications">Notification permission</string>
+    <string name="common_permission_allow_notifications_access">Notification bar monitoring permission</string>
+    <string name="common_permission_apps_with_usage_access">View usage permissions</string>
+    <string name="common_permission_alarms_reminders">View Alarm Reminder Permissions</string>
+    <string name="common_permission_do_not_disturb_access">Do not disturb permissions</string>
+    <string name="common_permission_ignore_battery_optimize">Ignore battery optimization permissions</string>
+    <string name="common_permission_picture_in_picture">Picture in picture permission</string>
+    <string name="common_permission_vpn">\tVPN\tpermission</string>
+
+</resources>

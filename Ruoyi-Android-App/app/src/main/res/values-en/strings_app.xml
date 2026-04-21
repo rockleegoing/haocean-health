@@ -1,0 +1,82 @@
+<resources>
+
+    <string name="login">login</string>
+    <string name="login_title">ruoyi mobile login</string>
+    <string name="register">register</string>
+    <string name="login_register">Register Now</string>
+
+    <string name="login_p_account">Please enter your account</string>
+    <string name="login_p_pass">Please enter the password</string>
+    <string name="login_p_code">Please enter the verification code</string>
+    <string name="login_p_email">Please enter your email</string>
+    <string name="login_p_phone">Please enter your phone number</string>
+    <string name="edit_p_nickname">Please enter a nickname</string>
+    <string name="login_s_no_account">No account？</string>
+
+    <string name="login_consent">Login Agree</string>
+    <string name="login_agreement">《Agreement》</string>
+    <string name="login_privacy">《Privacy》</string>
+
+    <string name="welcome">Hello RuoYi</string>
+    <string name="index_nav_index">home</string>
+    <string name="work_nav_index">workbench</string>
+    <string name="mine_nav_index">mine</string>
+    <string name="mine_edit_avatar">ChangeProfilePicture</string>
+    <string name="mine_info">PersonalInformation</string>
+    <string name="mine_edit_info">EditProfile</string>
+    <string name="mine_help">FrequentlyAskedQuestions</string>
+    <string name="mine_about">AboutUs</string>
+    <string name="mine_setting">ApplicationSettings</string>
+    <string name="setting_updates">Check for updates</string>
+    <string name="setting_clear_cache">Clear cache</string>
+    <string name="mine_edit_pwd">ChangePassword</string>
+    <string name="submit">submit</string>
+    <string name="anonymous">anonymity</string>
+    <string name="mine_qq_line">QQgroup：133713780</string>
+    <string name="mine_construction">Module construction in progress~</string>
+    <string name="mine_discussion_group">group</string>
+    <string name="mine_online">Online</string>
+    <string name="mine_community">Feedback</string>
+    <string name="mine_like_me">LikeUs</string>
+
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="log_out">Log out</string>
+
+    <string name="about_version">Version Information</string>
+    <string name="about_email">Official email</string>
+    <string name="about_hotline">Service Hotline</string>
+    <string name="about_website">Company Website</string>
+
+    <string name="avatar_select_pic">Please select an image first</string>
+    <string name="avatar_success">Upload successful</string>
+    <string name="select_avatar">Select Avatar</string>
+
+    <string name="edit_nickname">nickname</string>
+    <string name="edit_mobile">phone number</string>
+    <string name="edit_email">email</string>
+    <string name="edit_position">position</string>
+    <string name="edit_role">role</string>
+    <string name="edit_create">Creation Date</string>
+    <string name="edit_user_nickname">User nickname</string>
+    <string name="male">male</string>
+    <string name="female">female</string>
+    <string name="gender">gender</string>
+
+    <string name="logs_manage">LogManagement</string>
+    <string name="notice_manage">Notice</string>
+
+    <string name="notice">Notice</string>
+    <string name="announcement">Announcement</string>
+
+    <string name="language">Englist</string>
+    <string name="setting_change_language">language</string>
+    <string name="setting_dart_mode">Dart Mode</string>
+    <string name="setting_light_mode">Normal Mode</string>
+    <string name="privacy_title">ruoyi Privacy Policy</string>
+    <string name="lock_icon">🔒</string>
+    <string name="privacy_desc"><![CDATA[Welcome to use "RuoYi". We attach great importance to the protection of your personal information and privacy. Before using RuoYi\'s services, please carefully read <a href="privacy_policy"><font color="#FF007AFF">《RuoYi Privacy Policy》</font></a> and <a href="user_agreement"><font color="#FF007AFF">《RuoYi User Agreement》</font></a>. We will use your personal information in strict accordance with the terms you have agreed to, so as to provide you with better services. If you agree to this policy, please click "Agree" to start using our products and services. We will do our utmost to protect the security of your personal information.]]></string>
+    <string name="btn_refuse">refuse</string>
+    <string name="btn_agree">agree</string>
+</resources>

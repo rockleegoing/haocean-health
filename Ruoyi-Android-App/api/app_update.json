@@ -1,0 +1,18 @@
+{
+  "code": 200,
+  "msg": "查询成功",
+  "data": {
+    "UpdateStatus": 2,
+    "UpdateType": 2,
+    "VersionCode": 15,
+    "VersionName": "1.1.2",
+    "UploadTime": "2025-03-25 21:50:41",
+    "ModifyContent": "\r\n1、添加全局水印",
+    "DownloadUrl": "https://gitee.com/OptimisticDevelopers/Ruoyi-Android-App/raw/ui_1.1.0/api/ruoyi-android-mobile_1.1.2_15_2026-01-13_release.apk",
+    "HotUpdateUrl": "",
+    "ApkSize": 7808,
+    "HotUpdateSize": 0,
+    "ApkMd5": "fe12ee53d0810f7f652da8122810b5b4",
+    "HotUpdateMd5": "a3d7c9e1f2b4d688e0a2c4e6f8b0d2a4"
+  }
+}

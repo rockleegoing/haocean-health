@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/main_bg"
+    android:orientation="vertical"
+    tools:context=".activity.mine.InfoActivity">
+
+    <com.hjq.bar.TitleBar
+        android:id="@id/titlebar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_48"
+        app:title="@string/mine_info"
+        app:leftIcon="@mipmap/icon_title_left"
+        app:lineVisible="false"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/dp_18"
+            android:layout_height="@dimen/dp_18"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="10dp"
+            android:src="@mipmap/icon_info_nicheng"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:layout_marginEnd="15dp"
+            android:textSize="16sp"
+            android:layout_weight="1"
+            android:text="@string/edit_nickname" />
+
+        <TextView
+            android:id="@+id/tv_info_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#999"
+            android:layout_marginEnd="15dp"
+            android:textSize="15sp"
+            tools:text="若依" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1sp"
+        android:background="#f1f1f1"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/dp_18"
+            android:layout_height="@dimen/dp_18"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="10dp"
+            android:src="@mipmap/icon_info_shouji"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:layout_marginEnd="15dp"
+            android:textSize="16sp"
+            android:layout_weight="1"
+            android:text="@string/edit_mobile" />
+
+        <TextView
+            android:id="@+id/tv_info_mobile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#999"
+            android:layout_marginEnd="15dp"
+            android:textSize="15sp"
+            tools:text="15888888888" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1sp"
+        android:background="#f1f1f1"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/dp_18"
+            android:layout_height="@dimen/dp_18"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="10dp"
+            android:src="@mipmap/icon_info_youxiang"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:layout_marginEnd="15dp"
+            android:textSize="16sp"
+            android:layout_weight="1"
+            android:text="@string/edit_email" />
+
+        <TextView
+            android:id="@+id/tv_info_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#999"
+            android:layout_marginEnd="15dp"
+            android:textSize="15sp"
+            tools:text="ry@163.com" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1sp"
+        android:background="#f1f1f1"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/dp_18"
+            android:layout_height="@dimen/dp_18"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="10dp"
+            android:src="@mipmap/icon_info_gangwei"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/black"
+            android:layout_marginEnd="15dp"
+            android:textSize="16sp"
+            android:text="@string/edit_position" />
+
+        <TextView
+            android:id="@+id/tv_info_post"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#999"
+            android:layout_marginEnd="15dp"
+            android:textSize="15sp"
+            tools:text="董事长" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1sp"
+        android:background="#f1f1f1"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/dp_18"
+            android:layout_height="@dimen/dp_18"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="10dp"
+            android:src="@mipmap/icon_info_jiaose"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:layout_weight="1"
+            android:layout_marginEnd="15dp"
+            android:textSize="16sp"
+            android:text="@string/edit_role" />
+
+        <TextView
+            android:id="@+id/tv_info_role"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#999"
+            android:layout_marginEnd="15dp"
+            android:textSize="15sp"
+            tools:text="超级管理员" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1sp"
+        android:background="#f1f1f1"/>
+
+    <LinearLayout
+        android:id="@+id/ll_info_create_time"
+        android:layout_width="match_parent"
+        android:background="@color/white"
+        android:layout_height="50dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/dp_18"
+            android:layout_height="@dimen/dp_18"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="10dp"
+            android:src="@mipmap/icon_info_chuangjianshijian"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/black"
+            android:layout_marginEnd="15dp"
+            android:textSize="16sp"
+            android:text="@string/edit_create" />
+
+        <TextView
+            android:id="@+id/tv_info_create"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#999"
+            android:layout_marginEnd="15dp"
+            android:textSize="15sp"
+            tools:text="2022-09-16 20:04:23" />
+
+    </LinearLayout>
+
+</LinearLayout>

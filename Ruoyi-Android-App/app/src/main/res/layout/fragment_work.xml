@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".fragment.WorkFragment">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:gravity="center"
+        android:background="@color/white"
+        android:text="@string/work_nav_index"
+        android:textColor="@color/black" />
+
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:orientation="vertical"
+       android:layout_height="180dp">
+
+       <com.stx.xhb.androidx.XBanner
+           android:id="@+id/xbanner"
+           android:layout_width="match_parent"
+           android:layout_height="match_parent"
+           app:isAutoPlay="true"
+           app:isHandLoop="false"
+           app:AutoPlayTime="3000"
+           app:pointNormal="@drawable/shape_noraml"
+           app:pointSelect="@drawable/shape_selected"
+           app:pointsPosition="CENTER"
+           app:tipTextSize="12sp"
+           app:isShowNumberIndicator="false"
+           app:isShowIndicatorOnlyOne="true"
+           app:pageChangeDuration="800"/>
+
+   </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:spanCount="1"
+        tools:listitem="@layout/item_work_index"
+        tools:itemCount="2"/>
+
+</LinearLayout>

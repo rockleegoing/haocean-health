@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context=".activity.LoginActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:gravity="center"
+        android:text="@string/login"
+        android:textColor="@color/black" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@mipmap/logo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login_title"
+            android:textColor="#333"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="36dp"
+        android:background="@drawable/shape_bg_login"
+        android:layout_marginRight="36dp"
+        android:layout_height="44dp">
+
+        <ImageView
+            android:layout_width="@dimen/dp_18"
+            android:layout_height="@dimen/dp_18"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="10dp"
+            android:background="@mipmap/icon_login_user"/>
+
+        <EditText
+            android:id="@+id/et_account"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="@string/login_p_account"
+            android:layout_marginEnd="24dp"
+            android:maxLength="30"
+            android:lines="1"
+            android:singleLine="true"
+            android:textColorHint="#708090"
+            android:text="admin"
+            android:textColor="#333"
+            android:textSize="16sp"
+            android:background="#f5f6f7"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="36dp"
+        android:background="@drawable/shape_bg_login"
+        android:layout_marginRight="36dp"
+        android:layout_height="44dp">
+
+        <ImageView
+            android:layout_width="@dimen/dp_18"
+            android:layout_height="@dimen/dp_18"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="10dp"
+            android:background="@mipmap/icon_login_pwd"/>
+
+        <EditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="@string/login_p_pass"
+            android:textColorHint="#708090"
+            android:text="admin123"
+            android:lines="1"
+            android:singleLine="true"
+            android:layout_marginEnd="24dp"
+            android:maxLength="30"
+            android:inputType="textPassword"
+            android:textColor="#333"
+            android:textSize="16sp"
+            android:background="#f5f6f7"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_captcha_image"
+        android:layout_width="match_parent"
+        android:gravity="center_vertical"
+        android:layout_marginLeft="36dp"
+        android:layout_marginBottom="25dp"
+        android:background="@drawable/shape_bg_login"
+        android:layout_marginRight="36dp"
+        android:layout_height="44dp">
+
+        <ImageView
+            android:layout_width="@dimen/dp_18"
+            android:layout_height="@dimen/dp_18"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="10dp"
+            android:background="@mipmap/icon_login_code"/>
+
+        <EditText
+            android:id="@+id/et_code"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:hint="@string/login_p_code"
+            android:textColorHint="#708090"
+            android:text=""
+            android:lines="1"
+            android:singleLine="true"
+            android:imeOptions="actionDone"
+            android:layout_weight="1"
+            android:paddingEnd="20dp"
+            android:maxLength="10"
+            android:textColor="#333"
+            android:textSize="16sp"
+            android:background="#f5f6f7"/>
+
+        <ImageView
+            android:id="@+id/logo_code_image"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            tools:src="@mipmap/logo200"/>
+
+    </LinearLayout>
+
+    <com.hjq.shape.view.ShapeButton
+        android:id="@+id/btn_login"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginLeft="36dp"
+        android:layout_marginRight="36dp"
+        android:gravity="center"
+        android:text="@string/login"
+        android:textColor="@color/white"
+        app:shape="rectangle"
+        app:shape_radius="24dp"
+        app:shape_solidColor="#0081ff"
+        app:shape_solidPressedColor="#AA5A8DDF"
+        />
+
+    <LinearLayout
+        android:id="@+id/llRegister"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginLeft="36dp"
+        android:layout_marginRight="36dp"
+        android:gravity="center"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login_s_no_account"
+            android:textColor="#888" />
+
+        <TextView
+            android:id="@+id/tvRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/login_register"
+            android:textColor="#0081ff" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginLeft="36dp"
+        android:layout_marginRight="36dp"
+        android:gravity="center_vertical|right"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login_consent"
+            android:textColor="#888" />
+
+        <TextView
+            android:id="@+id/tvProtocol"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/login_agreement"
+            android:textColor="#0081ff" />
+
+        <TextView
+            android:id="@+id/tvPrivacy"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/login_privacy"
+            android:textColor="#0081ff" />
+
+    </LinearLayout>
+
+</LinearLayout>

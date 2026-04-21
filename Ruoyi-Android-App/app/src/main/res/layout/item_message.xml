@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/main_bg_40"
+    android:orientation="vertical"
+    tools:ignore="MissingDefaultResource">
+
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_16"
+        android:layout_marginTop="10dp"
+        tools:text="今天"
+        android:textColor="@color/color_9"
+        android:textSize="14sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@drawable/shape_bg_while"
+        android:orientation="horizontal"
+        tools:ignore="MissingDefaultResource">
+
+        <ImageView
+            android:id="@+id/iv_left_read"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_marginRight="@dimen/dp_10"
+            android:layout_gravity="center"
+            android:background="@mipmap/icon_message_w" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            tools:ignore="MissingDefaultResource">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal"
+                android:paddingRight="15dp"
+                android:paddingBottom="@dimen/dp_4">
+
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:lines="1"
+                    android:singleLine="true"
+                    android:textColor="#303030"
+                    android:textSize="16sp"
+                    tools:text="端午节放假通知端午节放假通知端午节放假通知端午节放假通知" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_introduction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="14dp"
+                android:ellipsize="end"
+                android:lineSpacingExtra="3dp"
+                android:lines="2"
+                android:textColor="#666666"
+                android:textSize="13sp"
+                tools:text="2020年6月25日至27日放假调休，共3天。6月28日周日上班我注意安全注意安全注意安全注意安全注意安全…。6月28日周日上班我注意安全注意安全注意安全注意安全注意安全…。6月28日周日上班我注意安全注意安全注意安全注意安全注意安全…" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

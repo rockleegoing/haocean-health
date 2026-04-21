@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context=".activity.mine.InfoActivity">
+
+    <com.hjq.bar.TitleBar
+        android:id="@id/titlebar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_48"
+        app:lineVisible="false"
+        app:leftIcon="@mipmap/icon_title_left"
+        app:title="@string/mine_edit_pwd" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="@dimen/dp_10"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:text="*"
+            android:textColor="@color/red"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="15dp"
+            android:text="旧密码    "
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginEnd="15dp"
+            android:background="@drawable/shape_bg_pwd"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/et_old_password"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:inputType="textPassword"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:maxLength="24"
+                android:background="@color/white"
+                android:hint="请输入旧密码" />
+
+            <ImageView
+                android:id="@+id/iv_clear_old"
+                android:layout_width="@dimen/dp_20"
+                android:layout_height="@dimen/dp_20"
+                android:layout_marginEnd="15dp"
+                android:visibility="invisible"
+                android:src="@mipmap/icon_edit_pwd_bukejian" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="@dimen/dp_10"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:text="*"
+            android:textColor="@color/red"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="15dp"
+            android:text="新密码    "
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginEnd="15dp"
+            android:background="@drawable/shape_bg_pwd"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/et_new_password"
+                android:layout_height="40dp"
+                android:layout_width="0dp"
+                android:layout_marginStart="10dp"
+                android:inputType="textPassword"
+                android:maxLength="24"
+                android:layout_weight="1"
+                android:background="@color/white"
+                android:hint="请输入新密码" />
+
+            <ImageView
+                android:id="@+id/iv_clear_new"
+                android:layout_width="@dimen/dp_20"
+                android:layout_height="@dimen/dp_20"
+                android:layout_marginEnd="15dp"
+                android:visibility="invisible"
+                android:src="@mipmap/icon_edit_pwd_bukejian" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="@dimen/dp_10"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:text="*"
+            android:textColor="@color/red"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="15dp"
+            android:text="确认密码"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginEnd="15dp"
+            android:background="@drawable/shape_bg_pwd"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/et_r_password"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:inputType="textPassword"
+                android:maxLength="24"
+                android:background="@color/white"
+                android:hint="请输入确认密码" />
+
+            <ImageView
+                android:id="@+id/iv_clear_agen"
+                android:layout_width="@dimen/dp_20"
+                android:layout_height="@dimen/dp_20"
+                android:layout_marginEnd="15dp"
+                android:visibility="invisible"
+                android:src="@mipmap/icon_edit_pwd_bukejian" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <com.hjq.shape.view.ShapeButton
+        android:id="@+id/btn_submit"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="@dimen/dp_40"
+        android:layout_marginRight="15dp"
+        android:gravity="center"
+        android:text="@string/submit"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        app:shape="rectangle"
+        app:shape_radius="6dp"
+        app:shape_solidColor="#0081ff"
+        app:shape_solidPressedColor="#AA5A8DDF" />
+
+</LinearLayout>
