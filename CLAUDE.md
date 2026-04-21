@@ -111,9 +111,12 @@ cd Ruoyi-Android-App
 
 ### 开发规范
 - `rules/general.md` - 通用开发规范（代码风格、命名约定、最佳实践）
-- `rules/commit.md` - Git 提交规范（Commit Message 格式、分支管理）
+- `rules/commit.md` - Git 提交规范（Commit Message 格式、分支管理、分支保护）
 - `rules/code-review.md` - 代码审查规范（Review Checklist、质量要求）
 - `rules/testing.md` - 测试规范（测试层级、运行命令、测试原则）
+- `rules/gitignore.md` - .gitignore 和环境配置规范（新增）
+- `rules/api-doc.md` - API 文档规范（Swagger、前后端 API 管理）（新增）
+- `rules/logging.md` - 日志规范（日志级别、配置、最佳实践）（新增）
 
 ### 部署规范
 - `rules/deployment.md` - 部署流程规范（后端、前端、Android 部署）

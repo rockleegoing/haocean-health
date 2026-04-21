@@ -99,3 +99,17 @@ app/
 ├── utils/            # 工具类
 └── viewmodel/        # ViewModel
 ```
+
+### 规则文件结构
+```
+rules/
+├── general.md        # 通用开发规范
+├── commit.md         # Git 提交与分支管理规范
+├── code-review.md    # 代码审查规范
+├── testing.md        # 测试规范
+├── deployment.md     # 部署流程规范
+├── database.md       # 数据库管理规范
+├── gitignore.md      # .gitignore 和环境配置规范
+├── api-doc.md        # API 文档规范
+└── logging.md        # 日志规范
+```

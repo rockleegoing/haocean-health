@@ -128,3 +128,225 @@ git branch -d feature/user-management
 - [ ] 敏感信息（密码、密钥）已移除
 - [ ] Commit Message 格式正确
 - [ ] 关联的 Issue 已在 Footer 中声明
+
+---
+
+## 分支保护规则
+
+### 保护分支定义
+
+| 分支 | 保护级别 | 说明 |
+|------|---------|------|
+| `master` | 最高保护 | 生产环境代码，禁止直接推送 |
+| `develop` | 高度保护 | 开发主分支，禁止直接推送 |
+| `release/*` | 中等保护 | 发布分支，合并后删除 |
+| `feature/*` | 低保护 | 功能分支，个人开发使用 |
+| `bugfix/*` | 低保护 | 修复分支，个人开发使用 |
+| `hotfix/*` | 高度保护 | 紧急修复，合并后删除 |
+
+### 保护规则详情
+
+#### master 分支保护
+
+- [x] 禁止直接推送（Force Push 禁止）
+- [x] 必须通过 Pull Request 合并
+- [x] 至少需要 1 人 Code Review 批准
+- [x] CI 构建必须通过
+- [x] 必须 Squash Merge 或 Rebase Merge
+- [x] 禁止删除分支
+
+#### develop 分支保护
+
+- [x] 禁止直接推送（Force Push 禁止）
+- [x] 必须通过 Pull Request 合并
+- [x] 至少需要 1 人 Code Review 批准
+- [x] CI 构建必须通过
+- [x] 允许 Rebase Merge
+
+### GitHub 分支保护配置
+
+```
+Settings → Branches → Add branch protection rule
+
+Branch name pattern: master
+
+Protect matching branches:
+[✓] Require a pull request before merging
+    [✓] Require approvals
+        Required number of approvals before merging: 1
+    [ ] Dismiss pull request reviews on new commits
+    [✓] Require review from Code Owners
+[✓] Require status checks to pass before merging
+    [✓] Require branches to be up to date before merging
+    Required status checks:
+    - build (Java 17)
+    - test (Unit Test)
+    - lint (Code Style)
+[✓] Require linear history
+[✓] Do not allow bypassing the above settings
+[✓] Do not allow deleting
+[✓] Do not allow force pushes
+[✓] Allow force pushes after a period of time (7 days)
+```
+
+### GitLab 分支保护配置
+
+```
+Settings → Repository → Protected Branches
+
+Branch: master
+Allowed to merge: Maintainers
+Allowed to push and merge: No one (prevent direct pushes)
+Allowed to force push: No
+```
+
+---
+
+## Code Review 要求
+
+### 最小编辑量规则
+
+| 变更类型 | 最大行数 | 说明 |
+|---------|---------|------|
+| 小型变更 | < 200 行 | 可快速审批 |
+| 中型变更 | 200-500 行 | 需要详细审查 |
+| 大型变更 | > 500 行 | 建议拆分为多个 PR |
+
+### Review 响应时间
+
+| 优先级 | 响应时间 | 说明 |
+|-------|---------|------|
+| Hotfix | 1 小时内 | 生产环境紧急修复 |
+| Bugfix | 4 小时内 | 普通 Bug 修复 |
+| Feature | 24 小时内 | 新功能开发 |
+| Refactor | 48 小时内 | 重构优化 |
+
+### Review 批准要求
+
+```
+PR 合并条件:
+- 至少 1 名非作者的 Reviewer 批准
+- 所有 CI 检查通过
+- 无未解决的 Comment
+- 分支已更新到最新 develop
+```
+
+---
+
+## CI/CD 集成
+
+### GitHub Actions 示例
+
+```yaml
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  pull_request:
+    branches: [master, develop]
+  push:
+    branches: [develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Run tests
+        run: mvn test
+
+      - name: Code style check
+        run: mvn checkstyle:check
+```
+
+### 推送规则检查
+
+```bash
+# Git Hook: pre-push
+#!/bin/bash
+
+# 禁止直接推送到 master 和 develop
+protected_branches='master develop'
+current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+
+if [[ $protected_branches =~ $current_branch ]]; then
+    echo "错误：禁止直接推送到保护分支：$current_branch"
+    echo "请使用 Pull Request 方式进行代码合并"
+    exit 1
+fi
+
+exit 0
+```
+
+---
+
+## 合并策略
+
+### 推荐的合并方式
+
+| 场景 | 合并方式 | 说明 |
+|------|---------|------|
+| Feature → Develop | Rebase Merge | 保持提交历史线性 |
+| Bugfix → Develop | Rebase Merge | 保持提交历史线性 |
+| Develop → Master | Squash Merge | 发布时压缩为一个提交 |
+| Hotfix → Master | Squash Merge | 紧急修复快速上线 |
+
+### 禁止的合并方式
+
+- ❌ 禁止在保护分支上使用 Force Push
+- ❌ 禁止绕过 CI 检查直接合并
+- ❌ 禁止在没有 Review 的情况下合并
+- ❌ 禁止合并未解决的冲突代码
+
+---
+
+## 提交辅助工具
+
+### Commitlint 配置
+
+```javascript
+// commitlint.config.js
+module.exports = {
+  extends: ['@commitlint/config-conventional'],
+  rules: {
+    'type-enum': [
+      2,
+      'always',
+      ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'chore', 'ci', 'revert']
+    ],
+    'subject-full-stop': [2, 'never'],
+    'subject-case': [2, 'never', ['sentence-case', 'start-case', 'pascal-case', 'upper-case']],
+    'header-max-length': [2, 'always', 50]
+  }
+}
+```
+
+### Husky Hook 配置
+
+```json
+// package.json
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-push": "./scripts/pre-push.sh"
+    }
+  },
+  "lint-staged": {
+    "*.java": ["mvn spotless:apply"],
+    "*.{js,vue}": ["eslint --fix"],
+    "*.{js,vue,css,md}": ["prettier --write"]
+  }
+}
+```
