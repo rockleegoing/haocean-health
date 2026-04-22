@@ -27,9 +27,9 @@ interface DeviceDao {
     @Delete
     suspend fun deleteDevice(device: DeviceEntity)
 
-    @Query("UPDATE sys_device SET current_user_id = :currentUserId, current_user_name = :currentUserName WHERE deviceUuid = :deviceUuid")
+    @Query("UPDATE sys_device SET currentUserId = :currentUserId, currentUserName = :currentUserName WHERE deviceUuid = :deviceUuid")
     suspend fun updateDeviceCurrentUser(deviceUuid: String, currentUserId: Long?, currentUserName: String?)
 
-    @Query("UPDATE sys_device SET current_user_id = NULL, current_user_name = NULL, activation_code_id = NULL WHERE deviceId = :deviceId")
+    @Query("UPDATE sys_device SET currentUserId = NULL, currentUserName = NULL, activationCodeId = NULL WHERE deviceId = :deviceId")
     suspend fun unbindDevice(deviceId: Long)
 }
