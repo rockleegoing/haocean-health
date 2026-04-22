@@ -55,6 +55,9 @@ public class SysActivationCode extends BaseEntity {
 
     /** 状态文本（用于前端显示） */
     public String getStatusText() {
+        if (this.status == null) {
+            return "未知";
+        }
         switch (this.status) {
             case "0": return "未使用";
             case "1": return "已使用";

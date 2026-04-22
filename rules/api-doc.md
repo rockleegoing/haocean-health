@@ -36,8 +36,8 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-            .title("若依管理系统 API 文档")
-            .description("若依管理系统 RESTful API 接口文档")
+            .title("移动卫生执法系统 API 文档")
+            .description("移动卫生执法系统 RESTful API 接口文档")
             .version("1.0.0")
             .contact(new Contact("开发团队", "", "support@example.com"))
             .build();

@@ -93,7 +93,7 @@ public class SysActivationCodeController extends BaseController
         String remark = params.get("remark") != null ? params.get("remark").toString() : "";
 
         List<SysActivationCode> codes = activationCodeService.batchGenerateCodes(count, expireDays, remark, getUsername());
-        return success("成功生成 " + codes.size() + " 个激活码", codes);
+        return AjaxResult.success("成功生成 " + codes.size() + " 个激活码", codes);
     }
 
     /**
