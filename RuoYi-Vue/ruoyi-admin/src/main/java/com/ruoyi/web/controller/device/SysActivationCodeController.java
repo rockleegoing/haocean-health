@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -121,6 +122,7 @@ public class SysActivationCodeController extends BaseController
     /**
      * 验证激活码（App 调用）
      */
+    @Anonymous
     @Log(title = "激活码验证", businessType = BusinessType.OTHER)
     @PostMapping("/validate")
     public AjaxResult validate(@RequestBody Map<String, String> params)
