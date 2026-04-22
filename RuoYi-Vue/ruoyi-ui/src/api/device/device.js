@@ -4,8 +4,8 @@ import request from '@/utils/request'
 export function listDevice(query) {
   return request({
     url: '/device/device/list',
-    method: 'get',
-    params: query
+    method: 'post',
+    data: query
   })
 }
 
@@ -18,10 +18,11 @@ export function getDevice(id) {
 }
 
 // 解绑设备
-export function unbindDevice(id) {
+export function unbindDevice(deviceId) {
   return request({
-    url: '/device/device/unbind/' + id,
-    method: 'put'
+    url: '/device/device/unbind',
+    method: 'put',
+    data: { deviceId: deviceId }
   })
 }
 
@@ -36,8 +37,7 @@ export function delDevice(id) {
 // 批量删除设备
 export function batchDelDevice(ids) {
   return request({
-    url: '/device/device/batch',
-    method: 'delete',
-    data: ids
+    url: '/device/device/' + ids,
+    method: 'delete'
   })
 }
