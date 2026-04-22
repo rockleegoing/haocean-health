@@ -79,27 +79,31 @@ CREATE TABLE IF NOT EXISTS `表名` (
 
 ### 步骤 5：生成代码
 
-**API 端点：** `GET /tool/gen/genCode/{tableName}` 或 `GET /tool/gen/download/{tableName}`
+**重要：后端部署在 Docker 容器中**
 
-**前提条件：** `generator.yml` 中 `allowOverwrite: true`
+由于后端运行在 Docker 容器中，没有挂载本地代码目录，调用 `genCode` API 生成的文件会写入容器内部，容器重启后会丢失。
 
-**生成路径配置：**
+**必须使用下载方式：**
 
-通过 `genPath` 字段控制生成位置：
-- `genPath = "/"` - 生成到 `项目根目录/src/` 下（不推荐，路径混乱）
-- `genPath = ""` 或不填 - 使用默认项目路径
+**API 端点：** `GET /tool/gen/download/{tableName}`
 
-**推荐方式：**
+**流程：**
+1. 调用 `/download/{tableName}` 下载 ZIP 文件
+2. 解压 ZIP 文件到本地临时目录
+3. 手动将文件移动到项目的正确位置：
 
-由于 RuoYi 代码生成器生成的路径是基于 `main/java`、`vue` 等相对路径，直接生成会导致路径错乱。推荐使用以下方式：
+| 文件类型 | 目标位置 |
+|---------|---------|
+| Java 文件 | `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/{module}/` |
+| Mapper XML | `RuoYi-Vue/ruoyi-system/src/main/resources/mapper/{module}/` |
+| Vue 页面 | `RuoYi-Vue/ruoyi-ui/src/views/{module}/{business}/` |
+| API JS | `RuoYi-Vue/ruoyi-ui/src/api/{module}/` |
+| TypeScript | `RuoYi-Vue/ruoyi-ui/src/types/api/` |
 
-1. **下载 ZIP 方式** - 调用 `/download/{tableName}` 下载 ZIP，手动解压到对应位置：
-   - 后端代码 → `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/{module}/`
-   - Mapper XML → `RuoYi-Vue/ruoyi-system/src/main/resources/mapper/{module}/`
-   - 前端代码 → `RuoYi-Vue/ruoyi-ui/src/views/{module}/{business}/`
-   - API 文件 → `RuoYi-Vue/ruoyi-ui/src/api/{module}/`
-
-2. **自定义路径方式** - 设置 `genPath` 为绝对路径，调用 `/genCode/{tableName}` 直接生成
+**为什么不推荐 genCode API：**
+- `genCode` 将文件写入 Docker 容器内部
+- 容器重启后生成的文件丢失
+- 除非修改 `docker-compose.yml` 添加代码挂载卷
 
 ### 步骤 6：生成菜单 SQL
 
