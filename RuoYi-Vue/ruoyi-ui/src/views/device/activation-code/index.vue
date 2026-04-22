@@ -49,7 +49,7 @@
 
     <el-table v-loading="loading" :data="activationCodeList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="ID" align="center" prop="id" width="80" />
+      <el-table-column label="ID" align="center" prop="codeId" width="80" />
       <el-table-column label="激活码" align="center" prop="code" min-width="180">
         <template slot-scope="scope">
           <span>{{ scope.row.code }}</span>
@@ -122,8 +122,8 @@
     <!-- 激活码详情对话框 -->
     <el-dialog title="激活码详情" :visible.sync="openView" width="600px" append-to-body>
       <el-descriptions :column="1" border>
-        <el-descriptions-item label="ID">{{ viewForm.id }}</el-descriptions-item>
-        <el-descriptions-item label="激活码">{{ viewForm.code }}</el-descriptions-item>
+        <el-descriptions-item label="ID">{{ viewForm.codeId }}</el-descriptions-item>
+        <el-descriptions-item label="激活码">{{ viewForm.code || viewForm.codeValue }}</el-descriptions-item>
         <el-descriptions-item label="状态">
           <el-tag :type="getStatusType(viewForm.status)" size="small">
             {{ getStatusLabel(viewForm.status) }}
@@ -158,7 +158,7 @@ export default {
       // 遮罩层
       loading: true,
       // 选中数组
-      ids: [],
+      codeIds: [],
       // 非多个禁用
       multiple: true,
       // 显示搜索条件
@@ -188,7 +188,11 @@ export default {
     getList() {
       this.loading = true
       listActivationCode(this.queryParams).then(response => {
-        this.activationCodeList = response.rows
+        // 映射后端字段 codeValue -> code
+        this.activationCodeList = (response.rows || []).map(item => ({
+          ...item,
+          code: item.codeValue
+        }))
         this.total = response.total
         this.loading = false
       })
@@ -223,7 +227,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
+      this.codeIds = selection.map(item => item.codeId)
       this.multiple = !selection.length
     },
     /** 生成按钮操作 */
@@ -241,17 +245,32 @@ export default {
     },
     /** 复制激活码 */
     handleCopy(code) {
-      this.$copyText(code).then(() => {
-        this.$modal.msgSuccess('复制成功')
-      }, () => {
-        this.$modal.msgError('复制失败')
-      })
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(code).then(() => {
+          this.$modal.msgSuccess('复制成功')
+        }, () => {
+          this.$modal.msgError('复制失败')
+        })
+      } else {
+        // 降级方案：使用传统的 execCommand 方式
+        const ta = document.createElement('textarea')
+        ta.value = code
+        document.body.appendChild(ta)
+        ta.select()
+        const result = document.execCommand('copy')
+        document.body.removeChild(ta)
+        if (result) {
+          this.$modal.msgSuccess('复制成功')
+        } else {
+          this.$modal.msgError('复制失败')
+        }
+      }
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const ids = row.id || this.ids
+      const codeIds = row.codeId ? row.codeId.toString() : this.codeIds.join(',')
       this.$modal.confirm('是否确认删除激活码？').then(function() {
-        return delActivationCode(ids)
+        return delActivationCode(codeIds)
       }).then(() => {
         this.getList()
         this.$modal.msgSuccess("删除成功")

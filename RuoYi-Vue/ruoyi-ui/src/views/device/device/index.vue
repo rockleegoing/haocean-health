@@ -46,11 +46,11 @@
 
     <el-table v-loading="loading" :data="deviceList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="ID" align="center" prop="id" width="80" />
+      <el-table-column label="ID" align="center" prop="displayId" width="80" />
       <el-table-column label="设备名称" align="center" prop="deviceName" min-width="120" />
-      <el-table-column label="设备 ID" align="center" prop="deviceId" min-width="180" />
+      <el-table-column label="设备 ID" align="center" prop="displayDeviceId" min-width="180" />
       <el-table-column label="设备型号" align="center" prop="deviceModel" width="120" />
-      <el-table-column label="系统版本" align="center" prop="systemVersion" width="100" />
+      <el-table-column label="系统版本" align="center" prop="deviceOs" width="100" />
       <el-table-column label="应用版本" align="center" prop="appVersion" width="100" />
       <el-table-column label="状态" align="center" prop="status" width="80">
         <template slot-scope="scope">
@@ -60,13 +60,13 @@
           >{{ scope.row.status === '1' ? '在线' : '离线' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="激活码" align="center" prop="activationCode" min-width="150">
+      <el-table-column label="激活码" align="center" prop="activationCodeId" min-width="150">
         <template slot-scope="scope">
-          <span v-if="scope.row.activationCode">{{ scope.row.activationCode }}</span>
+          <span v-if="scope.row.activationCodeId">{{ scope.row.activationCodeId }}</span>
           <span v-else style="color: #909399;">未绑定</span>
         </template>
       </el-table-column>
-      <el-table-column label="最后在线" align="center" prop="lastOnlineTime" width="180">
+      <el-table-column label="最后在线" align="center" prop="lastLoginTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.lastOnlineTime) }}</span>
         </template>
@@ -113,19 +113,19 @@
     <!-- 设备详情对话框 -->
     <el-dialog title="设备详情" :visible.sync="openView" width="600px" append-to-body>
       <el-descriptions :column="1" border>
-        <el-descriptions-item label="ID">{{ viewForm.id }}</el-descriptions-item>
+        <el-descriptions-item label="ID">{{ viewForm.deviceId }}</el-descriptions-item>
         <el-descriptions-item label="设备名称">{{ viewForm.deviceName }}</el-descriptions-item>
-        <el-descriptions-item label="设备 ID">{{ viewForm.deviceId }}</el-descriptions-item>
-        <el-descriptions-item label="设备型号">{{ viewForm.deviceModel }}</el-descriptions-item>
-        <el-descriptions-item label="系统版本">{{ viewForm.systemVersion }}</el-descriptions-item>
-        <el-descriptions-item label="应用版本">{{ viewForm.appVersion }}</el-descriptions-item>
+        <el-descriptions-item label="设备 ID">{{ viewForm.deviceUuid || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="设备型号">{{ viewForm.deviceModel || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="系统版本">{{ viewForm.deviceOs || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="应用版本">{{ viewForm.appVersion || '-' }}</el-descriptions-item>
         <el-descriptions-item label="状态">
           <el-tag :type="viewForm.status === '1' ? 'success' : 'info'" size="small">
             {{ viewForm.status === '1' ? '在线' : '离线' }}
           </el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="激活码">{{ viewForm.activationCode || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="最后在线">{{ parseTime(viewForm.lastOnlineTime) }}</el-descriptions-item>
+        <el-descriptions-item label="激活码">{{ viewForm.activationCodeId || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="最后在线">{{ parseTime(viewForm.lastLoginTime) }}</el-descriptions-item>
         <el-descriptions-item label="创建时间">{{ parseTime(viewForm.createTime) }}</el-descriptions-item>
         <el-descriptions-item label="备注">{{ viewForm.remark || '-' }}</el-descriptions-item>
       </el-descriptions>
@@ -177,7 +177,17 @@ export default {
     getList() {
       this.loading = true
       listDevice(this.queryParams).then(response => {
-        this.deviceList = response.rows
+        // 映射后端字段到前端
+        this.deviceList = (response.rows || []).map(item => ({
+          ...item,
+          // 保留原始 deviceId 用于删除等操作
+          _deviceId: item.deviceId,
+          // 前端显示用
+          displayId: item.deviceId,
+          displayDeviceId: item.deviceUuid,
+          activationCode: item.activationCodeId ? String(item.activationCodeId) : null,
+          lastOnlineTime: item.lastLoginTime
+        }))
         this.total = response.total
         this.loading = false
       })
@@ -194,7 +204,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
+      this.ids = selection.map(item => item._deviceId)  // 使用后端 deviceId
       this.multiple = !selection.length
     },
     /** 详情按钮操作 */
@@ -205,7 +215,7 @@ export default {
     /** 解绑按钮操作 */
     handleUnbind(row) {
       this.$modal.confirm('是否确认解绑设备 "' + row.deviceName + '"？解绑后该设备需要重新激活').then(function() {
-        return unbindDevice(row.id)
+        return unbindDevice(row._deviceId)  // 使用后端 deviceId
       }).then(() => {
         this.getList()
         this.$modal.msgSuccess("解绑成功")
@@ -213,7 +223,7 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const ids = row.id || this.ids
+      const ids = row._deviceId ? row._deviceId.toString() : this.ids.join(',')  // 使用 deviceId
       this.$modal.confirm('是否确认删除设备 "' + (row.deviceName || ids) + '"？').then(function() {
         return delDevice(ids)
       }).then(() => {

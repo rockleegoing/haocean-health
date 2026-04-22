@@ -89,9 +89,9 @@ export default {
           generateActivationCode(this.form).then(response => {
             this.submitLoading = false
             this.visible = false
-            // 显示生成的激活码
+            // 显示生成的激活码 (后端返回 codeValue 字段)
             const codes = response.data || []
-            this.resultCode = codes.map(item => item.code).join('\n')
+            this.resultCode = codes.map(item => item.codeValue).join('\n')
             this.resultVisible = true
             this.$modal.msgSuccess(`成功生成 ${codes.length} 个激活码`)
             this.$emit('success')
@@ -102,11 +102,26 @@ export default {
       })
     },
     copyAll() {
-      this.$copyText(this.resultCode).then(() => {
-        this.$modal.msgSuccess('复制成功')
-      }, () => {
-        this.$modal.msgError('复制失败')
-      })
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(this.resultCode).then(() => {
+          this.$modal.msgSuccess('复制成功')
+        }, () => {
+          this.$modal.msgError('复制失败')
+        })
+      } else {
+        // 降级方案：使用传统的 execCommand 方式
+        const ta = document.createElement('textarea')
+        ta.value = this.resultCode
+        document.body.appendChild(ta)
+        ta.select()
+        const result = document.execCommand('copy')
+        document.body.removeChild(ta)
+        if (result) {
+          this.$modal.msgSuccess('复制成功')
+        } else {
+          this.$modal.msgError('复制失败')
+        }
+      }
     }
   }
 }
