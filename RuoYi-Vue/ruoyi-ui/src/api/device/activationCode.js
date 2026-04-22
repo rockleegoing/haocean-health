@@ -4,7 +4,7 @@ import request from '@/utils/request'
 export function listActivationCode(query) {
   return request({
     url: '/device/activationCode/list',
-    method: 'get',
+    method: 'post',
     params: query
   })
 }
@@ -17,10 +17,10 @@ export function getActivationCode(id) {
   })
 }
 
-// 生成激活码
+// 批量生成激活码
 export function generateActivationCode(data) {
   return request({
-    url: '/device/activationCode/generate',
+    url: '/device/activationCode/batchGenerate',
     method: 'post',
     data: data
   })
@@ -37,7 +37,7 @@ export function delActivationCode(id) {
 // 批量删除激活码
 export function batchDelActivationCode(ids) {
   return request({
-    url: '/device/activationCode/batch',
+    url: '/device/activationCode/' + ids,
     method: 'delete',
     data: ids
   })
