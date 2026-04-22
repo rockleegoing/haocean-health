@@ -79,13 +79,27 @@ CREATE TABLE IF NOT EXISTS `表名` (
 
 ### 步骤 5：生成代码
 
-**API 端点：** `GET /tool/gen/genCode/{tableName}`
+**API 端点：** `GET /tool/gen/genCode/{tableName}` 或 `GET /tool/gen/download/{tableName}`
 
 **前提条件：** `generator.yml` 中 `allowOverwrite: true`
 
-**生成的文件：**
-- 后端：Entity, Mapper, XML, Service, Controller
-- 前端：Vue 页面，API 文件，TypeScript 类型定义
+**生成路径配置：**
+
+通过 `genPath` 字段控制生成位置：
+- `genPath = "/"` - 生成到 `项目根目录/src/` 下（不推荐，路径混乱）
+- `genPath = ""` 或不填 - 使用默认项目路径
+
+**推荐方式：**
+
+由于 RuoYi 代码生成器生成的路径是基于 `main/java`、`vue` 等相对路径，直接生成会导致路径错乱。推荐使用以下方式：
+
+1. **下载 ZIP 方式** - 调用 `/download/{tableName}` 下载 ZIP，手动解压到对应位置：
+   - 后端代码 → `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/{module}/`
+   - Mapper XML → `RuoYi-Vue/ruoyi-system/src/main/resources/mapper/{module}/`
+   - 前端代码 → `RuoYi-Vue/ruoyi-ui/src/views/{module}/{business}/`
+   - API 文件 → `RuoYi-Vue/ruoyi-ui/src/api/{module}/`
+
+2. **自定义路径方式** - 设置 `genPath` 为绝对路径，调用 `/genCode/{tableName}` 直接生成
 
 ### 步骤 6：生成菜单 SQL
 
@@ -107,6 +121,18 @@ CREATE TABLE IF NOT EXISTS `表名` (
 - 包路径默认：`com.ruoyi.system`
 - 作者名：从 `generator.yml` 读取
 - 表前缀：`sys_` 或其他配置的前缀
+- **生成路径配置**（重要）:
+  - 后端根路径：`RuoYi-Vue/ruoyi-system/src/main/java`
+  - 前端根路径：`RuoYi-Vue/ruoyi-ui/src`
+  - Mapper XML 路径：`RuoYi-Vue/ruoyi-system/src/main/resources/mapper`
+
+### 生成路径说明
+
+代码生成器通过 `gen_path` 字段控制生成位置：
+- `gen_path = "/"` - 生成到 `项目根目录/src/` 下
+- `gen_path = "自定义路径"` - 生成到指定路径下
+
+**推荐方式**：先预览代码确认模板正确，然后下载 ZIP 手动解压到对应位置，或者配置 `genPath` 后调用 `genCode` API 直接生成到目标目录。
 
 ### 权限控制
 
