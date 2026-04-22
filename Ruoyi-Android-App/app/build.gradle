@@ -103,6 +103,14 @@ dependencies {
     annotationProcessor 'cn.therouter:apt:1.2.4'
     implementation 'com.github.xuexiangjys:XUpdate:2.1.5'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+    // Room 数据库
+    implementation "androidx.room:room-runtime:2.6.1"
+    implementation "androidx.room:room-ktx:2.6.1"
+    kapt "androidx.room:room-compiler:2.6.1"
+
+    // bcrypt 密码加密
+    implementation 'org.mindrot:jbcrypt:0.4'
 }
 
 //获取编译时间
