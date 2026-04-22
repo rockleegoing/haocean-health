@@ -20,7 +20,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 REPORT_DIR="$PROJECT_ROOT/test-reports"
 API_BASE="${API_BASE:-http://localhost:8080}"
-API_PREFIX="${API_PREFIX:-/prod-api}"
+# Note: 不需要 API 前缀，直接访问 /device/** 路径
 
 # 测试统计
 TESTS_RUN=0
@@ -108,7 +108,7 @@ test_login() {
 test_activation_code_list() {
     test_start "查询激活码列表"
 
-    local response=$(curl -s -X POST "${API_BASE}${API_PREFIX}/device/activationCode/list" \
+    local response=$(curl -s -X POST "${API_BASE}/device/activationCode/list" \
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer $TOKEN" \
         -d '{
@@ -131,7 +131,7 @@ test_activation_code_list() {
 test_activation_code_get() {
     test_start "查询激活码详情 (ID=1)"
 
-    local response=$(curl -s -X GET "${API_BASE}${API_PREFIX}/device/activationCode/1" \
+    local response=$(curl -s -X GET "${API_BASE}/device/activationCode/1" \
         -H "Authorization: Bearer $TOKEN")
 
     if echo "$response" | grep -q '"code":200'; then
@@ -149,7 +149,7 @@ test_activation_code_get() {
 test_activation_code_generate_single() {
     test_start "生成单个激活码"
 
-    local response=$(curl -s -X POST "${API_BASE}${API_PREFIX}/device/activationCode" \
+    local response=$(curl -s -X POST "${API_BASE}/device/activationCode/batchGenerate" \
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer $TOKEN" \
         -d '{
@@ -174,7 +174,7 @@ test_activation_code_generate_single() {
 test_activation_code_batch_generate() {
     test_start "批量生成激活码（5 个）"
 
-    local response=$(curl -s -X POST "${API_BASE}${API_PREFIX}/device/activationCode" \
+    local response=$(curl -s -X POST "${API_BASE}/device/activationCode/batchGenerate" \
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer $TOKEN" \
         -d '{
@@ -200,7 +200,7 @@ test_activation_code_batch_generate() {
 test_activation_code_validate_valid() {
     test_start "验证激活码（TEST0001）"
 
-    local response=$(curl -s -X POST "${API_BASE}${API_PREFIX}/device/activationCode/validate" \
+    local response=$(curl -s -X POST "${API_BASE}/device/activationCode/validate" \
         -H "Content-Type: application/json" \
         -d '{
             "codeValue": "TEST0001",
@@ -222,7 +222,7 @@ test_activation_code_validate_valid() {
 test_activation_code_validate_used() {
     test_start "验证激活码（TEST0001 已使用）"
 
-    local response=$(curl -s -X POST "${API_BASE}${API_PREFIX}/device/activationCode/validate" \
+    local response=$(curl -s -X POST "${API_BASE}/device/activationCode/validate" \
         -H "Content-Type: application/json" \
         -d '{
             "codeValue": "TEST0001",
@@ -244,7 +244,7 @@ test_activation_code_validate_used() {
 test_device_list() {
     test_start "查询设备列表"
 
-    local response=$(curl -s -X POST "${API_BASE}${API_PREFIX}/device/device/list" \
+    local response=$(curl -s -X POST "${API_BASE}/device/device/list" \
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer $TOKEN" \
         -d '{
@@ -263,7 +263,7 @@ test_device_list() {
 test_device_get() {
     test_start "查询设备详情（ID=1）"
 
-    local response=$(curl -s -X GET "${API_BASE}${API_PREFIX}/device/device/1" \
+    local response=$(curl -s -X GET "${API_BASE}/device/device/1" \
         -H "Authorization: Bearer $TOKEN")
 
     # 设备可能不存在，只要返回 200 就算成功
@@ -291,7 +291,7 @@ main() {
 
     # 检查服务是否可用
     step "检查 API 服务..."
-    if ! curl -s "${API_BASE}${API_PREFIX}/admin" > /dev/null 2>&1; then
+    if ! curl -s "${API_BASE}/admin" > /dev/null 2>&1; then
         error "无法连接到 API 服务：$API_BASE"
         error "请先启动后端服务：./scripts/start-backend.sh"
         exit 1

@@ -289,7 +289,7 @@ curl -X POST http://localhost:8080/device/activationCode/list \
 #### 5.2.2 生成激活码（单个）
 
 ```bash
-curl -X POST http://localhost:8080/device/activationCode \
+curl -X POST http://localhost:8080/device/activationCode/batchGenerate \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   -d '{
@@ -303,10 +303,13 @@ curl -X POST http://localhost:8080/device/activationCode \
 ```json
 {
   "code": 200,
-  "msg": "操作成功",
+  "msg": "成功生成 1 个激活码",
   "data": [
     {
+      "codeId": 11,
       "codeValue": "ABCD1234",
+      "status": "0",
+      "statusText": "未使用",
       "expireTime": "2026-05-22 00:00:00"
     }
   ]
@@ -316,7 +319,7 @@ curl -X POST http://localhost:8080/device/activationCode \
 #### 5.2.3 批量生成激活码
 
 ```bash
-curl -X POST http://localhost:8080/device/activationCode \
+curl -X POST http://localhost:8080/device/activationCode/batchGenerate \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   -d '{
