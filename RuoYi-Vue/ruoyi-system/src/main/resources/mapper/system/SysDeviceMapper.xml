@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysDeviceMapper">
+
+    <resultMap type="SysDevice" id="SysDeviceResult">
+        <id     property="deviceId"        column="device_id"        />
+        <result property="deviceUuid"      column="device_uuid"      />
+        <result property="deviceName"      column="device_name"      />
+        <result property="deviceModel"     column="device_model"     />
+        <result property="deviceOs"        column="device_os"        />
+        <result property="appVersion"      column="app_version"      />
+        <result property="currentUserId"   column="current_user_id"  />
+        <result property="currentUserName" column="current_user_name"/>
+        <result property="activationCodeId" column="activation_code_id"/>
+        <result property="lastSyncTime"    column="last_sync_time"   />
+        <result property="lastLoginTime"   column="last_login_time"  />
+        <result property="lastLoginIp"     column="last_login_ip"    />
+        <result property="status"          column="status"           />
+        <result property="createBy"        column="create_by"        />
+        <result property="createTime"      column="create_time"      />
+        <result property="updateBy"        column="update_by"        />
+        <result property="updateTime"      column="update_time"      />
+        <result property="remark"          column="remark"           />
+    </resultMap>
+
+    <sql id="selectSysDeviceVo">
+        select device_id, device_uuid, device_name, device_model, device_os, app_version, current_user_id, current_user_name, activation_code_id, last_sync_time, last_login_time, last_login_ip, status, create_by, create_time, update_by, update_time, remark
+        from sys_device
+    </sql>
+
+    <select id="selectSysDeviceById" parameterType="Long" resultMap="SysDeviceResult">
+        <include refid="selectSysDeviceVo"/>
+        where device_id = #{deviceId}
+    </select>
+
+    <select id="selectSysDeviceByUuid" parameterType="String" resultMap="SysDeviceResult">
+        <include refid="selectSysDeviceVo"/>
+        where device_uuid = #{deviceUuid}
+    </select>
+
+    <select id="selectSysDeviceList" parameterType="SysDevice" resultMap="SysDeviceResult">
+        <include refid="selectSysDeviceVo"/>
+        <where>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                AND device_uuid like concat('%', #{deviceUuid}, '%')
+            </if>
+            <if test="deviceName != null and deviceName != ''">
+                AND device_name like concat('%', #{deviceName}, '%')
+            </if>
+            <if test="deviceModel != null and deviceModel != ''">
+                AND device_model = #{deviceModel}
+            </if>
+            <if test="deviceOs != null and deviceOs != ''">
+                AND device_os = #{deviceOs}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="currentUserId != null">
+                AND current_user_id = #{currentUserId}
+            </if>
+            <if test="activationCodeId != null">
+                AND activation_code_id = #{activationCodeId}
+            </if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                and date_format(create_time,'%Y%m%d') &gt;= date_format(#{params.beginTime},'%Y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                and date_format(create_time,'%Y%m%d') &lt;= date_format(#{params.endTime},'%Y%m%d')
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertSysDevice" parameterType="SysDevice">
+        insert into sys_device
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deviceId != null">device_id,</if>
+            <if test="deviceUuid != null and deviceUuid != ''">device_uuid,</if>
+            <if test="deviceName != null and deviceName != ''">device_name,</if>
+            <if test="deviceModel != null and deviceModel != ''">device_model,</if>
+            <if test="deviceOs != null and deviceOs != ''">device_os,</if>
+            <if test="appVersion != null and appVersion != ''">app_version,</if>
+            <if test="currentUserId != null">current_user_id,</if>
+            <if test="currentUserName != null and currentUserName != ''">current_user_name,</if>
+            <if test="activationCodeId != null">activation_code_id,</if>
+            <if test="lastSyncTime != null">last_sync_time,</if>
+            <if test="lastLoginTime != null">last_login_time,</if>
+            <if test="lastLoginIp != null and lastLoginIp != ''">last_login_ip,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="remark != null and remark != ''">remark,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="deviceUuid != null and deviceUuid != ''">#{deviceUuid},</if>
+            <if test="deviceName != null and deviceName != ''">#{deviceName},</if>
+            <if test="deviceModel != null and deviceModel != ''">#{deviceModel},</if>
+            <if test="deviceOs != null and deviceOs != ''">#{deviceOs},</if>
+            <if test="appVersion != null and appVersion != ''">#{appVersion},</if>
+            <if test="currentUserId != null">#{currentUserId},</if>
+            <if test="currentUserName != null and currentUserName != ''">#{currentUserName},</if>
+            <if test="activationCodeId != null">#{activationCodeId},</if>
+            <if test="lastSyncTime != null">#{lastSyncTime},</if>
+            <if test="lastLoginTime != null">#{lastLoginTime},</if>
+            <if test="lastLoginIp != null and lastLoginIp != ''">#{lastLoginIp},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="remark != null and remark != ''">#{remark},</if>
+            sysdate()
+        </trim>
+    </insert>
+
+    <update id="updateSysDevice" parameterType="SysDevice">
+        update sys_device
+        <trim prefix="set" suffixOverrides=",">
+            <if test="deviceUuid != null and deviceUuid != ''">device_uuid = #{deviceUuid},</if>
+            <if test="deviceName != null and deviceName != ''">device_name = #{deviceName},</if>
+            <if test="deviceModel != null and deviceModel != ''">device_model = #{deviceModel},</if>
+            <if test="deviceOs != null and deviceOs != ''">device_os = #{deviceOs},</if>
+            <if test="appVersion != null and appVersion != ''">app_version = #{appVersion},</if>
+            <if test="currentUserId != null">current_user_id = #{currentUserId},</if>
+            <if test="currentUserName != null and currentUserName != ''">current_user_name = #{currentUserName},</if>
+            <if test="activationCodeId != null">activation_code_id = #{activationCodeId},</if>
+            <if test="lastSyncTime != null">last_sync_time = #{lastSyncTime},</if>
+            <if test="lastLoginTime != null">last_login_time = #{lastLoginTime},</if>
+            <if test="lastLoginIp != null and lastLoginIp != ''">last_login_ip = #{lastLoginIp},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where device_id = #{deviceId}
+    </update>
+
+    <update id="updateDeviceCurrentUser" parameterType="java.util.Map">
+        update sys_device
+        set current_user_id = #{param2},
+            current_user_name = #{param3},
+            update_time = sysdate()
+        where device_uuid = #{param1}
+    </update>
+
+    <delete id="deleteSysDeviceById" parameterType="Long">
+        delete from sys_device where device_id = #{deviceId}
+    </delete>
+
+    <delete id="deleteSysDeviceByIds" parameterType="Long">
+        delete from sys_device where device_id in
+        <foreach item="deviceId" collection="array" open="(" separator="," close=")">
+            #{deviceId}
+        </foreach>
+    </delete>
+
+</mapper>
