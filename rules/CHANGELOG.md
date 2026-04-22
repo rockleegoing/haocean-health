@@ -12,6 +12,20 @@
 
 ## 已修正
 
+### 2026-04-22 - Health 端点路径映射错误
+- 规则文件：deployment.md
+- 问题描述：创建 HealthController 后，`/prod-api/health` 端点返回 500 错误
+- 原因分析：
+  1. Controller 类级别使用 `@RequestMapping("/health")` 导致路径叠加
+  2. `@GetMapping("/prod-api/health")` 实际映射到 `/health/prod-api/health` 而非 `/prod-api/health`
+  3. 请求被当作静态资源处理而非 Controller 端点
+- 修正方案：
+  1. 移除类级别的 `@RequestMapping("/health")`
+  2. 使用完整路径 `@GetMapping("/health")` 和`@GetMapping("/prod-api/health")`
+  3. 在 SecurityConfig.java 中添加两个端点到 permitAll 白名单
+- 修正人：Claude
+- 状态：已验证 ✓
+
 ### 2026-04-22 - Docker 部署后端连接数据库失败
 - 规则文件：deployment.md
 - 问题描述：Docker 容器启动后无法连接宿主机 MySQL 数据库

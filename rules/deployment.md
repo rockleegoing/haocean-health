@@ -21,6 +21,60 @@
 
 ## 常见问题及解决方案
 
+### Health 端点配置
+
+**问题现象**: 添加健康检查端点后，`/prod-api/health` 返回 500 错误 `No static resource`
+
+**原因分析**:
+1. Controller 类级别使用 `@RequestMapping("/health")` 导致路径叠加
+2. `@GetMapping("/prod-api/health")` 实际映射到 `/health/prod-api/health` 而非 `/prod-api/health`
+3. 请求被 Spring MVC 当作静态资源处理
+
+**正确配置**:
+
+1. 创建 HealthController.java（不要使用类级别的 `@RequestMapping`）:
+```java
+package com.ruoyi.web.controller.monitor;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * 健康检查监控
+ */
+@RestController
+public class HealthController {
+
+    @GetMapping("/health")
+    public Map<String, Object> health() {
+        Map<String, Object> health = new HashMap<>();
+        health.put("status", "UP");
+        health.put("timestamp", System.currentTimeMillis());
+        return health;
+    }
+
+    @GetMapping("/prod-api/health")
+    public Map<String, Object> prodApiHealth() {
+        return health();
+    }
+}
+```
+
+2. 在 SecurityConfig.java 中添加端点到白名单:
+```java
+requests.requestMatchers("/login", "/register", "/captchaImage", "/health", "/prod-api/health").permitAll()
+```
+
+3. 验证端点:
+```bash
+# 两个端点都应返回 200
+curl http://localhost:8080/health
+curl http://localhost:8080/prod-api/health
+# 期望返回：{"status":"UP","timestamp":...}
+```
+
 ### Docker 容器无法连接宿主机 MySQL/Redis
 
 **问题现象**: 容器启动后无法连接数据库，报错 `Connection refused`
