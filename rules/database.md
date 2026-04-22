@@ -462,15 +462,134 @@ CREATE TABLE t_unit_cache (
 );
 
 -- 法律法规缓存（只读，后台下发）
+-- 支持 300+ 法律法规存储
 CREATE TABLE t_law_book (
     book_id         INTEGER PRIMARY KEY,
     book_name       TEXT NOT NULL,
-    law_type        TEXT,                 -- 法律类型
+    law_code        TEXT,                 -- 发文文号
+    law_type        TEXT,                 -- 法律类型：法律/法规/规章/规范性文件
+    industry_code   TEXT,                 -- 适用行业分类编码
+    publish_date    TEXT,                 -- 发布日期
+    implement_date TEXT,                  -- 实施日期
     content         TEXT,                 -- 完整内容
-    publish_date    TEXT,
+    chapter_list    TEXT,                 -- 章节列表（JSON）
     sync_time       INTEGER DEFAULT (strftime('%s', 'now') * 1000),
     version         INTEGER DEFAULT 1
 );
+
+-- 法律法规章节表
+CREATE TABLE t_law_chapter (
+    chapter_id      INTEGER PRIMARY KEY,
+    book_id         INTEGER NOT NULL,
+    chapter_title   TEXT NOT NULL,
+    chapter_order   INTEGER DEFAULT 0,
+    chapter_content TEXT,
+    parent_chapter_id INTEGER DEFAULT 0,   -- 父章节 ID（支持多级章节）
+    FOREIGN KEY (book_id) REFERENCES t_law_book(book_id)
+);
+
+-- 法律法规定性依据表
+CREATE TABLE t_law_basis (
+    basis_id        INTEGER PRIMARY KEY,
+    law_code        TEXT NOT NULL,
+    clause_number   TEXT,                 -- 条款号（如：第 X 条）
+    clause_content  TEXT NOT NULL,
+    violation_keywords TEXT,              -- 违法关键词（JSON 数组）
+    penalty_range   TEXT,                 -- 处罚幅度
+    industry_code   TEXT,                 -- 适用行业
+    UNIQUE(law_code, clause_number)
+);
+
+-- 地方性法规表
+CREATE TABLE t_local_regulation (
+    regulation_id   INTEGER PRIMARY KEY,
+    regulation_name TEXT NOT NULL,
+    region_code     TEXT NOT NULL,        -- 行政区划代码
+    region_name     TEXT,                 -- 地区名称
+    regulation_type TEXT,                 -- 地方法规/地方政府规章
+    content         TEXT,
+    publish_date    TEXT,
+    implement_date  TEXT,
+    is_active       TEXT DEFAULT '1',
+    sync_time       INTEGER DEFAULT (strftime('%s', 'now') * 1000)
+);
+
+-- 索引设计
+CREATE INDEX idx_law_book_type ON t_law_book(law_type);
+CREATE INDEX idx_law_book_industry ON t_law_book(industry_code);
+CREATE INDEX idx_law_chapter_book ON t_law_chapter(book_id);
+CREATE INDEX idx_law_basis_code ON t_law_basis(law_code);
+CREATE INDEX idx_law_basis_keywords ON t_law_basis(violation_keywords);
+CREATE INDEX idx_local_regulation_region ON t_local_regulation(region_code);
+
+-- 全文搜索索引（用于快速检索）
+CREATE INDEX idx_law_book_name ON t_law_book(book_name);
+CREATE INDEX idx_law_chapter_title ON t_law_chapter(chapter_title);
+CREATE INDEX idx_local_regulation_name ON t_local_regulation(regulation_name);
+```
+
+### 法律法规分类体系
+
+**300+ 法律法规分类结构**：
+
+```
+法律法规库（300+ 部）
+├── 法律（50+ 部）
+│   ├── 中华人民共和国基本医疗卫生与健康促进法
+│   ├── 中华人民共和国传染病防治法
+│   ├── 中华人民共和国执业医师法
+│   ├── 中华人民共和国中医药法
+│   ├── 中华人民共和国疫苗管理法
+│   ├── 中华人民共和国药品管理法
+│   └── ...
+├── 行政法规（80+ 部）
+│   ├── 医疗机构管理条例
+│   ├── 公共场所卫生管理条例
+│   ├── 生活饮用水卫生监督管理办法
+│   ├── 传染病防治法实施办法
+│   ├── 疫苗流通和预防接种管理条例
+│   └── ...
+├── 部门规章（100+ 部）
+│   ├── 医疗机构管理条例实施细则
+│   ├── 医师执业注册管理办法
+│   ├── 中医诊所备案管理暂行办法
+│   ├── 医疗质量管理办法
+│   └── ...
+├── 地方性法规（50+ 部）
+│   ├── XX 省公共场所卫生管理办法
+│   ├── XX 省生活饮用水卫生监督管理条例
+│   └── ...
+└── 规范性文件（20+ 部）
+    ├── 国家卫生健康委员会公告
+    ├── 卫生标准管理制度
+    └── ...
+```
+
+**法律类型枚举**：
+```kotlin
+enum class LawType(val code: String, val label: String) {
+    LAW("law", "法律"),
+    REGULATION("regulation", "行政法规"),
+    RULE("rule", "部门规章"),
+    LOCAL_REGULATION("local_regulation", "地方性法规"),
+    NORMATIVE_DOCUMENT("normative", "规范性文件"),
+    STANDARD("standard", "卫生标准"),
+    APPROVAL("approval", "批复文件")
+}
+```
+
+**行业分类关联**：
+```kotlin
+enum class IndustryCode(val code: String, val label: String) {
+    PUBLIC_PLACE("public_place", "公共场所"),
+    DRINKING_WATER("drinking_water", "生活饮用水"),
+    MEDICAL_INSTITUTION("medical", "医疗机构"),
+    SCHOOL_HEALTH("school", "学校卫生"),
+    OCCUPATIONAL_HEALTH("occupational", "职业卫生"),
+    DISINFECT_PRODUCT("disinfect", "消毒产品"),
+    CANTEN("canteen", "餐饮具集中消毒")
+}
+```
 ```
 
 ### 数据加密存储
