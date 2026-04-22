@@ -655,6 +655,206 @@ class LoginActivity : AppCompatActivity() {
 }
 ```
 
+### 日志持久化规范
+
+```kotlin
+// app/utils/FileLogger.kt
+package com.ruoyi.utils
+
+import android.content.Context
+import kotlinx.coroutines.*
+import java.io.File
+import java.io.FileWriter
+import java.text.SimpleDateFormat
+import java.util.*
+
+class FileLogger(private val context: Context) {
+
+    private val logDir = File(context.externalCacheDir, "logs")
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.CHINA)
+    private val fileDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA)
+
+    private val ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    init {
+        if (!logDir.exists()) {
+            logDir.mkdirs()
+        }
+    }
+
+    /**
+     * 写入日志文件（仅 ERROR 级别）
+     */
+    fun writeToFile(level: String, tag: String, message: String, throwable: Throwable? = null) {
+        if (level != "ERROR") return  // 仅持久化错误日志
+
+        ioScope.launch {
+            try {
+                val logFile = getLogFile()
+                val logEntry = buildString {
+                    append("[${dateFormat.format(Date)}]")
+                    append(" [$level]")
+                    append(" [$tag]")
+                    append(" $message")
+                    if (throwable != null) {
+                        append("\n${getStackTraceString(throwable)}")
+                    }
+                }
+
+                FileWriter(logFile, true).use { writer ->
+                    writer.appendLine(logEntry)
+                }
+
+                // 清理旧日志（保留 7 天）
+                cleanupOldLogs()
+            } catch (e: Exception) {
+                Log.e("FileLogger", "写入日志文件失败", e)
+            }
+        }
+    }
+
+    private fun getLogFile(): File {
+        val dateStr = fileDateFormat.format(Date())
+        return File(logDir, "error-$dateStr.log")
+    }
+
+    private fun cleanupOldLogs() {
+        val sevenDaysAgo = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000
+        logDir.listFiles()?.forEach { file ->
+            if (file.lastModified() < sevenDaysAgo) {
+                file.delete()
+            }
+        }
+    }
+
+    private fun getStackTraceString(throwable: Throwable): String {
+        return android.util.Log.getStackTraceString(throwable)
+    }
+
+    fun close() {
+        ioScope.cancel()
+    }
+}
+```
+
+### 同步模块日志
+
+```kotlin
+// app/data/sync/SyncLogger.kt
+package com.ruoyi.data.sync
+
+import com.ruoyi.utils.Logger
+import com.ruoyi.utils.logger
+
+object SyncLogger {
+    private val logger by lazy { logger<SyncLogger>() }
+
+    fun i(message: String) {
+        Logger.i("Sync", message)
+    }
+
+    fun d(message: String) {
+        Logger.d("Sync", message)
+    }
+
+    fun w(message: String) {
+        Logger.w("Sync", message)
+    }
+
+    fun e(message: String, throwable: Throwable? = null) {
+        Logger.e("Sync", message, throwable)
+    }
+
+    fun logSyncStart() {
+        i("=== 同步任务开始 ===")
+    }
+
+    fun logSyncEnd(durationMs: Long, successCount: Int, failCount: Int) {
+        i("=== 同步任务结束：耗时 ${durationMs}ms, 成功 $successCount, 失败 $failCount ===")
+    }
+
+    fun logItemSync(type: String, tableName: String, id: Long, success: Boolean) {
+        d("[$type] $tableName#$id - ${if (success) "成功" else "失败"}")
+    }
+
+    fun logConflict(tableName: String, id: Long, strategy: String) {
+        w("检测到冲突：$tableName#$id, 解决策略：$strategy")
+    }
+}
+```
+
+### 蓝牙打印日志
+
+```kotlin
+// app/hardware/print/PrintLogger.kt
+package com.ruoyi.hardware.print
+
+import com.ruoyi.utils.Logger
+
+object PrintLogger {
+    private const val TAG = "BluetoothPrint"
+
+    fun d(message: String) {
+        Logger.d(TAG, message)
+    }
+
+    fun i(message: String) {
+        Logger.i(TAG, message)
+    }
+
+    fun w(message: String) {
+        Logger.w(TAG, message)
+    }
+
+    fun e(message: String, throwable: Throwable? = null) {
+        Logger.e(TAG, message, throwable)
+    }
+
+    fun logDeviceFound(address: String, name: String) {
+        i("发现设备：$address ($name)")
+    }
+
+    fun logPrintStart(documentName: String) {
+        i("开始打印：$documentName")
+    }
+
+    fun logPrintSuccess() {
+        i("打印成功")
+    }
+
+    fun logPrintError(error: String) {
+        e("打印失败：$error")
+    }
+}
+```
+
+### 日志级别使用场景
+
+| 级别 | 使用场景 | 示例 |
+|------|---------|------|
+| `Log.v()` | 最详细信息 | 循环迭代、条件判断 |
+| `Log.d()` | 调试信息 | 方法入参出参、API 请求响应 |
+| `Log.i()` | 关键业务节点 | 页面加载完成、操作成功 |
+| `Log.w()` | 警告但不影响运行 | 参数不合法、降级处理 |
+| `Log.e()` | 错误，需要修复 | 网络异常、数据库异常、崩溃捕获 |
+
+### 日志安全规范
+
+```kotlin
+// ❌ 禁止：打印敏感信息
+Log.d("Login", "密码：$password")  // 明文密码
+Log.d("User", "token: $token")    // 认证 token
+
+// ✅ 推荐：敏感信息脱敏
+Log.d("Login", "密码：******")
+Log.d("User", "token: ${token?.take(10)}...")
+
+// ✅ 推荐：敏感操作仅 DEBUG 模式输出
+if (BuildConfig.DEBUG) {
+    Log.d("Network", "请求头：$headers")
+}
+```
+
 ---
 
 ## 检查清单

@@ -114,6 +114,12 @@ fun testUserLogin_success() = runTest {
 }
 ```
 
+**要求：**
+- ViewModel 层覆盖率 >= 80%
+- Repository 层覆盖率 >= 70%
+- 使用 MockK 进行 Mock
+- 协程测试使用 `runTest`
+
 #### UI 测试 (Espresso)
 
 ```kotlin
@@ -124,6 +130,85 @@ fun testLoginButton_Click_ShowsHome() {
     onView(withId(R.id.btn_login)).perform(click())
 
     onView(withId(R.id.fragment_home)).check(matches(isDisplayed()))
+}
+```
+
+#### 离线功能测试
+
+```kotlin
+@Test
+fun testOfflineLogin_WithCachedPassword() {
+    // Given: 本地有缓存密码
+    val cachedUser = CachedUser(username = "admin", encryptedPassword = "xxx")
+    every { localUserDao.getUser("admin") } returns cachedUser
+
+    // When: 无网络时登录
+    every { networkUtils.isConnected() } returns false
+    val result = viewModel.offlineLogin("admin", "admin123")
+
+    // Then: 密码验证通过，允许登录
+    assertTrue(result.isSuccess)
+}
+
+@Test
+fun testSyncQueue_WhenNetworkUnavailable() {
+    // Given: 网络不可用
+    every { networkUtils.isConnected() } returns false
+
+    // When: 添加执法记录
+    viewModel.addLawRecord(record)
+
+    // Then: 记录写入同步队列
+    val queueItem = syncQueueDao.getPendingItems(1).first()
+    assertEquals(SyncType.CREATE, queueItem.syncType)
+}
+```
+
+#### 蓝牙打印测试
+
+```kotlin
+@Test
+fun testPrintDocument_WithBluetoothConnected() {
+    // Given
+    every { bluetoothManager.isConnected() } returns true
+    every { bluetoothManager.write(any()) } returns true
+
+    // When
+    val result = printService.printDocument(printData)
+
+    // Then
+    assertTrue(result.isSuccess)
+}
+
+@Test
+fun testPrintDocument_WithBluetoothNotConnected() {
+    // Given
+    every { bluetoothManager.isConnected() } returns false
+
+    // When
+    val result = printService.printDocument(printData)
+
+    // Then
+    assertEquals(PrintError.NOT_CONNECTED, result.error)
+}
+```
+
+#### 同步机制测试
+
+```kotlin
+@Test
+fun testSyncConflict_ResolutionStrategy() = runTest {
+    // Given: 本地和远程数据版本不同
+    val localData = UnitInfo(id = 1, version = 1, updateTime = 1000)
+    val remoteData = UnitInfo(id = 1, version = 2, updateTime = 2000)
+
+    // When
+    val hasConflict = conflictDetector.hasConflict(localData, remoteData)
+    val resolution = conflictResolver.resolve(localData, remoteData)
+
+    // Then
+    assertTrue(hasConflict)
+    assertEquals(ResolutionStrategy.USE_REMOTE, resolution)
 }
 ```
 
@@ -163,6 +248,18 @@ npm run test:unit -- --watch
 
 # 运行 UI 测试
 ./gradlew connectedAndroidTest
+
+# 运行离线功能测试
+./gradlew app:testDebugUnitTest --tests "*OfflineTest"
+
+# 运行同步机制测试
+./gradlew app:testDebugUnitTest --tests "*SyncTest"
+
+# 生成测试覆盖率报告
+./gradlew jacocoTestReport
+
+# 查看覆盖率报告
+open app/build/reports/jacoco/jacocoTestReport/html/index.html
 ```
 
 ## 测试原则
@@ -200,6 +297,9 @@ public void testSomething() {
 | 工具类 | 90% | 95% |
 | Controller | 70% | 80% |
 | 前端组件 | 60% | 80% |
+| Android ViewModel | 80% | 90% |
+| Android Repository | 70% | 80% |
+| 同步机制 | 90% | 95% |
 
 ## 持续集成
 

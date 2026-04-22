@@ -313,3 +313,242 @@ GRANT ALL PRIVILEGES ON ry.* TO 'dba'@'%';
 - 不同应用使用不同的数据库用户
 - 定期审计用户权限
 - 禁用匿名访问
+
+---
+
+## SQLite 本地数据库规范 (Android)
+
+### 表设计规范
+
+```sql
+-- 表命名：t_模块前缀_业务名
+CREATE TABLE t_law_record (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    unit_id         INTEGER NOT NULL DEFAULT 0,     -- 外键：单位 ID
+    record_type     TEXT NOT NULL,                   -- 记录类型
+    file_path       TEXT,                            -- 文件路径
+    sync_status     TEXT DEFAULT 'PENDING',          -- 同步状态
+    version         INTEGER DEFAULT 1,               -- 版本号（用于冲突检测）
+    create_by       TEXT DEFAULT '',
+    create_time     INTEGER DEFAULT (strftime('%s', 'now') * 1000),
+    update_by       TEXT DEFAULT '',
+    update_time     INTEGER DEFAULT (strftime('%s', 'now') * 1000),
+    remark          TEXT DEFAULT '',
+    del_flag        TEXT DEFAULT '0'
+);
+
+-- 索引设计
+CREATE INDEX idx_law_unit ON t_law_record(unit_id);
+CREATE INDEX idx_law_sync ON t_law_record(sync_status);
+CREATE INDEX idx_law_time ON t_law_record(create_time);
+```
+
+### Room 实体类规范
+
+```kotlin
+@Entity(tableName = "t_law_record")
+data class LawRecord(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+
+    @ColumnInfo(name = "unit_id")
+    val unitId: Long,
+
+    @ColumnInfo(name = "record_type")
+    val recordType: String,
+
+    @ColumnInfo(name = "file_path")
+    val filePath: String?,
+
+    @ColumnInfo(name = "sync_status")
+    val syncStatus: String = "PENDING",
+
+    @ColumnInfo(name = "version")
+    val version: Int = 1,
+
+    @ColumnInfo(name = "create_time")
+    val createTime: Long = System.currentTimeMillis(),
+
+    @ColumnInfo(name = "del_flag")
+    val delFlag: String = "0"
+)
+```
+
+### 数据迁移规范
+
+```kotlin
+// Room 数据库版本迁移
+val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // 添加新列
+        database.execSQL("ALTER TABLE t_law_record ADD COLUMN sync_status TEXT DEFAULT 'PENDING'")
+        database.execSQL("ALTER TABLE t_law_record ADD COLUMN version INTEGER DEFAULT 1")
+
+        // 创建新表
+        database.execSQL("""
+            CREATE TABLE IF NOT EXISTS t_sync_queue (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                table_name TEXT NOT NULL,
+                record_id INTEGER NOT NULL,
+                sync_type TEXT NOT NULL,
+                sync_status TEXT DEFAULT 'PENDING',
+                retry_count INTEGER DEFAULT 0,
+                request_data TEXT
+            )
+        """)
+
+        // 创建索引
+        database.execSQL("CREATE INDEX IF NOT EXISTS idx_sync_status ON t_sync_queue(sync_status)")
+    }
+}
+
+// 数据库构建
+val db = Room.databaseBuilder(
+    context,
+    AppDatabase::class.java,
+    "ruoyi_db"
+)
+    .addMigrations(MIGRATION_1_2)
+    .build()
+```
+
+### 同步队列表设计
+
+```sql
+-- 同步队列：存储待同步的数据变更
+CREATE TABLE t_sync_queue (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    table_name      TEXT NOT NULL,        -- 表名
+    record_id       INTEGER NOT NULL,     -- 记录 ID
+    sync_type       TEXT NOT NULL,        -- CREATE/UPDATE/DELETE/DOWNLOAD
+    sync_status     TEXT DEFAULT 'PENDING',
+    priority        INTEGER DEFAULT 0,    -- 优先级 (0 普通 1 紧急)
+    retry_count     INTEGER DEFAULT 0,
+    max_retry       INTEGER DEFAULT 3,
+    next_retry_time INTEGER,
+    request_data    TEXT,                 -- JSON 格式请求数据
+    error_message   TEXT,
+    create_time     INTEGER DEFAULT (strftime('%s', 'now') * 1000)
+);
+
+-- 索引
+CREATE INDEX idx_sync_status ON t_sync_queue(sync_status);
+CREATE INDEX idx_sync_retry ON t_sync_queue(next_retry_time);
+```
+
+### 本地缓存表设计
+
+```sql
+-- 用户信息缓存
+CREATE TABLE t_user_cache (
+    user_id         INTEGER PRIMARY KEY,
+    username        TEXT NOT NULL,
+    encrypted_pwd   TEXT,                 -- 加密密码（用于离线登录）
+    avatar          TEXT,
+    last_login_time INTEGER,
+    sync_time       INTEGER DEFAULT (strftime('%s', 'now') * 1000)
+);
+
+-- 执法单位缓存
+CREATE TABLE t_unit_cache (
+    unit_id         INTEGER PRIMARY KEY,
+    unit_name       TEXT NOT NULL,
+    unit_code       TEXT,
+    industry_type   TEXT,
+    address         TEXT,
+    legal_person    TEXT,
+    sync_time       INTEGER DEFAULT (strftime('%s', 'now') * 1000),
+    version         INTEGER DEFAULT 1
+);
+
+-- 法律法规缓存（只读，后台下发）
+CREATE TABLE t_law_book (
+    book_id         INTEGER PRIMARY KEY,
+    book_name       TEXT NOT NULL,
+    law_type        TEXT,                 -- 法律类型
+    content         TEXT,                 -- 完整内容
+    publish_date    TEXT,
+    sync_time       INTEGER DEFAULT (strftime('%s', 'now') * 1000),
+    version         INTEGER DEFAULT 1
+);
+```
+
+### 数据加密存储
+
+```kotlin
+// 使用 AndroidX Security 加密敏感数据
+class EncryptedTypeConverter {
+    private val masterKey by lazy {
+        MasterKey.Builder(Application.context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+    }
+
+    private val encryptedPrefs by lazy {
+        EncryptedSharedPreferences.create(
+            Application.context,
+            "secret_shared_prefs",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
+
+    @TypeConverter
+    fun encrypt(value: String): String {
+        val editor = encryptedPrefs.edit()
+        editor.putString("encrypted_value", value)
+        editor.apply()
+        return encryptedPrefs.getString("encrypted_value", "") ?: ""
+    }
+
+    @TypeConverter
+    fun decrypt(encryptedValue: String): String {
+        return encryptedPrefs.getString("encrypted_value", "") ?: ""
+    }
+}
+```
+
+### SQLite 性能优化
+
+```sql
+-- 1. 使用 WITHOUT ROWID 优化只查询主键的表
+CREATE TABLE t_dict_type (
+    dict_id       INTEGER PRIMARY KEY,
+    dict_name     TEXT NOT NULL,
+    dict_type     TEXT NOT NULL UNIQUE
+) WITHOUT ROWID;
+
+-- 2. 使用覆盖索引避免回表
+CREATE INDEX idx_sync_covering ON t_sync_queue(sync_status, sync_type, record_id);
+
+-- 3. 批量插入使用事务
+BEGIN TRANSACTION;
+-- 批量 INSERT 语句
+COMMIT;
+
+-- 4. 使用 ANALYZE 更新统计信息
+ANALYZE;
+```
+
+### 数据库升级检查
+
+```kotlin
+// 检查数据库版本
+val db = dbHelper.readableDatabase
+val version = db.version
+
+if (version < LATEST_VERSION) {
+    // 提示用户需要升级
+    showUpgradeDialog()
+}
+
+// 强制版本检查
+fun checkSchemaVersion(db: SQLiteDatabase): Boolean {
+    val cursor = db.rawQuery(
+        "SELECT sql FROM sqlite_master WHERE type='table' AND name='t_law_record'",
+        null
+    )
+    return cursor.use { it.moveToFirst() }
+}
+```
