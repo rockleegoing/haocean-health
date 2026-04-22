@@ -1,0 +1,180 @@
+package com.ruoyi.system.service.impl;
+
+import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.system.domain.SysActivationCode;
+import com.ruoyi.system.mapper.SysActivationCodeMapper;
+import com.ruoyi.system.service.ISysActivationCodeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+
+/**
+ * 激活码 Service 实现类
+ */
+@Service
+public class SysActivationCodeServiceImpl implements ISysActivationCodeService {
+
+    @Autowired
+    private SysActivationCodeMapper activationCodeMapper;
+
+    /**
+     * 激活码字符集（排除 I/O/0/1 等易混淆字符）
+     */
+    private static final String CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+    /**
+     * 激活码长度
+     */
+    private static final int CODE_LENGTH = 8;
+
+    @Override
+    public SysActivationCode selectSysActivationCodeById(Long codeId) {
+        return activationCodeMapper.selectSysActivationCodeById(codeId);
+    }
+
+    @Override
+    public SysActivationCode selectSysActivationCodeByValue(String codeValue) {
+        return activationCodeMapper.selectSysActivationCodeByValue(codeValue);
+    }
+
+    @Override
+    public List<SysActivationCode> selectSysActivationCodeList(SysActivationCode sysActivationCode) {
+        return activationCodeMapper.selectSysActivationCodeList(sysActivationCode);
+    }
+
+    @Override
+    public int insertSysActivationCode(SysActivationCode sysActivationCode) {
+        sysActivationCode.setCreateTime(DateUtils.getNowDate());
+        return activationCodeMapper.insertSysActivationCode(sysActivationCode);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public List<SysActivationCode> batchGenerateCodes(int count, int expireDays, String remark, String createBy) {
+        if (count < 1 || count > 50) {
+            throw new IllegalArgumentException("批量生成数量必须在 1-50 之间");
+        }
+
+        List<SysActivationCode> codeList = new ArrayList<>();
+        Date now = DateUtils.getNowDate();
+        Date expireTime = DateUtils.addDays(now, expireDays);
+
+        for (int i = 0; i < count; i++) {
+            SysActivationCode code = new SysActivationCode();
+            code.setCodeValue(generateCode());
+            code.setStatus("0"); // 未使用
+            code.setExpireTime(expireTime);
+            code.setRemark(remark);
+            code.setCreateBy(createBy);
+            code.setCreateTime(now);
+            codeList.add(code);
+        }
+
+        batchInsertSysActivationCode(codeList);
+        return codeList;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int batchInsertSysActivationCode(List<SysActivationCode> sysActivationCodeList) {
+        return activationCodeMapper.batchInsertSysActivationCode(sysActivationCodeList);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int updateSysActivationCode(SysActivationCode sysActivationCode) {
+        sysActivationCode.setUpdateTime(DateUtils.getNowDate());
+        return activationCodeMapper.updateSysActivationCode(sysActivationCode);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int deleteSysActivationCodeByIds(Long[] codeIds) {
+        return activationCodeMapper.deleteSysActivationCodeByIds(codeIds);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int deleteSysActivationCodeById(Long codeId) {
+        return activationCodeMapper.deleteSysActivationCodeById(codeId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> validateCode(String codeValue, String deviceUuid) {
+        Map<String, Object> result = new HashMap<>();
+
+        // 查询激活码
+        SysActivationCode code = activationCodeMapper.selectSysActivationCodeByValue(codeValue);
+        if (code == null) {
+            result.put("success", false);
+            result.put("message", "激活码不存在");
+            return result;
+        }
+
+        // 检查状态
+        if ("1".equals(code.getStatus())) {
+            result.put("success", false);
+            result.put("message", "激活码已被使用");
+            return result;
+        }
+
+        if ("2".equals(code.getStatus())) {
+            result.put("success", false);
+            result.put("message", "激活码已过期");
+            return result;
+        }
+
+        if ("3".equals(code.getStatus())) {
+            result.put("success", false);
+            result.put("message", "激活码已被禁用");
+            return result;
+        }
+
+        // 检查有效期
+        if (code.getExpireTime() != null && code.getExpireTime().before(new Date())) {
+            code.setStatus("2"); // 标记为过期
+            activationCodeMapper.updateSysActivationCode(code);
+            result.put("success", false);
+            result.put("message", "激活码已过期");
+            return result;
+        }
+
+        // 更新激活码状态为已使用
+        code.setStatus("1");
+        code.setBindDeviceId(deviceUuid);
+        code.setUpdateTime(DateUtils.getNowDate());
+        activationCodeMapper.updateSysActivationCode(code);
+
+        result.put("success", true);
+        result.put("message", "激活码验证成功");
+        result.put("codeId", code.getCodeId());
+
+        return result;
+    }
+
+    /**
+     * 生成随机激活码
+     *
+     * @return 激活码
+     */
+    private String generateCode() {
+        StringBuilder code = new StringBuilder(CODE_LENGTH);
+        Random random = new Random();
+
+        for (int i = 0; i < CODE_LENGTH; i++) {
+            int index = random.nextInt(CODE_CHARS.length());
+            code.append(CODE_CHARS.charAt(index));
+        }
+
+        // 确保生成的激活码唯一
+        if (activationCodeMapper.selectSysActivationCodeByValue(code.toString()) != null) {
+            return generateCode();
+        }
+
+        return code.toString();
+    }
+}
