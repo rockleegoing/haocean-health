@@ -1,22 +1,139 @@
 # 设备与认证模块 - 后端部署测试指南
 
-**文档版本**: v1.1
+**文档版本**: v1.2
 **创建日期**: 2026-04-22
 **更新日期**: 2026-04-22
 **状态**: 待测试
 
 ---
 
-## 一、部署前准备
+## 一、快速开始（一键测试）
 
-### 1.1 检查清单
+### 1.1 执行一键测试
 
-- [ ] MySQL 数据库已启动且可连接
-- [ ] Redis 服务已启动（RuoYi 依赖）
-- [ ] Docker 和 Docker Compose 已安装
-- [ ] 数据库 `ruoyi` 已创建
+```bash
+# 进入项目目录
+cd /Users/arthur/Documents/workspace/haocean/projectV4
 
-### 1.2 数据库初始化
+# 执行一键测试（提供 MySQL 密码）
+./scripts/run-all-tests.sh your_password
+
+# 或使用环境变量
+MYSQL_PWD=your_password ./scripts/run-all-tests.sh
+```
+
+### 1.2 测试流程
+
+一键测试脚本会自动执行以下阶段：
+
+| 阶段 | 说明 | 预期时间 |
+|------|------|---------|
+| 1. 数据库初始化 | 执行 SQL 脚本创建表结构和测试数据 | 5 秒 |
+| 2. 后端服务启动 | Maven 编译 + Docker 启动 | 60 秒 |
+| 3. API 自动化测试 | 执行 10 个 API 测试用例 | 10 秒 |
+| 4. 清理环境 | 停止 Docker 容器（可选） | 5 秒 |
+
+### 1.3 测试结果
+
+测试完成后输出：
+
+```
+============================================================
+  测试总结
+============================================================
+
+阶段测试结果:
+
+  所有阶段测试通过！
+
+总测试数：3
+测试报告已保存：/Users/arthur/Documents/workspace/haocean/projectV4/test-reports/summary-20260422-123456.txt
+
+============================================================
+  恭喜！所有测试通过！
+============================================================
+```
+
+---
+
+## 二、分步测试
+
+如需单独控制每个测试阶段，可分别执行以下脚本：
+
+### 2.1 数据库初始化
+
+```bash
+# 单独执行数据库初始化
+./scripts/init-device-auth-db.sh your_password
+```
+
+**输出示例：**
+```
+============================================================
+  设备与认证模块 - 数据库初始化
+============================================================
+
+[INFO] 检查 MySQL 连接...
+[INFO] MySQL 连接成功
+[INFO] 检查数据库 ruoyi...
+[INFO] 执行 表结构初始化：V1.0.0__device_auth_tables.sql
+[INFO] 表结构初始化 执行成功
+[INFO] 执行 测试数据插入：V1.0.0__device_auth_data.sql
+[INFO] 测试数据插入 执行成功
+[INFO] 验证表结构...
+[INFO]   ✓ 表 sys_activation_code 已创建
+[INFO]   ✓ 表 sys_device 已创建
+[INFO] 表结构验证成功
+[INFO] 验证测试数据...
+[INFO]   ✓ 测试激活码：10 个
+
+============================================================
+[INFO] 数据库初始化完成！
+============================================================
+```
+
+### 2.2 启动后端服务
+
+```bash
+# 启动后端服务
+./scripts/start-backend.sh
+
+# 强制重新编译
+./scripts/start-backend.sh --build
+
+# 停止服务
+./scripts/start-backend.sh --stop
+
+# 重启服务
+./scripts/start-backend.sh --restart
+```
+
+### 2.3 API 自动化测试
+
+```bash
+# 单独执行 API 测试
+./scripts/test-device-auth-api.sh
+```
+
+**测试用例清单：**
+
+| 编号 | 测试项 | 说明 |
+|------|--------|------|
+| 1 | 登录获取 Token | 验证用户登录接口 |
+| 2 | 查询激活码列表 | 验证分页查询功能 |
+| 3 | 查询激活码详情 | 验证单条记录查询 |
+| 4 | 生成单个激活码 | 验证生成功能 |
+| 5 | 批量生成激活码 | 验证批量生成（5 个） |
+| 6 | 验证激活码（有效） | 验证激活码验证逻辑 |
+| 7 | 验证激活码（已使用） | 验证重复使用检测 |
+| 8 | 查询设备列表 | 验证设备管理功能 |
+| 9 | 查询设备详情 | 验证设备详情查询 |
+
+---
+
+## 三、手动测试
+
+### 3.1 数据库初始化
 
 执行 SQL 脚本初始化新表：
 
@@ -25,17 +142,17 @@
 cd /Users/arthur/Documents/workspace/haocean/projectV4/RuoYi-Vue
 
 # 执行表结构初始化
-mysql -u root -p ruoyi < sql/V1.0.0__device_auth_tables.sql
+mysql -u root -p -h 127.0.0.1 ruoyi < sql/V1.0.0__device_auth_tables.sql
 
 # 执行测试数据插入
-mysql -u root -p ruoyi < sql/V1.0.0__device_auth_data.sql
+mysql -u root -p -h 127.0.0.1 ruoyi < sql/V1.0.0__device_auth_data.sql
 ```
 
 **验证表是否创建成功：**
 
 ```sql
 -- 登录 MySQL
-mysql -u root -p
+mysql -u root -p -h 127.0.0.1
 
 -- 切换到 ruoyi 数据库
 USE ruoyi;
@@ -51,9 +168,9 @@ SELECT * FROM sys_activation_code LIMIT 10;
 
 ---
 
-## 二、使用 Docker 部署后端服务
+## 四、使用 Docker 部署后端服务
 
-### 2.1 编译打包
+### 4.1 编译打包
 
 ```bash
 cd /Users/arthur/Documents/workspace/haocean/projectV4/RuoYi-Vue
@@ -65,7 +182,7 @@ mvn clean
 mvn package -DskipTests
 ```
 
-### 2.2 使用 Docker Compose 启动服务
+### 4.2 使用 Docker Compose 启动服务
 
 ```bash
 cd /Users/arthur/Documents/workspace/haocean/projectV4/RuoYi-Vue
@@ -90,7 +207,7 @@ docker-compose down ruoyi-backend
     password: your_password
   ```
 
-### 2.3 验证服务启动
+### 4.3 验证服务启动
 
 **检查日志输出：**
 
@@ -99,7 +216,7 @@ docker-compose down ruoyi-backend
  |  _ \ _   _  ___ | \ | |_   _
  | |_) | | | |/ _ \|  \| | | | |
  |  _ <| |_| | (_) | |\  | |_| |
- |_| \_\\__,_|\___/|_| \_|\__, |
+ |_| \\_\\__,_|\___/|_| \_|\__, |
                           |___/
 ```
 
@@ -109,9 +226,9 @@ docker-compose down ruoyi-backend
 
 ---
 
-## 三、API 接口测试
+## 五、API 接口测试
 
-### 3.1 获取 Token
+### 5.1 获取 Token
 
 首先需要登录获取访问令牌：
 
@@ -136,9 +253,9 @@ curl -X POST http://localhost:8080/login \
 
 将返回的 token 保存，后续请求需要携带。
 
-### 3.2 激活码管理接口测试
+### 5.2 激活码管理接口测试
 
-#### 3.2.1 查询激活码列表
+#### 5.2.1 查询激活码列表
 
 ```bash
 curl -X POST http://localhost:8080/device/activationCode/list \
@@ -169,7 +286,7 @@ curl -X POST http://localhost:8080/device/activationCode/list \
 }
 ```
 
-#### 3.2.2 生成激活码（单个）
+#### 5.2.2 生成激活码（单个）
 
 ```bash
 curl -X POST http://localhost:8080/device/activationCode \
@@ -196,7 +313,7 @@ curl -X POST http://localhost:8080/device/activationCode \
 }
 ```
 
-#### 3.2.3 批量生成激活码
+#### 5.2.3 批量生成激活码
 
 ```bash
 curl -X POST http://localhost:8080/device/activationCode \
@@ -209,7 +326,7 @@ curl -X POST http://localhost:8080/device/activationCode \
   }'
 ```
 
-#### 3.2.4 验证激活码（App 调用，无需 Token）
+#### 5.2.4 验证激活码（App 调用，无需 Token）
 
 ```bash
 curl -X POST http://localhost:8080/device/activationCode/validate \
@@ -246,23 +363,23 @@ curl -X POST http://localhost:8080/device/activationCode/validate \
 }
 ```
 
-#### 3.2.5 查询激活码详情
+#### 5.2.5 查询激活码详情
 
 ```bash
 curl -X GET http://localhost:8080/device/activationCode/1 \
   -H "Authorization: Bearer YOUR_TOKEN_HERE"
 ```
 
-#### 3.2.6 删除激活码
+#### 5.2.6 删除激活码
 
 ```bash
 curl -X DELETE http://localhost:8080/device/activationCode/1,2 \
   -H "Authorization: Bearer YOUR_TOKEN_HERE"
 ```
 
-### 3.3 设备管理接口测试
+### 5.3 设备管理接口测试
 
-#### 3.3.1 查询设备列表
+#### 5.3.1 查询设备列表
 
 ```bash
 curl -X POST http://localhost:8080/device/device/list \
@@ -274,7 +391,7 @@ curl -X POST http://localhost:8080/device/device/list \
   }'
 ```
 
-#### 3.3.2 设备解绑
+#### 5.3.2 设备解绑
 
 ```bash
 curl -X PUT http://localhost:8080/device/device/unbind \
@@ -287,9 +404,9 @@ curl -X PUT http://localhost:8080/device/device/unbind \
 
 ---
 
-## 四、前端页面测试
+## 六、前端页面测试
 
-### 4.1 启动前端开发服务器
+### 6.1 启动前端开发服务器
 
 ```bash
 cd /Users/arthur/Documents/workspace/haocean/projectV4/RuoYi-Vue/ruoyi-ui
@@ -303,9 +420,9 @@ npm run dev
 
 **访问地址：** http://localhost:80
 
-### 4.2 页面功能测试
+### 6.2 页面功能测试
 
-#### 4.1 激活码管理页面
+#### 6.1 激活码管理页面
 
 **访问路径：** http://localhost:80/device/activation-code
 
@@ -323,7 +440,7 @@ npm run dev
 | TC-08 | 删除激活码 | 点击"删除"，确认后删除成功 |
 | TC-09 | 有效期倒计时 | 显示"剩余 XX 天 XX 小时 XX 分" |
 
-#### 4.2 设备管理页面
+#### 6.2 设备管理页面
 
 **访问路径：** http://localhost:80/device/device
 
@@ -337,9 +454,9 @@ npm run dev
 
 ---
 
-## 五、问题排查
+## 七、问题排查
 
-### 5.1 常见问题
+### 7.1 常见问题
 
 #### 问题 1：表不存在
 
@@ -347,12 +464,12 @@ npm run dev
 
 **解决方案：**
 ```bash
-mysql -u root -p ruoyi < sql/V1.0.0__device_auth_tables.sql
+mysql -u root -p -h 127.0.0.1 ruoyi < sql/V1.0.0__device_auth_tables.sql
 ```
 
 #### 问题 2：权限不足
 
-**错误信息：** `Access denied for user 'root'@'localhost'`
+**错误信息：** `Access denied for user 'root'@'127.0.0.1'`
 
 **解决方案：** 检查数据库用户权限或使用正确的账号密码
 
@@ -391,7 +508,7 @@ kill -9 <PID>
 
 ---
 
-## 六、测试报告模板
+## 八、测试报告模板
 
 ### 测试执行记录
 
@@ -413,7 +530,7 @@ kill -9 <PID>
 
 ---
 
-## 七、下一步
+## 九、下一步
 
 测试通过后，继续 Android 端开发：
 
