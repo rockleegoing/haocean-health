@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS `表名` (
 - `tplCategory`: 模板类型（crud/tree/sub）
 - `parentMenuId`: 上级菜单 ID（默认系统工具）
 
-### 步骤 5：生成代码
+### 步骤 5：生成代码（下载 ZIP 方式）
 
 **重要：后端部署在 Docker 容器中**
 
@@ -87,23 +87,41 @@ CREATE TABLE IF NOT EXISTS `表名` (
 
 **API 端点：** `GET /tool/gen/download/{tableName}`
 
-**流程：**
-1. 调用 `/download/{tableName}` 下载 ZIP 文件
-2. 解压 ZIP 文件到本地临时目录
-3. 手动将文件移动到项目的正确位置：
+**自动化脚本：**
 
-| 文件类型 | 目标位置 |
-|---------|---------|
-| Java 文件 | `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/{module}/` |
-| Mapper XML | `RuoYi-Vue/ruoyi-system/src/main/resources/mapper/{module}/` |
-| Vue 页面 | `RuoYi-Vue/ruoyi-ui/src/views/{module}/{business}/` |
-| API JS | `RuoYi-Vue/ruoyi-ui/src/api/{module}/` |
-| TypeScript | `RuoYi-Vue/ruoyi-ui/src/types/api/` |
+使用 `scripts/auto-copy.py` 自动解压并复制文件到正确位置：
 
-**为什么不推荐 genCode API：**
-- `genCode` 将文件写入 Docker 容器内部
-- 容器重启后生成的文件丢失
-- 除非修改 `docker-compose.yml` 添加代码挂载卷
+```bash
+# 1. 下载 ZIP 文件（浏览器下载或 curl）
+curl -H "Authorization: Bearer $TOKEN" \
+  http://localhost:8080/tool/gen/download/sys_user \
+  -o generated.zip
+
+# 2. 预览（不实际复制）
+python skills/ruoyi-auto-dev/scripts/auto-copy.py generated.zip --dry-run
+
+# 3. 实际复制
+python skills/ruoyi-auto-dev/scripts/auto-copy.py generated.zip
+```
+
+**脚本功能：**
+- 自动识别 ZIP 中的文件类型
+- 复制到项目的正确位置
+- SQL 文件单独保存到 `projectV4/generated_sql/`
+- 支持 `--dry-run` 预览模式
+
+**文件路径映射：**
+
+| ZIP 路径前缀 | 目标位置 |
+|------------|---------|
+| `ruoyi-system/src/main/java/...` | `RuoYi-Vue/ruoyi-system/src/main/java/...` |
+| `ruoyi-admin/src/main/java/...` | `RuoYi-Vue/ruoyi-admin/src/main/java/...` |
+| `ruoyi-common/src/main/java/...` | `RuoYi-Vue/ruoyi-common/src/main/java/...` |
+| `**/src/main/resources/mapper/...` | `RuoYi-Vue/ruoyi-system/src/main/resources/mapper/...` |
+| `vue/views/...` | `RuoYi-Vue/ruoyi-ui/src/views/...` |
+| `vue/api/...` | `RuoYi-Vue/ruoyi-ui/src/api/...` |
+| `vue/types/...` | `RuoYi-Vue/ruoyi-ui/src/types/...` |
+| `*.sql` | `projectV4/generated_sql/` |
 
 ### 步骤 6：生成菜单 SQL
 

@@ -14,6 +14,8 @@ cp -ru ruoyi-auto-dev ~/.claude/skills/
 
 ## 使用方法
 
+### 方式 1：通过 Claude Code 技能
+
 在 Claude Code 中直接描述你的需求，例如：
 
 ```
@@ -24,8 +26,26 @@ cp -ru ruoyi-auto-dev ~/.claude/skills/
 1. 设计数据库表结构
 2. 调用后端 API 创建表
 3. 配置代码生成参数
-4. 执行代码生成
+4. 下载 ZIP 并自动解压到正确位置
 5. 提供菜单 SQL
+
+### 方式 2：使用自动化脚本
+
+```bash
+cd skills/ruoyi-auto-dev
+
+# 完整流程（建表 + 下载 + 解压）
+python scripts/auto-generator.py --table sys_product --sql "CREATE TABLE ..."
+
+# 仅下载和解压（表已存在）
+python scripts/auto-generator.py --table sys_product
+
+# 预览模式（不实际复制）
+python scripts/auto-generator.py --table sys_product --dry-run
+
+# 只下载 ZIP
+python scripts/auto-generator.py --table sys_product --skip-copy
+```
 
 ## 前置条件
 
@@ -38,12 +58,14 @@ cp -ru ruoyi-auto-dev ~/.claude/skills/
 
 ```
 ruoyi-auto-dev/
-├── SKILL.md              # 技能主文件（必读）
+├── SKILL.md                  # 技能主文件（必读）
 ├── scripts/
-│   └── generate.py       # Python 辅助脚本
+│   ├── generate.py           # API 调用基础脚本
+│   ├── auto-copy.py          # 自动解压复制脚本
+│   └── auto-generator.py     # 全自动脚本（下载 + 解压）
 ├── evals/
-│   └── evals.json        # 测试用例
-└── README.md             # 本文件
+│   └── evals.json            # 测试用例
+└── README.md                 # 本文件
 ```
 
 ## API 调用流程
