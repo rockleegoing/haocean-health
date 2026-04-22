@@ -5,7 +5,7 @@ export function listActivationCode(query) {
   return request({
     url: '/device/activationCode/list',
     method: 'post',
-    params: query
+    data: query
   })
 }
 
@@ -38,7 +38,6 @@ export function delActivationCode(id) {
 export function batchDelActivationCode(ids) {
   return request({
     url: '/device/activationCode/' + ids,
-    method: 'delete',
-    data: ids
+    method: 'delete'
   })
 }
