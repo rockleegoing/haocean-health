@@ -1,0 +1,23 @@
+{
+  "skill_name": "ruoyi-auto-dev",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "创建一个产品管理模块，包含产品名称、价格、库存、分类、状态等字段",
+      "expected_output": "生成 sys_product 表结构，调用 API 创建表，生成完整的 CRUD 代码和菜单 SQL",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "帮我建一个订单表，需要有订单号、用户 ID、总金额、订单状态、创建时间，支持主子表结构，子表记录订单明细",
+      "expected_output": "生成 sys_order 和 sys_order_item 两张表，配置主子表模板，生成对应代码",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "创建一个部门管理功能，要支持树形结构，包含父部门、 ancestors、部门名称、负责人、电话、排序字段",
+      "expected_output": "生成 sys_dept 表，使用 tree 模板类型，支持树形数据展示",
+      "files": []
+    }
+  ]
+}
