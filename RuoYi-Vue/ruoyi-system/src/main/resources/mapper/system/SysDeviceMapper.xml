@@ -130,6 +130,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="status != null">status = #{status},</if>
             <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
             <if test="remark != null">remark = #{remark},</if>
+            <if test="currentUserId == null">current_user_id = null,</if>
+            <if test="currentUserName == null">current_user_name = null,</if>
+            <if test="activationCodeId == null">activation_code_id = null,</if>
             update_time = sysdate()
         </trim>
         where device_id = #{deviceId}
