@@ -82,7 +82,8 @@ json_contains() {
 test_login() {
     test_start "登录获取 Token"
 
-    local response=$(curl -s -X POST "${API_BASE}${API_PREFIX}/login" \
+    # 登录接口不需要前缀
+    local response=$(curl -s -X POST "${API_BASE}/login" \
         -H "Content-Type: application/json" \
         -d '{
             "username": "admin",
