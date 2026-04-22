@@ -19,6 +19,86 @@
 
 ---
 
+## 常见问题及解决方案
+
+### Docker 容器无法连接宿主机 MySQL/Redis
+
+**问题现象**: 容器启动后无法连接数据库，报错 `Connection refused`
+
+**原因分析**:
+- Docker 容器内无法通过 `localhost` 访问宿主机服务
+- 需要使用 `host.docker.internal` 或 host 网络模式
+
+**解决方案**:
+
+1. 修改数据库配置文件 (application-druid.yml)
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://host.docker.internal:3306/ry-vue?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true
+```
+
+2. 修改 redis 配置 (application.yml)
+```yaml
+spring:
+  data:
+    redis:
+      host: host.docker.internal
+      port: 6379
+```
+
+3. docker-compose.yml 添加 extra_hosts
+```yaml
+services:
+  app:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+```
+
+### Docker 镜像拉取超时
+
+**问题现象**: `docker build` 时无法从 Docker Hub 拉取镜像
+
+**解决方案**:
+
+1. 使用国内镜像源
+```dockerfile
+FROM registry.cn-hangzhou.aliyuncs.com/anycorp/temurin:17-jre-alpine
+```
+
+2. 使用本地已有镜像
+```dockerfile
+FROM nginx:latest  # 使用本地已有的 nginx 镜像
+```
+
+3. 配置 Docker 镜像加速器
+```bash
+# /etc/docker/daemon.json
+{
+  "registry-mirrors": [
+    "https://docker.mirrors.ustc.edu.cn",
+    "https://registry.docker-cn.com"
+  ]
+}
+```
+
+### 配置文件修改后未生效
+
+**问题现象**: 修改配置文件后重新构建 Docker 镜像，但配置未生效
+
+**原因分析**: 配置文件未重新编译到 jar 包中
+
+**解决方案**:
+```bash
+# 清理并重新编译
+mvn clean package -DskipTests
+
+# 重新构建 Docker 镜像
+docker compose build --no-cache
+```
+
+---
+
 ## 环境要求
 
 ### 基础环境

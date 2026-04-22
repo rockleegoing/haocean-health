@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  ruoyi-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ruoyi-frontend
+    restart: always
+    ports:
+      - "80:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
