@@ -43,6 +43,9 @@
                 android:name="android.content.pm.ActivityInfo.META_DATA_SUPPORTED_LOCALES"
                 android:value="zh,en" />
         </activity>
+        <activity android:name=".activity.ActivationActivity"
+            android:exported="false"
+            android:launchMode="singleTop"/>
         <activity
             android:name=".activity.LoginActivity"
             android:exported="false"
