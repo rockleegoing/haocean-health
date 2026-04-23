@@ -3,8 +3,11 @@ package com.ruoyi.system.service.impl;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.domain.SysActivationCode;
+import com.ruoyi.system.domain.SysDevice;
 import com.ruoyi.system.mapper.SysActivationCodeMapper;
+import com.ruoyi.system.mapper.SysDeviceMapper;
 import com.ruoyi.system.service.ISysActivationCodeService;
+import com.ruoyi.system.service.ISysDeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +22,12 @@ public class SysActivationCodeServiceImpl implements ISysActivationCodeService {
 
     @Autowired
     private SysActivationCodeMapper activationCodeMapper;
+
+    @Autowired
+    private ISysDeviceService deviceService;
+
+    @Autowired
+    private SysDeviceMapper deviceMapper;
 
     /**
      * 激活码字符集（排除 I/O/0/1 等易混淆字符）
@@ -104,7 +113,8 @@ public class SysActivationCodeServiceImpl implements ISysActivationCodeService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> validateCode(String codeValue, String deviceUuid) {
+    public Map<String, Object> validateCode(String codeValue, String deviceUuid,
+        String deviceName, String deviceModel, String deviceOs, String appVersion) {
         Map<String, Object> result = new HashMap<>();
 
         // 查询激活码
@@ -149,9 +159,31 @@ public class SysActivationCodeServiceImpl implements ISysActivationCodeService {
         code.setUpdateTime(DateUtils.getNowDate());
         activationCodeMapper.updateSysActivationCode(code);
 
+        // 自动创建设备记录（如果不存在）
+        SysDevice device = deviceMapper.selectSysDeviceByUuid(deviceUuid);
+        if (device == null) {
+            device = new SysDevice();
+            device.setDeviceUuid(deviceUuid);
+            device.setDeviceName(deviceName);
+            device.setDeviceModel(deviceModel);
+            device.setDeviceOs(deviceOs);
+            device.setAppVersion(appVersion);
+            device.setActivationCodeId(code.getCodeId());
+            device.setStatus("0"); // 离线
+            device.setCreateTime(DateUtils.getNowDate());
+            deviceService.insertSysDevice(device);
+        } else {
+            // 设备已存在，更新关联信息
+            device.setActivationCodeId(code.getCodeId());
+            deviceMapper.updateSysDevice(device);
+        }
+
         result.put("success", true);
         result.put("message", "激活码验证成功");
         result.put("codeId", code.getCodeId());
+        result.put("deviceCount", 1); // 当前激活设备数
+        result.put("maxDeviceCount", 1); // 最大允许设备数（可配置）
+        result.put("expiryTime", code.getExpireTime().getTime());
 
         return result;
     }

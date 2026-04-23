@@ -129,6 +129,10 @@ public class SysActivationCodeController extends BaseController
     {
         String codeValue = params.get("codeValue");
         String deviceUuid = params.get("deviceUuid");
+        String deviceName = params.get("deviceName");
+        String deviceModel = params.get("deviceModel");
+        String deviceOs = params.get("deviceOs");
+        String appVersion = params.get("appVersion");
 
         if (codeValue == null || codeValue.isEmpty())
         {
@@ -139,7 +143,8 @@ public class SysActivationCodeController extends BaseController
             return error("设备标识不能为空");
         }
 
-        Map<String, Object> result = activationCodeService.validateCode(codeValue, deviceUuid);
+        Map<String, Object> result = activationCodeService.validateCode(
+            codeValue, deviceUuid, deviceName, deviceModel, deviceOs, appVersion);
         return success(result);
     }
 }

@@ -89,7 +89,12 @@ public interface ISysActivationCodeService {
      *
      * @param codeValue 激活码值
      * @param deviceUuid 设备 UUID
-     * @return 验证结果
+     * @param deviceName 设备名称（可选）
+     * @param deviceModel 设备型号（可选）
+     * @param deviceOs 操作系统（可选）
+     * @param appVersion App 版本（可选）
+     * @return 验证结果 {valid, message, codeId, deviceCount, maxDeviceCount, expiryTime}
      */
-    Map<String, Object> validateCode(String codeValue, String deviceUuid);
+    Map<String, Object> validateCode(String codeValue, String deviceUuid,
+        String deviceName, String deviceModel, String deviceOs, String appVersion);
 }
