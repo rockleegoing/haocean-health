@@ -3,6 +3,7 @@ package com.ruoyi.app.activity
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import com.hjq.bar.OnTitleBarListener
 import com.hjq.bar.TitleBar
@@ -18,6 +19,10 @@ class ActivationActivity : BaseBindingActivity<ActivityActivationBinding>() {
 
     private val activationRepository: ActivationRepository by lazy {
         ActivationRepository(applicationContext)
+    }
+
+    private val sharedPreferences: SharedPreferences by lazy {
+        getSharedPreferences("ruoyi_app", Context.MODE_PRIVATE)
     }
 
     companion object {
@@ -87,14 +92,14 @@ class ActivationActivity : BaseBindingActivity<ActivityActivationBinding>() {
      * 获取设备 UUID（唯一标识）
      */
     private fun getDeviceUuid(): String {
-        // 优先从 MMKV 获取已保存的 UUID
-        val savedUuid = MMKV.defaultMMKV().decodeString("device_uuid")
+        // 优先从 SharedPreferences 获取已保存的 UUID
+        val savedUuid = sharedPreferences.getString("device_uuid", null)
         if (!savedUuid.isNullOrEmpty()) {
             return savedUuid
         }
         // 生成新 UUID 并保存
         val uuid = java.util.UUID.randomUUID().toString()
-        MMKV.defaultMMKV().encode("device_uuid", uuid)
+        sharedPreferences.edit().putString("device_uuid", uuid).apply()
         return uuid
     }
 
