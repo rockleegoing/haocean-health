@@ -28,6 +28,12 @@ public class SysActivationCode extends BaseEntity {
     /** 绑定用户 ID */
     private Long bindUserId;
 
+    /** 最大允许设备数 */
+    private Integer maxDeviceCount;
+
+    /** 已激活设备数 */
+    private Integer activatedCount;
+
     /** 备注 */
     private String remark;
 
@@ -49,6 +55,12 @@ public class SysActivationCode extends BaseEntity {
 
     public Long getBindUserId() { return bindUserId; }
     public void setBindUserId(Long bindUserId) { this.bindUserId = bindUserId; }
+
+    public Integer getMaxDeviceCount() { return maxDeviceCount; }
+    public void setMaxDeviceCount(Integer maxDeviceCount) { this.maxDeviceCount = maxDeviceCount; }
+
+    public Integer getActivatedCount() { return activatedCount; }
+    public void setActivatedCount(Integer activatedCount) { this.activatedCount = activatedCount; }
 
     public String getRemark() { return remark; }
     public void setRemark(String remark) { this.remark = remark; }
