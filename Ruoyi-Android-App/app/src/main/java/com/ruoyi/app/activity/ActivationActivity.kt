@@ -74,7 +74,6 @@ class ActivationActivity : BaseBindingActivity<ActivityActivationBinding>() {
     }
 
     private fun updateUiState(state: ActivationUiState) {
-        currentUiState = state
         when (state) {
             is ActivationUiState.Idle -> {
                 binding.btnActivate.isEnabled = true
