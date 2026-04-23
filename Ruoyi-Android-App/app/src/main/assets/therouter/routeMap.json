@@ -35,6 +35,13 @@
     "params": {}
   },
   {
+    "path": "http://com.ruoyi/setting",
+    "className": "com.ruoyi.app.activity.SettingActivity",
+    "action": "",
+    "description": "设置页面",
+    "params": {}
+  },
+  {
     "path": "http://com.ruoyi/home",
     "className": "com.ruoyi.app.activity.MainActivity",
     "action": "action://scheme.com",
@@ -46,6 +53,13 @@
     "className": "com.ruoyi.app.activity.LoginActivity",
     "action": "action://scheme.com",
     "description": "登录",
+    "params": {}
+  },
+  {
+    "path": "http://com.ruoyi/activation",
+    "className": "com.ruoyi.app.activity.ActivationActivity",
+    "action": "",
+    "description": "设备激活页面",
     "params": {}
   }
 ]

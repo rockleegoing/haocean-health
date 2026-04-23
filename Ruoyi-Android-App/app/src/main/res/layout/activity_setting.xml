@@ -84,6 +84,34 @@
             android:background="#f1f1f1"/>
 
         <LinearLayout
+            android:id="@+id/ll_device_activation"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/dp_18"
+                android:layout_height="@dimen/dp_18"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="10dp"
+                android:src="@mipmap/icon_setting_mima"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginEnd="15dp"
+                android:textSize="15sp"
+                android:text="设备激活" />
+
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1sp"
+            android:background="#f1f1f1"/>
+
+        <LinearLayout
             android:id="@+id/ll_clear_cache"
             android:layout_width="match_parent"
             android:layout_height="50dp"

@@ -53,6 +53,9 @@ class SettingActivity : BaseBindingActivity<ActivitySettingBinding>() {
                 .updateUrl(ConfigApi.uploadApp)
                 .update()
         }
+        binding.llDeviceActivation.clickDelay {
+            ActivationActivity.startActivity(this)
+        }
         binding.tvLoginOut.clickDelay {
             scopeNetLife {
                 Post<String>(ConfigApi.logout).await()

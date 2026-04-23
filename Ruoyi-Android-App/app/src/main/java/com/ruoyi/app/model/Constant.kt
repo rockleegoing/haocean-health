@@ -15,6 +15,7 @@ object Constant {
     const val logsRoute = "http://com.ruoyi/log"
     const val messagesRoute = "http://com.ruoyi/message"
     const val settingRoute = "http://com.ruoyi/setting"
+    const val activationRoute = "http://com.ruoyi/activation"
     const val homeFragment = "http://com.ruoyi/home/fragment"
     const val workFragment = "http://com.ruoyi/work/fragment"
     const val mineFragment = "http://com.ruoyi/mine/fragment"
