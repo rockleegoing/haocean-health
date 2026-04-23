@@ -42,11 +42,11 @@ class HelpActivity : BaseBindingActivity<ActivityHelpBinding>(), OnItemClickList
 
     private val itemData: ArrayList<QuestionEntity>
         get() = arrayListOf(
-            QuestionEntity(headerTitle = "若依问题", imageResource = R.mipmap.icon_help_github),
-            QuestionEntity("若依开源吗？", "开源", beginList = true),
-            QuestionEntity("若依可以商用吗？", "可以"),
-            QuestionEntity("若依官网地址多少？", "http://ruoyi.vip"),
-            QuestionEntity("若依文档地址多少？", "http://doc.ruoyi.vip", endList = true),
+            QuestionEntity(headerTitle = "移动卫生执法问题", imageResource = R.mipmap.icon_help_github),
+            QuestionEntity("移动卫生执法开源吗？", "开源", beginList = true),
+            QuestionEntity("移动卫生执法可以商用吗？", "可以"),
+            QuestionEntity("移动卫生执法官网地址多少？", "http://ruoyi.vip"),
+            QuestionEntity("移动卫生执法文档地址多少？", "http://doc.ruoyi.vip", endList = true),
             QuestionEntity(headerTitle = "其他问题", imageResource = R.mipmap.icon_help_question),
             QuestionEntity("如何退出登录？", "请点击[我的] - [应用设置] - [退出登录]即可退出登录", beginList = true),
             QuestionEntity("如何修改用户头像？", "请点击[我的] - [选择头像] - [点击提交]即可更换用户头像"),

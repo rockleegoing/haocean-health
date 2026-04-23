@@ -55,7 +55,7 @@
                 android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:maxLength="24"
-                tools:text="若依"
+                tools:text="移动卫生执法"
                 android:background="@color/white"
                 android:hint="@string/edit_p_nickname" />
 

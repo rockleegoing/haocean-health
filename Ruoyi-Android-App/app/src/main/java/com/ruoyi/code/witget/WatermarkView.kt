@@ -11,7 +11,7 @@ class WatermarkView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
     // 水印文本（可配置）
-    private var watermarkText = "Ruoyi-Android-App © 2026"
+    private var watermarkText = "杭州浩洋科技有限公司 © 2026"
 
     // 水印文本大小
     private val textSize = 40f
