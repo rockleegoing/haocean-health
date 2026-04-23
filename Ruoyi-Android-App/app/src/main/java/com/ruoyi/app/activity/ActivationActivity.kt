@@ -6,20 +6,19 @@ import android.content.Intent
 import android.os.Build
 import com.hjq.bar.OnTitleBarListener
 import com.hjq.bar.TitleBar
-import com.ruoyi.app.api.ConfigApi
-import com.ruoyi.app.api.OKHttpUtils
+import com.ruoyi.app.api.repository.ActivationRepository
 import com.ruoyi.app.databinding.ActivityActivationBinding
 import com.ruoyi.code.base.BaseBindingActivity
 import com.ruoyi.code.utils.clickDelay
 import com.therouter.router.Route
-import com.drake.net.Post
 import com.drake.net.utils.scopeNetLife
-import com.ruoyi.app.model.entity.ResultEntity
-import com.tencent.mmkv.MMKV
-import kotlinx.serialization.Serializable
 
 @Route(path = "http://com.ruoyi/activation")
 class ActivationActivity : BaseBindingActivity<ActivityActivationBinding>() {
+
+    private val activationRepository: ActivationRepository by lazy {
+        ActivationRepository(applicationContext)
+    }
 
     companion object {
         fun startActivity(context: Context) {
@@ -61,28 +60,23 @@ class ActivationActivity : BaseBindingActivity<ActivityActivationBinding>() {
             val deviceOs = "Android ${Build.VERSION.RELEASE}"
             val appVersion = getAppVersionName()
 
-            val params = mapOf(
-                "codeValue" to activationCode,
-                "deviceUuid" to deviceUuid,
-                "deviceName" to deviceName,
-                "deviceModel" to deviceModel,
-                "deviceOs" to deviceOs,
-                "appVersion" to appVersion
+            // 使用 ActivationRepository 验证并保存
+            val result = activationRepository.validateAndSave(
+                codeValue = activationCode,
+                deviceUuid = deviceUuid,
+                deviceName = deviceName,
+                deviceModel = deviceModel,
+                deviceOs = deviceOs,
+                appVersion = appVersion
             )
 
-            val result = Post<ResultEntity<ActivationCodeValidationResponse>>(ConfigApi.baseUrl + "/device/activationCode/validate") {
-                body = OKHttpUtils.getRequestBody(params)
-            }.await()
-
-            if (result.code == 200 && result.data != null) {
+            result.onSuccess { response ->
                 com.hjq.toast.ToastUtils.show("激活码验证成功")
-                // 保存激活信息到本地数据库
-                saveActivationInfo(result.data, activationCode)
                 // 跳转登录页
                 LoginActivity.startActivity(this@ActivationActivity)
                 finish()
-            } else {
-                com.hjq.toast.ToastUtils.show(result.msg ?: "激活码验证失败")
+            }.onFailure { exception ->
+                com.hjq.toast.ToastUtils.show(exception.message ?: "激活码验证失败")
             }
         }.catch {
             com.hjq.toast.ToastUtils.show(it.message)
@@ -115,24 +109,4 @@ class ActivationActivity : BaseBindingActivity<ActivityActivationBinding>() {
             "1.0.0"
         }
     }
-
-    /**
-     * 保存激活信息到本地数据库
-     */
-    private fun saveActivationInfo(response: ActivationCodeValidationResponse, activationCode: String) {
-        // TODO: 后续实现 Room 数据库存储
-        // 暂时保存激活码 ID 到 MMKV
-        MMKV.defaultMMKV().encode("activation_code_id", response.activationCodeId)
-        MMKV.defaultMMKV().encode("activation_code_value", activationCode)
-        MMKV.defaultMMKV().encode("activation_expiry_time", response.expiryTime)
-        MMKV.defaultMMKV().encode("is_activated", true)
-    }
-
-    @Serializable
-    data class ActivationCodeValidationResponse(
-        val activationCodeId: Long,      // 激活码 ID
-        val deviceCount: Int = 1,        // 当前激活设备数
-        val maxDeviceCount: Int = 1,     // 最大允许设备数
-        val expiryTime: Long             // 过期时间戳
-    )
 }
