@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/main_bg">
+    android:background="?attr/colorSurface">
 
     <com.hjq.bar.TitleBar
         android:id="@id/titlebar"
@@ -14,37 +14,53 @@
         app:leftIcon="@mipmap/icon_title_left"
         app:lineVisible="false"/>
 
-    <LinearLayout
+    <!-- 激活码卡片 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_activation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:layout_marginTop="20dp"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        android:background="@drawable/shape_bg_mine_list">
+        android:layout_marginTop="20dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="?attr/colorSurface">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="激活码"
-            android:textColor="@color/black"
-            android:textSize="15sp"
-            android:layout_marginBottom="10dp"/>
-
-        <EditText
-            android:id="@+id/et_activation_code"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="请输入激活码"
-            android:inputType="text"
-            android:maxLines="1"
-            android:background="@android:color/transparent"
-            android:padding="10dp"/>
+            android:orientation="vertical"
+            android:padding="20dp">
 
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="激活码"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="15sp"
+                android:layout_marginBottom="10dp"/>
 
-    <Button
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_activation_code"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_activation_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="请输入激活码"
+                    android:inputType="text"
+                    android:maxLines="1"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 激活按钮 -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_activate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -52,13 +68,27 @@
         android:layout_marginRight="15dp"
         android:layout_marginTop="20dp"
         android:text="激活设备"
-        android:textSize="15sp"/>
+        android:textSize="15sp"
+        app:cornerRadius="8dp"
+        app:iconGravity="textStart"/>
+
+    <!-- 状态文字 -->
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="* 请输入您购买的激活码进行设备激活"
-        android:textColor="#999999"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:textSize="12sp"
         android:layout_marginTop="15dp"
         android:layout_marginLeft="15dp"/>
