@@ -144,6 +144,13 @@ public class SysActivationCodeServiceImpl implements ISysActivationCodeService {
             return result;
         }
 
+        // 检查是否已达到最大设备数
+        if (code.getMaxDeviceCount() != null && code.getActivatedCount() >= code.getMaxDeviceCount()) {
+            result.put("success", false);
+            result.put("message", "该激活码已达到最大设备数限制");
+            return result;
+        }
+
         // 检查有效期
         if (code.getExpireTime() != null && code.getExpireTime().before(new Date())) {
             code.setStatus("2"); // 标记为过期
@@ -156,6 +163,13 @@ public class SysActivationCodeServiceImpl implements ISysActivationCodeService {
         // 更新激活码状态为已使用
         code.setStatus("1");
         code.setBindDeviceId(deviceUuid);
+
+        // 增加已激活设备数
+        if (code.getActivatedCount() == null) {
+            code.setActivatedCount(0);
+        }
+        code.setActivatedCount(code.getActivatedCount() + 1);
+
         code.setUpdateTime(DateUtils.getNowDate());
         activationCodeMapper.updateSysActivationCode(code);
 
@@ -181,8 +195,8 @@ public class SysActivationCodeServiceImpl implements ISysActivationCodeService {
         result.put("success", true);
         result.put("message", "激活码验证成功");
         result.put("codeId", code.getCodeId());
-        result.put("deviceCount", 1); // 当前激活设备数
-        result.put("maxDeviceCount", 1); // 最大允许设备数（可配置）
+        result.put("activatedCount", code.getActivatedCount());
+        result.put("maxDeviceCount", code.getMaxDeviceCount());
         result.put("expiryTime", code.getExpireTime().getTime());
 
         return result;
