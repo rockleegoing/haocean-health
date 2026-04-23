@@ -85,7 +85,7 @@ class SplashActivity : BaseBindingActivity<ActivitySplashBinding>() {
         val delayTask = object : TimerTask() {
             override fun run() {
                 App.init()  // 初始化应用配置和数据
-                LoginActivity.startActivity(this@SplashActivity)  // 启动登录页
+                ActivationActivity.startActivity(this@SplashActivity)  // 启动激活页
                 this@SplashActivity.finish()  // 关闭启动页
             }
         }
