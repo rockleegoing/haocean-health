@@ -5,6 +5,7 @@ import com.ruoyi.system.domain.SysDevice;
 import com.ruoyi.system.mapper.SysDeviceMapper;
 import com.ruoyi.system.service.ISysDeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,5 +82,42 @@ public class SysDeviceServiceImpl implements ISysDeviceService {
     @Transactional(rollbackFor = Exception.class)
     public int updateDeviceCurrentUser(String deviceUuid, Long currentUserId, String currentUserName) {
         return deviceMapper.updateDeviceCurrentUser(deviceUuid, currentUserId, currentUserName);
+    }
+
+    @Override
+    public int updateHeartbeat(String deviceUuid, String status) {
+        return deviceMapper.updateHeartbeat(deviceUuid, status);
+    }
+
+    @Override
+    @Scheduled(cron = "0 */5 * * * ?") // 每 5 分钟执行一次
+    public void checkOfflineDevices() {
+        // 查询超过 5 分钟未心跳的设备，标记为离线
+        List<SysDevice> devices = deviceMapper.selectSysDeviceList(new SysDevice());
+        long timeout = 5 * 60 * 1000; // 5 分钟
+        long now = System.currentTimeMillis();
+
+        for (SysDevice device : devices) {
+            if (device.getHeartbeatTime() != null) {
+                long lastHeartbeat = device.getHeartbeatTime().getTime();
+                if (now - lastHeartbeat > timeout && "1".equals(device.getStatus())) {
+                    device.setStatus("0");
+                    deviceMapper.updateSysDevice(device);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void createRemoteWipeCommand(String deviceUuid) {
+        // 创建远程清除指令记录
+        // 后续可扩展：推送到消息队列或 Redis，供设备轮询
+        SysDevice device = deviceMapper.selectSysDeviceByUuid(deviceUuid);
+        if (device != null) {
+            // 在 remark 中记录清除指令时间
+            device.setRemark("REMOTE_WIPE:" + System.currentTimeMillis());
+            device.setUpdateTime(DateUtils.getNowDate());
+            deviceMapper.updateSysDevice(device);
+        }
     }
 }
