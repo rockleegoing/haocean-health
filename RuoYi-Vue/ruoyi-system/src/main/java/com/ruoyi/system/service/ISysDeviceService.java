@@ -81,4 +81,24 @@ public interface ISysDeviceService {
      * @return 结果
      */
     int updateDeviceCurrentUser(String deviceUuid, Long currentUserId, String currentUserName);
+
+    /**
+     * 更新设备心跳
+     *
+     * @param deviceUuid 设备 UUID
+     * @param status 状态 (0 离线 1 在线)
+     */
+    void updateHeartbeat(String deviceUuid, String status);
+
+    /**
+     * 检测并更新离线设备
+     */
+    void checkOfflineDevices();
+
+    /**
+     * 创建远程清除指令
+     *
+     * @param deviceUuid 设备 UUID
+     */
+    void createRemoteWipeCommand(String deviceUuid);
 }
