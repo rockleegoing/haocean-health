@@ -32,11 +32,12 @@ class ActivityManager private constructor() {
 
     /**
      * 移出存在的Activity
+     * 注意：配置变更时 onDestroy 也会触发，此时 Activity 会被系统自动重建
+     * 不再主动调用 finish()，避免重复 finish 导致问题
      */
     fun removeActivity(activity: Activity) {
-        if (activityStack.contains(activity))
-            activity.finish()
         activityStack.remove(activity)
+        // 不再调用 finish()，Activity 由系统管理生命周期
     }
 
 

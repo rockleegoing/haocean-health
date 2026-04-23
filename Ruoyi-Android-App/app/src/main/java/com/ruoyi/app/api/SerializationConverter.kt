@@ -40,7 +40,12 @@ class SerializationConverter(
                     val kType = response.request.kType
                         ?: throw ConvertException(response, "Request does not contain KType")
                     return try {
-                        val srvCode = json.getString(this.code)
+                        // 兼容后端返回整数或字符串格式的 code 字段
+                        val srvCode = if (json.has(this.code) && !json.isNull(this.code)) {
+                            json.get(this.code).toString()
+                        } else {
+                            throw ConvertException(response, "Response missing code field")
+                        }
                         if (srvCode == success) { // 对比后端自定义错误码
                             bodyString.parseBody<R>(kType)
                         } else { // 错误码匹配失败, 开始写入错误异常

@@ -69,6 +69,8 @@
         android:layout_marginTop="20dp"
         android:text="激活设备"
         android:textSize="15sp"
+        android:textColor="@color/white"
+        app:backgroundTint="@color/blue"
         app:cornerRadius="8dp"
         app:iconGravity="textStart"/>
 
@@ -87,7 +89,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="* 请输入您购买的激活码进行设备激活"
+        android:text="* 请输入浩洋提供的激活码进行设备激活"
         android:textColor="?attr/colorOnSurfaceVariant"
         android:textSize="12sp"
         android:layout_marginTop="15dp"
