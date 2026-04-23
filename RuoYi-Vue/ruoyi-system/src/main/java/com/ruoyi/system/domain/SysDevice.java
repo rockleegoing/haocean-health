@@ -40,6 +40,12 @@ public class SysDevice extends BaseEntity {
     /** 最后同步时间 */
     private Date lastSyncTime;
 
+    /** 最后心跳时间 */
+    private Date heartbeatTime;
+
+    /** 心跳间隔（秒） */
+    private Integer heartbeatInterval;
+
     /** 最后登录时间 */
     private Date lastLoginTime;
 
@@ -82,6 +88,12 @@ public class SysDevice extends BaseEntity {
 
     public Date getLastSyncTime() { return lastSyncTime; }
     public void setLastSyncTime(Date lastSyncTime) { this.lastSyncTime = lastSyncTime; }
+
+    public Date getHeartbeatTime() { return heartbeatTime; }
+    public void setHeartbeatTime(Date heartbeatTime) { this.heartbeatTime = heartbeatTime; }
+
+    public Integer getHeartbeatInterval() { return heartbeatInterval; }
+    public void setHeartbeatInterval(Integer heartbeatInterval) { this.heartbeatInterval = heartbeatInterval; }
 
     public Date getLastLoginTime() { return lastLoginTime; }
     public void setLastLoginTime(Date lastLoginTime) { this.lastLoginTime = lastLoginTime; }
