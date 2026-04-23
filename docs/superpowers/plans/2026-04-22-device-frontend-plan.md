@@ -4,9 +4,9 @@
 
 **Goal:** 完善设备与激活码管理的前端 Web 页面，修复 API 端点匹配问题，添加动态路由菜单配置，使其可以与后端 API 正常交互。
 
-**Architecture:** 采用若依框架标准的动态路由模式，通过数据库 `sys_menu` 表配置菜单权限，前端页面组件已存在，需要修复 API 端点以匹配后端 Controller。
+**Architecture:** 采用移动卫生执法系统框架标准的动态路由模式，通过数据库 `sys_menu` 表配置菜单权限，前端页面组件已存在，需要修复 API 端点以匹配后端 Controller。
 
-**Tech Stack:** Vue 2.6 + Element UI + 若依框架 3.9.2 + Axios
+**Tech Stack:** Vue 2.6 + Element UI + 移动卫生执法系统框架 3.9.2 + Axios
 
 ---
 

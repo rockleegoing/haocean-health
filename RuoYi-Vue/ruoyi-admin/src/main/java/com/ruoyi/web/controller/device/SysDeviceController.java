@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -121,10 +122,10 @@ public class SysDeviceController extends BaseController
     /**
      * 远程清除设备数据
      */
-    @PreAuthorize("@ss.hasPermi('device:device:clearData')")
+    @PreAuthorize("@ss.hasPermi('device:device:remoteWipe')")
     @Log(title = "设备管理", businessType = BusinessType.CLEAN)
-    @PostMapping("/clearData")
-    public AjaxResult clearData(@RequestBody Map<String, String> params)
+    @PostMapping("/remoteWipe")
+    public AjaxResult remoteWipe(@RequestBody Map<String, String> params)
     {
         String deviceUuid = params.get("deviceUuid");
         if (deviceUuid == null || deviceUuid.isEmpty())
@@ -138,8 +139,33 @@ public class SysDeviceController extends BaseController
             return error("设备不存在");
         }
 
-        // 清除设备数据逻辑（可根据需求扩展）
-        // 这里仅做记录，实际清除操作由客户端执行
-        return success("已发送清除设备数据指令");
+        // 创建远程清除指令
+        deviceService.createRemoteWipeCommand(deviceUuid);
+        return success("已发送远程清除指令");
+    }
+
+    /**
+     * 设备心跳上报（匿名访问，供 App 调用）
+     */
+    @Anonymous
+    @PostMapping("/heartbeat")
+    public AjaxResult heartbeat(@RequestBody Map<String, String> params)
+    {
+        String deviceUuid = params.get("deviceUuid");
+        String status = params.get("status");
+
+        if (deviceUuid == null || deviceUuid.isEmpty())
+        {
+            return error("设备标识不能为空");
+        }
+
+        // 默认状态为在线
+        if (status == null || status.isEmpty())
+        {
+            status = "1";
+        }
+
+        deviceService.updateHeartbeat(deviceUuid, status);
+        return success("心跳上报成功");
     }
 }
