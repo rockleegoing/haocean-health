@@ -166,11 +166,22 @@ export default {
         deviceName: undefined,
         deviceId: undefined,
         status: undefined
-      }
+      },
+      // 定时刷新 ID
+      refreshTimer: null
     }
   },
   created() {
     this.getList()
+    // 30 秒定时刷新
+    this.refreshTimer = setInterval(() => {
+      this.getList()
+    }, 30000)
+  },
+  beforeDestroy() {
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer)
+    }
   },
   methods: {
     /** 查询设备列表 */
