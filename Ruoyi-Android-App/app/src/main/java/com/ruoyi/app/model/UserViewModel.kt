@@ -181,4 +181,23 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * 预加载登录验证数据
+     * 后台异步获取用户信息并存储到本地数据库
+     * TODO: 等后端 /getInfo 接口返回完整数据后完善存储逻辑
+     */
+    fun preloadLoginData() {
+        scopeNetLife {
+            try {
+                val body = authRepository.getUserInfo()
+                if (body.code == ConfigApi.SUCESSS) {
+                    // TODO: 等后端接口完善后，将 user、roles、permissions 存储到本地数据库
+                    // 当前阶段只获取数据，不做本地存储（等 UserEntity 字段对齐后实现）
+                }
+            } catch (e: Exception) {
+                // 预加载失败，不阻塞用户操作
+            }
+        }
+    }
+
 }

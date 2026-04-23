@@ -9,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.ruoyi.app.R
 import com.ruoyi.app.activity.common.WebActivity
 import com.ruoyi.app.api.ConfigApi
+import com.ruoyi.app.data.database.AppDatabase
 import com.ruoyi.app.databinding.ActivityLoginBinding
 import com.ruoyi.app.model.Constant
 import com.ruoyi.app.model.UserViewModel
@@ -21,6 +22,9 @@ import com.tencent.mmkv.MMKV
 import com.therouter.TheRouter
 import com.therouter.router.Route
 import com.xuexiang.xupdate.XUpdate
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Route(path = Constant.loginRoute)
 class LoginActivity : BaseBindingActivity<ActivityLoginBinding>() {
@@ -63,6 +67,9 @@ class LoginActivity : BaseBindingActivity<ActivityLoginBinding>() {
             RegisterActivity.startActivity(this@LoginActivity)
         }
 
+        // 预加载 /getInfo 数据（后台异步，失败不阻塞）
+        preloadLoginData()
+
         val token = MMKV.defaultMMKV().decodeString("token")
         if (!token.isNullOrEmpty()) {
             TheRouter.build(Constant.mainRoute)
@@ -76,6 +83,23 @@ class LoginActivity : BaseBindingActivity<ActivityLoginBinding>() {
                 .update()
         }
 
+    }
+
+    /**
+     * 预加载登录验证数据
+     * 后台异步执行，失败不阻塞用户操作
+     */
+    private fun preloadLoginData() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // 初始化 Room 数据库
+                AppDatabase.getInstance(this@LoginActivity)
+                // 预加载 /getInfo 数据（后台异步）
+                viewModel.preloadLoginData()
+            } catch (e: Exception) {
+                // 预加载失败，不阻塞用户操作
+            }
+        }
     }
 
     override fun initData() {
