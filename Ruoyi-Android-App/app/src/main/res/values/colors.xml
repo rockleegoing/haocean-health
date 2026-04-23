@@ -15,4 +15,8 @@
     <color name="red">#dd524d</color>
     <color name="color_9">#999999</color>
 
+    <!-- UI 状态颜色 -->
+    <color name="success_green">#FF4CAF50</color>
+    <color name="error_red">#FFF44336</color>
+
 </resources>
