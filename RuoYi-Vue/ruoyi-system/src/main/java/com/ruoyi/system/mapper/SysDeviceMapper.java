@@ -23,4 +23,12 @@ public interface SysDeviceMapper {
     int deleteSysDeviceByIds(Long[] deviceIds);
 
     int updateDeviceCurrentUser(String deviceUuid, Long currentUserId, String currentUserName);
+
+    /**
+     * 更新设备心跳
+     * @param deviceUuid 设备 UUID
+     * @param status 状态 (0 离线 1 在线)
+     * @return 结果
+     */
+    int updateHeartbeat(String deviceUuid, String status);
 }
