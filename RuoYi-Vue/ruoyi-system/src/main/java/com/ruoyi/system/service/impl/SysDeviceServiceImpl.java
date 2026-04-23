@@ -85,8 +85,8 @@ public class SysDeviceServiceImpl implements ISysDeviceService {
     }
 
     @Override
-    public int updateHeartbeat(String deviceUuid, String status) {
-        return deviceMapper.updateHeartbeat(deviceUuid, status);
+    public void updateHeartbeat(String deviceUuid, String status) {
+        deviceMapper.updateHeartbeat(deviceUuid, status);
     }
 
     @Override
