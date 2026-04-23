@@ -71,8 +71,11 @@
       </el-table-column>
       <el-table-column label="有效期" align="center" prop="expireTime" width="180">
         <template slot-scope="scope">
-          <countdown-timer v-if="scope.row.status === 0" :expire-time="scope.row.expireTime" />
-          <span v-else>{{ parseTime(scope.row.expireTime) }}</span>
+          <div style="display: flex; align-items: center;">
+            <countdown-timer v-if="scope.row.status === '0'" :expire-time="scope.row.expireTime" />
+            <span v-else>{{ parseTime(scope.row.expireTime) }}</span>
+            <expire-warning v-if="scope.row.status === '0'" :expire-time="scope.row.expireTime" />
+          </div>
         </template>
       </el-table-column>
       <el-table-column label="激活时间" align="center" prop="activationTime" width="180">
@@ -146,12 +149,14 @@
 import { listActivationCode, delActivationCode, batchDelActivationCode } from "@/api/device/activationCode"
 import CreateDialog from "./CreateDialog"
 import CountdownTimer from "@/components/CountdownTimer"
+import ExpireWarning from "@/components/ExpireWarning"
 
 export default {
   name: "ActivationCode",
   components: {
     CreateDialog,
-    CountdownTimer
+    CountdownTimer,
+    ExpireWarning
   },
   data() {
     return {
