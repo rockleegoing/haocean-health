@@ -18,3 +18,12 @@ ADD COLUMN heartbeat_interval INT DEFAULT 300 COMMENT '心跳间隔 (秒)' AFTER
 -- 3. 更新现有数据（如果有）
 UPDATE sys_activation_code SET max_device_count = 1, activated_count = 0 WHERE max_device_count IS NULL;
 UPDATE sys_device SET heartbeat_interval = 300 WHERE heartbeat_interval IS NULL;
+
+-- 4. 激活码表新增激活时间和激活设备字段
+ALTER TABLE sys_activation_code
+ADD COLUMN activate_time DATETIME DEFAULT NULL COMMENT '激活时间' AFTER activated_count,
+ADD COLUMN activate_device VARCHAR(64) DEFAULT NULL COMMENT '激活设备型号' AFTER activate_time;
+
+-- 5. 激活码表新增有效期天数字段（激活后才计算 expireTime）
+ALTER TABLE sys_activation_code
+ADD COLUMN valid_days INT DEFAULT NULL COMMENT '有效期天数（天）' AFTER activate_device;

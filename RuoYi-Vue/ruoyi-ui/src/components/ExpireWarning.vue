@@ -12,6 +12,11 @@ export default {
     expireTime: {
       type: [Number, String],
       required: true
+    },
+    // 是否直接传入剩余天数（而非时间戳）
+    isDays: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -50,6 +55,9 @@ export default {
   },
   methods: {
     getRemainDays() {
+      if (this.isDays) {
+        return this.expireTime
+      }
       const now = this.currentTime
       const expire = new Date(this.expireTime).getTime()
       return Math.floor((expire - now) / (1000 * 60 * 60 * 24))

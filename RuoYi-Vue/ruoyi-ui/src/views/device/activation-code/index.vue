@@ -14,6 +14,7 @@
           <el-option label="未激活" value="0" />
           <el-option label="已激活" value="1" />
           <el-option label="已过期" value="2" />
+          <el-option label="已禁用" value="3" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -69,12 +70,19 @@
           >{{ getStatusLabel(scope.row.status) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="有效期" align="center" prop="expireTime" width="180">
+      <el-table-column label="有效期" align="center" prop="validDays" width="200">
         <template slot-scope="scope">
           <div style="display: flex; align-items: center;">
-            <countdown-timer v-if="scope.row.status === '0'" :expire-time="scope.row.expireTime" />
-            <span v-else>{{ parseTime(scope.row.expireTime) }}</span>
-            <expire-warning v-if="scope.row.status === '0'" :expire-time="scope.row.expireTime" />
+            <!-- 未激活：显示有效期天数 + 倒计时 -->
+            <template v-if="scope.row.status === '0'">
+              <span style="margin-right: 4px;">{{ scope.row.validDays }}天</span>
+              <countdown-timer v-if="scope.row.validDays" :expire-time="scope.row.validDays" :is-days="true" />
+              <expire-warning v-if="scope.row.validDays" :expire-time="scope.row.validDays" :is-days="true" />
+            </template>
+            <!-- 已激活/其他：显示绝对过期时间 -->
+            <template v-else>
+              <span>{{ parseTime(scope.row.expireTime) }}</span>
+            </template>
           </div>
         </template>
       </el-table-column>
@@ -204,10 +212,13 @@ export default {
     getList() {
       this.loading = true
       listActivationCode(this.queryParams).then(response => {
-        // 映射后端字段 codeValue -> code
+        // 映射后端字段
         this.activationCodeList = (response.rows || []).map(item => ({
           ...item,
-          code: item.codeValue
+          code: item.codeValue,
+          activationTime: item.activateTime,
+          deviceName: item.activateDevice,
+          validDays: item.validDays
         }))
         this.total = response.total
         this.loading = false
@@ -218,7 +229,8 @@ export default {
       const statusMap = {
         '0': '', // 未激活
         '1': 'success', // 已激活
-        '2': 'info' // 已过期
+        '2': 'info', // 已过期
+        '3': 'danger' // 已禁用
       }
       return statusMap[status] || ''
     },
@@ -227,7 +239,8 @@ export default {
       const labelMap = {
         '0': '未激活',
         '1': '已激活',
-        '2': '已过期'
+        '2': '已过期',
+        '3': '已禁用'
       }
       return labelMap[status] || '未知'
     },

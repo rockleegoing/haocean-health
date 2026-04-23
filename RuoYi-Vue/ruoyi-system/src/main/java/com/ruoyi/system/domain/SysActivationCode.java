@@ -34,6 +34,15 @@ public class SysActivationCode extends BaseEntity {
     /** 已激活设备数 */
     private Integer activatedCount;
 
+    /** 激活时间 */
+    private Date activateTime;
+
+    /** 激活设备型号 */
+    private String activateDevice;
+
+    /** 有效期天数（生成时设置，激活后转化为 expireTime） */
+    private Integer validDays;
+
     /** 备注 */
     private String remark;
 
@@ -61,6 +70,15 @@ public class SysActivationCode extends BaseEntity {
 
     public Integer getActivatedCount() { return activatedCount; }
     public void setActivatedCount(Integer activatedCount) { this.activatedCount = activatedCount; }
+
+    public Date getActivateTime() { return activateTime; }
+    public void setActivateTime(Date activateTime) { this.activateTime = activateTime; }
+
+    public String getActivateDevice() { return activateDevice; }
+    public void setActivateDevice(String activateDevice) { this.activateDevice = activateDevice; }
+
+    public Integer getValidDays() { return validDays; }
+    public void setValidDays(Integer validDays) { this.validDays = validDays; }
 
     public String getRemark() { return remark; }
     public void setRemark(String remark) { this.remark = remark; }

@@ -1,8 +1,8 @@
 package com.ruoyi.system.service;
 
 import com.ruoyi.system.domain.SysActivationCode;
+import com.ruoyi.system.domain.vo.ActivationApiResponse;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 激活码 Service 接口
@@ -93,8 +93,8 @@ public interface ISysActivationCodeService {
      * @param deviceModel 设备型号（可选）
      * @param deviceOs 操作系统（可选）
      * @param appVersion App 版本（可选）
-     * @return 验证结果 {valid, message, codeId, deviceCount, maxDeviceCount, expiryTime}
+     * @return 验证结果
      */
-    Map<String, Object> validateCode(String codeValue, String deviceUuid,
+    ActivationApiResponse validateCode(String codeValue, String deviceUuid,
         String deviceName, String deviceModel, String deviceOs, String appVersion);
 }

@@ -12,7 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import com.ruoyi.system.domain.vo.ActivationApiResponse;
 
 /**
  * 激活码 Service 实现类
@@ -69,13 +73,12 @@ public class SysActivationCodeServiceImpl implements ISysActivationCodeService {
 
         List<SysActivationCode> codeList = new ArrayList<>();
         Date now = DateUtils.getNowDate();
-        Date expireTime = DateUtils.addDays(now, expireDays);
 
         for (int i = 0; i < count; i++) {
             SysActivationCode code = new SysActivationCode();
             code.setCodeValue(generateCode());
             code.setStatus("0"); // 未使用
-            code.setExpireTime(expireTime);
+            code.setValidDays(expireDays); // 存储有效期天数，不计算绝对过期时间
             code.setRemark(remark);
             code.setCreateBy(createBy);
             code.setCreateTime(now);
@@ -113,51 +116,37 @@ public class SysActivationCodeServiceImpl implements ISysActivationCodeService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> validateCode(String codeValue, String deviceUuid,
+    public ActivationApiResponse validateCode(String codeValue, String deviceUuid,
         String deviceName, String deviceModel, String deviceOs, String appVersion) {
-        Map<String, Object> result = new HashMap<>();
-
         // 查询激活码
         SysActivationCode code = activationCodeMapper.selectSysActivationCodeByValue(codeValue);
         if (code == null) {
-            result.put("success", false);
-            result.put("message", "激活码不存在");
-            return result;
+            return new ActivationApiResponse(false, "激活码不存在");
         }
 
         // 检查状态
         if ("1".equals(code.getStatus())) {
-            result.put("success", false);
-            result.put("message", "激活码已被使用");
-            return result;
+            return new ActivationApiResponse(false, "激活码已被使用");
         }
 
         if ("2".equals(code.getStatus())) {
-            result.put("success", false);
-            result.put("message", "激活码已过期");
-            return result;
+            return new ActivationApiResponse(false, "激活码已过期");
         }
 
         if ("3".equals(code.getStatus())) {
-            result.put("success", false);
-            result.put("message", "激活码已被禁用");
-            return result;
+            return new ActivationApiResponse(false, "激活码已被禁用");
         }
 
         // 检查是否已达到最大设备数
         if (code.getMaxDeviceCount() != null && code.getActivatedCount() >= code.getMaxDeviceCount()) {
-            result.put("success", false);
-            result.put("message", "该激活码已达到最大设备数限制");
-            return result;
+            return new ActivationApiResponse(false, "该激活码已达到最大设备数限制");
         }
 
         // 检查有效期
         if (code.getExpireTime() != null && code.getExpireTime().before(new Date())) {
             code.setStatus("2"); // 标记为过期
             activationCodeMapper.updateSysActivationCode(code);
-            result.put("success", false);
-            result.put("message", "激活码已过期");
-            return result;
+            return new ActivationApiResponse(false, "激活码已过期");
         }
 
         // 更新激活码状态为已使用
@@ -169,6 +158,16 @@ public class SysActivationCodeServiceImpl implements ISysActivationCodeService {
             code.setActivatedCount(0);
         }
         code.setActivatedCount(code.getActivatedCount() + 1);
+
+        // 记录激活时间和激活设备
+        Date activateTime = DateUtils.getNowDate();
+        code.setActivateTime(activateTime);
+        code.setActivateDevice(deviceModel);
+
+        // 计算实际的过期时间 = 激活时间 + 有效期天数
+        if (code.getValidDays() != null && code.getValidDays() > 0) {
+            code.setExpireTime(DateUtils.addDays(activateTime, code.getValidDays()));
+        }
 
         code.setUpdateTime(DateUtils.getNowDate());
         activationCodeMapper.updateSysActivationCode(code);
@@ -192,14 +191,17 @@ public class SysActivationCodeServiceImpl implements ISysActivationCodeService {
             deviceMapper.updateSysDevice(device);
         }
 
-        result.put("success", true);
-        result.put("message", "激活码验证成功");
-        result.put("codeId", code.getCodeId());
-        result.put("activatedCount", code.getActivatedCount());
-        result.put("maxDeviceCount", code.getMaxDeviceCount());
-        result.put("expiryTime", code.getExpireTime().getTime());
-
-        return result;
+        return new ActivationApiResponse(
+            true,
+            "激活码验证成功",
+            code.getCodeId(),
+            code.getActivatedCount(),
+            code.getMaxDeviceCount(),
+            code.getExpireTime() != null ? code.getExpireTime().getTime() : null,
+            code.getActivateTime() != null ? code.getActivateTime().getTime() : null,
+            code.getActivateDevice(),
+            code.getValidDays()
+        );
     }
 
     /**

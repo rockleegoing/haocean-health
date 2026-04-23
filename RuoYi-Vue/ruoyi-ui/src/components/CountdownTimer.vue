@@ -9,6 +9,11 @@ export default {
     expireTime: {
       type: [String, Number],
       required: true
+    },
+    // 是否直接传入剩余天数（而非时间戳）
+    isDays: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -19,6 +24,10 @@ export default {
   },
   computed: {
     remainingTime() {
+      if (this.isDays) {
+        // 直接是剩余天数，转为毫秒
+        return this.expireTime * 24 * 60 * 60 * 1000
+      }
       const expire = typeof this.expireTime === 'string'
         ? new Date(this.expireTime).getTime()
         : this.expireTime

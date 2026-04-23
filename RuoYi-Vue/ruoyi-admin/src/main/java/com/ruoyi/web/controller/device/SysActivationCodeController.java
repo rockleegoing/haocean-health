@@ -22,6 +22,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.system.domain.SysActivationCode;
+import com.ruoyi.system.domain.vo.ActivationApiResponse;
 import com.ruoyi.system.service.ISysActivationCodeService;
 
 /**
@@ -143,7 +144,7 @@ public class SysActivationCodeController extends BaseController
             return error("设备标识不能为空");
         }
 
-        Map<String, Object> result = activationCodeService.validateCode(
+        ActivationApiResponse result = activationCodeService.validateCode(
             codeValue, deviceUuid, deviceName, deviceModel, deviceOs, appVersion);
         return success(result);
     }
