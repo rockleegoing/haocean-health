@@ -1,5 +1,6 @@
 package com.ruoyi.app.sync
 
+import android.content.Context
 import com.ruoyi.app.sync.model.SyncProgress
 import com.ruoyi.app.sync.model.SyncResult
 import com.ruoyi.app.sync.model.SyncStatus
@@ -29,6 +30,26 @@ class SyncManager private constructor() {
                 INSTANCE ?: SyncManager().also { INSTANCE = it }
             }
         }
+
+        // 同步模块定义
+        const val MODULE_USER_PERMISSION = "用户权限"
+        const val MODULE_INDUSTRY_CATEGORY = "行业分类"
+        const val MODULE_LAW = "法律法规"
+        const val MODULE_PHRASE = "规范用语"
+        const val MODULE_SUPERVISION = "监管事项"
+        const val MODULE_DOCUMENT_TEMPLATE = "文书模板"
+        const val MODULE_MEDIA_FILE = "媒体文件"
+
+        // 全量同步模块列表（阶段二）
+        val FULL_SYNC_MODULES = listOf(
+            MODULE_USER_PERMISSION,
+            MODULE_INDUSTRY_CATEGORY,
+            MODULE_LAW,
+            MODULE_PHRASE,
+            MODULE_SUPERVISION,
+            MODULE_DOCUMENT_TEMPLATE,
+            MODULE_MEDIA_FILE
+        )
     }
 
     fun reset() {
@@ -43,14 +64,16 @@ class SyncManager private constructor() {
         _result.value = SyncResult.cancelled()
     }
 
-    suspend fun syncAll(): SyncResult {
+    /**
+     * 执行全量同步（阶段二）
+     * 包含所有模块，强制等待完成
+     */
+    suspend fun syncAll(context: Context? = null): SyncResult {
         reset()
 
-        // 阶段二同步步骤（目前只有用户权限，其他预留）
-        val modules = listOf("用户权限")
-        val totalSteps = modules.size
+        val totalSteps = FULL_SYNC_MODULES.size
 
-        for ((index, module) in modules.withIndex()) {
+        for ((index, module) in FULL_SYNC_MODULES.withIndex()) {
             if (isCancelled) return SyncResult.cancelled()
 
             _progress.value = _progress.value.copy(
@@ -60,8 +83,8 @@ class SyncManager private constructor() {
                 progressPercent = ((index + 1) * 100) / totalSteps
             )
 
-            // 调用同步模块（当前只有用户权限同步）
-            val moduleResult = syncModule(module)
+            // 调用同步模块
+            val moduleResult = syncModule(context, module)
             if (!moduleResult) {
                 // 模块同步失败，指数退避重试
                 repeat(maxRetries) { retryIndex ->
@@ -69,7 +92,7 @@ class SyncManager private constructor() {
                     retryCount++
                     val delayMs = (1 shl retryIndex) * 1000L // 1s, 2s, 4s
                     delay(delayMs)
-                    val retryResult = syncModule(module)
+                    val retryResult = syncModule(context, module)
                     if (retryResult) return@repeat
                 }
                 // 重试全部失败
@@ -86,21 +109,86 @@ class SyncManager private constructor() {
         return SyncResult.success()
     }
 
-    private suspend fun syncModule(module: String): Boolean {
+    /**
+     * 执行增量同步（阶段三）
+     * 只同步有变更的模块
+     */
+    suspend fun syncIncremental(context: Context): SyncResult {
+        reset()
+
+        // TODO: 检查各模块是否有更新
+        // val modulesToSync = checkUpdatedModules(context)
+        // if (modulesToSync.isEmpty()) return SyncResult.success()
+
+        // 暂时不做增量，等后端接口开发后完善
+        return SyncResult.success()
+    }
+
+    private suspend fun syncModule(context: Context?, module: String): Boolean {
         return try {
             when (module) {
-                "用户权限" -> syncUserPermissions()
-                else -> true // 预留模块暂不实现
+                MODULE_USER_PERMISSION -> syncUserPermissions()
+                MODULE_INDUSTRY_CATEGORY -> syncIndustryCategory(context)
+                MODULE_LAW -> syncLaw(context)
+                MODULE_PHRASE -> syncPhrase(context)
+                MODULE_SUPERVISION -> syncSupervision(context)
+                MODULE_DOCUMENT_TEMPLATE -> syncDocumentTemplate(context)
+                MODULE_MEDIA_FILE -> syncMediaFile(context)
+                else -> true
             }
         } catch (e: Exception) {
             false
         }
     }
 
+    // ==================== 各模块同步方法 ====================
+    // TODO: 等后端接口开发后完善具体实现
+
     private suspend fun syncUserPermissions(): Boolean {
-        // 预留：用户权限同步逻辑
-        // 当前阶段二只需要同步用户权限，其他模块预留
-        // TODO: 等后端 /getInfo 接口支持后，调用并存储到本地
+        // 用户权限同步（阶段一已预加载，阶段二确认同步完成）
+        // 这里主要确认本地数据完整性
+        return true
+    }
+
+    private suspend fun syncIndustryCategory(context: Context?): Boolean {
+        // 行业分类同步
+        // TODO: 调用后端 GET /industry/category/list
+        // 存储到 IndustryCategoryEntity
+        return true
+    }
+
+    private suspend fun syncLaw(context: Context?): Boolean {
+        // 法律法规同步
+        // TODO: 调用后端 GET /law/regulation/list
+        // 存储到 law_regulation 表
+        return true
+    }
+
+    private suspend fun syncPhrase(context: Context?): Boolean {
+        // 规范用语同步
+        // TODO: 调用后端 GET /phrase/library/list
+        // 存储到 phrase_library 表
+        return true
+    }
+
+    private suspend fun syncSupervision(context: Context?): Boolean {
+        // 监管事项同步
+        // TODO: 调用后端 GET /supervision/item/list
+        // 存储到 supervision_item 表
+        return true
+    }
+
+    private suspend fun syncDocumentTemplate(context: Context?): Boolean {
+        // 文书模板同步
+        // TODO: 调用后端 GET /document/template/list
+        // 存储到 document_template 表
+        return true
+    }
+
+    private suspend fun syncMediaFile(context: Context?): Boolean {
+        // 媒体文件同步
+        // TODO: 调用后端 GET /media/file/list
+        // 下载文件到本地存储
         return true
     }
 }

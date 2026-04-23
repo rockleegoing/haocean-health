@@ -87,7 +87,7 @@ class SyncService : Service() {
             }
 
             // 执行同步
-            val result = manager.syncAll()
+            val result = manager.syncAll(this@SyncService)
 
             // 同步完成处理
             when (result.status) {
