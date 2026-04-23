@@ -4,11 +4,15 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.fragment.app.Fragment
+import com.drake.net.utils.scopeNetLife
 import com.ruoyi.app.R
 import com.ruoyi.app.adapter.FragmentPagerAdapter
 import com.ruoyi.app.adapter.NavigationAdapter
 import com.ruoyi.app.api.ConfigApi
+import com.ruoyi.app.api.repository.DeviceRepository
 import com.ruoyi.app.databinding.ActivityMainBinding
 import com.ruoyi.app.fragment.HomeFragment
 import com.ruoyi.app.fragment.MineFragment
@@ -19,6 +23,7 @@ import com.ruoyi.app.model.entity.ButtomItemEntity
 import com.ruoyi.code.Frame
 import com.ruoyi.code.base.BaseBindingActivity
 import com.ruoyi.code.base.activityViewModels
+import com.ruoyi.code.utils.SpUtils
 import com.therouter.router.Route
 import com.xuexiang.xupdate.XUpdate
 
@@ -31,6 +36,8 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
 
         private const val INTENT_KEY_IN_FRAGMENT_INDEX: String = "fragmentIndex"
         private const val INTENT_KEY_IN_FRAGMENT_CLASS: String = "fragmentClass"
+        /** 心跳间隔：5 分钟 */
+        private const val HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000L
 
         @JvmOverloads
         fun startActivity(
@@ -48,6 +55,25 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
 
     private var navigationAdapter: NavigationAdapter? = null
     private var pagerAdapter: FragmentPagerAdapter<Fragment>? = null
+
+    /** 设备 UUID（从本地存储获取，登录后由后端下发） */
+    private var deviceUuid by SpUtils("device_uuid", "")
+
+    /** 主线程 Handler，用于定时心跳 */
+    private val heartbeatHandler = Handler(Looper.getMainLooper())
+
+    /** 心跳定时任务：每 5 分钟上报一次在线状态 */
+    private val heartbeatRunnable = object : Runnable {
+        override fun run() {
+            val uuid = deviceUuid
+            if (uuid.isNotEmpty()) {
+                scopeNetLife {
+                    DeviceRepository(this@MainActivity).sendHeartbeat(uuid, "1")
+                }
+            }
+            heartbeatHandler.postDelayed(this, HEARTBEAT_INTERVAL_MS)
+        }
+    }
 
     private val list = ArrayList<ButtomItemEntity>().apply {
         add(
@@ -141,6 +167,22 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
         XUpdate.newBuild(this)
             .updateUrl(ConfigApi.uploadApp)
             .update()
+
+        // 启动心跳定时器
+        heartbeatHandler.post(heartbeatRunnable)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // 停止心跳定时器
+        heartbeatHandler.removeCallbacks(heartbeatRunnable)
+        // App 退出时上报离线
+        val uuid = deviceUuid
+        if (uuid.isNotEmpty()) {
+            scopeNetLife {
+                DeviceRepository(this@MainActivity).sendHeartbeat(uuid, "0")
+            }
+        }
     }
 
     private fun switchFragment(fragmentIndex: Int) {
