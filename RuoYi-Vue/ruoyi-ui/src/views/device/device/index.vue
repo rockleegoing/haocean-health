@@ -76,7 +76,7 @@
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="240">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -91,6 +91,13 @@
             @click="handleUnbind(scope.row)"
             v-hasPermi="['device:device:unbind']"
           >解绑</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-delete"
+            @click="handleRemoteWipe(scope.row)"
+            v-hasPermi="['device:device:remoteWipe']"
+          >远程清除</el-button>
           <el-button
             size="mini"
             type="text"
@@ -137,7 +144,7 @@
 </template>
 
 <script>
-import { listDevice, delDevice, batchDelDevice, unbindDevice } from "@/api/device/device"
+import { listDevice, delDevice, batchDelDevice, unbindDevice, remoteWipeDevice } from "@/api/device/device"
 
 export default {
   name: "Device",
@@ -240,6 +247,15 @@ export default {
       }).then(() => {
         this.getList()
         this.$modal.msgSuccess("删除成功")
+      }).catch(() => {})
+    },
+    /** 远程清除按钮操作 */
+    handleRemoteWipe(row) {
+      this.$modal.confirm('是否确认远程清除设备 "' + row.deviceName + '" 的数据？清除后设备将恢复出厂设置。').then(function() {
+        return remoteWipeDevice(row.displayDeviceId)  // 使用 deviceUuid
+      }).then(() => {
+        this.getList()
+        this.$modal.msgSuccess("远程清除指令已发送")
       }).catch(() => {})
     }
   }

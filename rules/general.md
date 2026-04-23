@@ -33,6 +33,20 @@
 
 ## 最佳实践
 
+### 跨端 API 调用规范
+
+**重要：在编写前端 (Vue) 和 Android (Kotlin) 调用 API 之前，必须先查看后台 API 的具体实现**
+
+- 第一步：阅读后端 Controller 代码，确认接口路径、请求方法、参数名称和返回类型
+- 第二步：确认参数的数据类型（String/Long/Map）和必填要求
+- 第三步：根据后端实际实现编写前端/Android 调用代码
+- 第四步：验证参数名称完全一致（如 `deviceUuid` vs `deviceId`）
+
+**常见错误案例：**
+- 后端期望 `deviceUuid`（String），前端传递 `deviceId`（Long）
+- 后端期望 `Map<String, String>`，前端传递 `Map<String, Long>`
+- 后端使用 `@RequestBody` 接收 JSON，前端使用 `params` 查询参数
+
 ### 后端
 
 -  controller 层只处理请求参数和响应结果

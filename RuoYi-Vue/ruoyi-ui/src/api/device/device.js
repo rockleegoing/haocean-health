@@ -41,3 +41,12 @@ export function batchDelDevice(ids) {
     method: 'delete'
   })
 }
+
+// 远程清除设备数据
+export function remoteWipeDevice(deviceUuid) {
+  return request({
+    url: '/device/device/remoteWipe',
+    method: 'post',
+    data: { deviceUuid: deviceUuid }
+  })
+}
