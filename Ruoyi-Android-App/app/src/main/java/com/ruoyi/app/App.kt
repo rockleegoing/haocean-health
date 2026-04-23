@@ -2,11 +2,14 @@ package com.ruoyi.app
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import com.hjq.toast.ToastUtils
+import com.ruoyi.app.activity.LoginActivity
 import com.ruoyi.app.api.OKHttpUtils
 import com.ruoyi.app.api.ServiceAuthLocator
 import com.ruoyi.app.api.repository.AuthRepoInterface
 import com.ruoyi.app.api.service.OKHttpUpdateHttpService
+import com.ruoyi.app.data.database.AppDatabase
 import com.ruoyi.app.model.entity.CustomUpdateParser
 import com.ruoyi.code.Frame
 import com.ruoyi.code.utils.LocaleHelper.getPersistedData
@@ -16,9 +19,15 @@ import com.therouter.TheRouter
 import com.xuexiang.xupdate.XUpdate
 import com.xuexiang.xupdate.entity.UpdateError
 import com.xuexiang.xupdate.utils.UpdateUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 
 class App : Application() {
+
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     /*接口相关*/
     val authRepository: AuthRepoInterface
@@ -32,11 +41,49 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         application = this
+
+        // 确保 MMKV 已初始化（MMKV.initialize 可以安全调用多次）
+        try {
+            MMKV.initialize(this)
+        } catch (e: Exception) {
+            // MMKV 可能已经初始化，忽略异常
+        }
+
+        // 检测覆盖安装
+        checkAppUpgrade()
+
         val language = getPersistedData(this, "zh")
         val context = setLocale(this, language!!)
         Frame.initialize(context)
         TheRouter.init(this)
         initUploadApp()
+    }
+
+    /**
+     * 检测覆盖安装
+     * 如果是覆盖安装，清空本地数据并重置激活状态
+     */
+    private fun checkAppUpgrade() {
+        val prefs = getSharedPreferences("app_info", Context.MODE_PRIVATE)
+        val lastVersion = prefs.getInt("last_version", 0)
+        val currentVersion = try {
+            packageManager.getPackageInfo(packageName, 0).versionCode
+        } catch (e: Exception) {
+            0
+        }
+
+        if (currentVersion > lastVersion && lastVersion > 0) {
+            // 覆盖安装：清空数据 + 重置激活状态
+            applicationScope.launch(Dispatchers.IO) {
+                AppDatabase.getInstance(this@App).clearAllTables()
+            }
+            // 重置激活状态（清除 activation 相关 key）
+            MMKV.defaultMMKV().removeValueForKey("activation_status")
+            MMKV.defaultMMKV().removeValueForKey("device_uuid")
+        }
+
+        // 更新版本号记录
+        prefs.edit().putInt("last_version", currentVersion).apply()
     }
 
 
