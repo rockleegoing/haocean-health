@@ -1,15 +1,17 @@
 package com.ruoyi.app.activity
 
 import android.animation.ValueAnimator
+import android.os.Handler
+import android.os.Looper
 import android.view.animation.LinearInterpolator
 import com.ruoyi.app.App
+import com.ruoyi.app.api.repository.ActivationRepository
 import com.ruoyi.app.databinding.ActivitySplashBinding
 import com.ruoyi.app.widget.SplashDialog
 import com.ruoyi.app.widget.SplashDialog.SplashDialogClickListener
 import com.ruoyi.code.base.BaseBindingActivity
 import com.ruoyi.code.utils.SpUtils
-import java.util.Timer
-import java.util.TimerTask
+import kotlinx.coroutines.runBlocking
 
 /**
  * 启动页活动类
@@ -19,9 +21,10 @@ class SplashActivity : BaseBindingActivity<ActivitySplashBinding>() {
 
     /** 用户是否已同意隐私政策和用户协议的标志 */
     private var isAgreement by SpUtils("isAgreement", false)
-    
-    /** 定时器，用于延迟跳转到登录页 */
-    private var timer: Timer? = null
+
+    /** Handler + Runnable，用于延迟跳转（替代 Timer，避免旋转时问题） */
+    private var jumpRunnable: Runnable? = null
+    private val handler = Handler(Looper.getMainLooper())
 
     /**
      * 初始化视图
@@ -78,19 +81,33 @@ class SplashActivity : BaseBindingActivity<ActivitySplashBinding>() {
     }
 
     /**
-     * 跳转到登录页
-     * 延迟2秒后初始化应用并跳转到登录页面，给用户展示启动页的时间
+     * 跳转到登录页或激活页
+     * 延迟2秒后初始化应用并跳转到对应页面，给用户展示启动页的时间
      */
     private fun startActivity() {
-        val delayTask = object : TimerTask() {
-            override fun run() {
-                App.init()  // 初始化应用配置和数据
-                ActivationActivity.startActivity(this@SplashActivity)  // 启动激活页
-                this@SplashActivity.finish()  // 关闭启动页
+        // 防止重复启动跳转
+        if (jumpRunnable != null) return
+
+        jumpRunnable = Runnable {
+            App.init()  // 初始化应用配置和数据
+
+            // 检查是否已激活
+            val isActivated = runBlocking {
+                val activationRepository = ActivationRepository(this@SplashActivity)
+                val status = activationRepository.getActivationStatus()
+                status != null && status.isActivated
             }
+
+            if (isActivated) {
+                // 已激活，跳转到登录页
+                LoginActivity.startActivity(this@SplashActivity)
+            } else {
+                // 未激活，跳转到激活页
+                ActivationActivity.startActivity(this@SplashActivity)
+            }
+            finish()  // 关闭启动页
         }
-        timer = Timer()
-        timer?.schedule(delayTask, 2000)  // 延迟2秒执行跳转任务
+        handler.postDelayed(jumpRunnable!!, 2000)  // 延迟2秒执行跳转任务
     }
 
     /**
@@ -99,8 +116,8 @@ class SplashActivity : BaseBindingActivity<ActivitySplashBinding>() {
      */
     override fun onDestroy() {
         super.onDestroy()
-        timer?.cancel()  // 取消定时器任务
-        timer = null  // 释放定时器引用
+        jumpRunnable?.let { handler.removeCallbacks(it) }  // 取消延迟跳转
+        jumpRunnable = null
     }
 
 }

@@ -62,8 +62,14 @@ class ActivationRepository(
             }.await()
 
             if (response.code == 200 && response.data != null) {
-                // 2. 验证成功，保存到 Room
                 val apiData = response.data
+
+                // 后端返回 success=false 表示业务逻辑失败（如激活码不存在、已使用等）
+                if (!apiData.success) {
+                    return@withContext Result.failure(Exception(apiData.message))
+                }
+
+                // success=true，验证成功，保存到 Room
                 val codeEntity = ActivationCodeEntity(
                     codeId = apiData.activationCodeId,
                     codeValue = codeValue,
@@ -75,7 +81,8 @@ class ActivationRepository(
                     createBy = "system",
                     createTime = System.currentTimeMillis(),
                     updateBy = null,
-                    updateTime = null
+                    updateTime = null,
+                    validDays = apiData.validDays
                 )
                 activationCodeDao.insertActivationCode(codeEntity)
 
@@ -105,11 +112,12 @@ class ActivationRepository(
                 Result.success(
                     ActivationResponse(
                         success = true,
-                        message = response.msg ?: "激活成功",
+                        message = apiData.message,
                         activationCodeId = apiData.activationCodeId,
                         deviceCount = apiData.deviceCount,
                         maxDeviceCount = apiData.maxDeviceCount,
-                        expiryTime = apiData.expiryTime
+                        expiryTime = apiData.expiryTime,
+                        validDays = apiData.validDays
                     )
                 )
             } else {
@@ -163,10 +171,19 @@ class ActivationRepository(
     /**
      * 后端 API 响应数据结构
      */
+    @kotlinx.serialization.Serializable
     data class ActivationApiResponse(
-        val activationCodeId: Long,
-        val deviceCount: Int,
-        val maxDeviceCount: Int,
-        val expiryTime: Long
-    )
+        val success: Boolean,
+        val message: String,
+        val codeId: Long = 0,
+        val activatedCount: Int = 0,
+        val maxDeviceCount: Int = 0,
+        val expiryTime: Long = 0,
+        val activateTime: Long = 0,
+        val activateDevice: String = "",
+        val validDays: Int = 0
+    ) {
+        val activationCodeId: Long get() = codeId
+        val deviceCount: Int get() = activatedCount
+    }
 }

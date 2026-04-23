@@ -45,7 +45,8 @@ data class ActivationResponse(
     val activationCodeId: Long,
     val deviceCount: Int,
     val maxDeviceCount: Int,
-    val expiryTime: Long
+    val expiryTime: Long,
+    val validDays: Int = 0
 )
 
 /**

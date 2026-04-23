@@ -18,5 +18,6 @@ data class ActivationCodeEntity(
     val createBy: String?,
     val createTime: Long,
     val updateBy: String?,
-    val updateTime: Long?
+    val updateTime: Long?,
+    val validDays: Int? = null
 )

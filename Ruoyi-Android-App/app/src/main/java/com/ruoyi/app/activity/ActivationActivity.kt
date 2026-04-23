@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.hjq.bar.OnTitleBarListener
@@ -28,6 +30,10 @@ class ActivationActivity : BaseBindingActivity<ActivityActivationBinding>() {
     private val sharedPreferences: SharedPreferences by lazy {
         getSharedPreferences("ruoyi_app", Context.MODE_PRIVATE)
     }
+
+    /** 用于取消 postDelayed 回调 */
+    private var jumpRunnable: Runnable? = null
+    private val handler = Handler(Looper.getMainLooper())
 
     private var currentUiState: ActivationUiState = ActivationUiState.Idle
         set(value) {
@@ -89,10 +95,11 @@ class ActivationActivity : BaseBindingActivity<ActivityActivationBinding>() {
                 binding.tvStatus.setTextColor(ContextCompat.getColor(this, R.color.success_green))
                 binding.tvStatus.visibility = View.VISIBLE
                 // 2 秒后跳转登录页
-                binding.root.postDelayed({
+                jumpRunnable = Runnable {
                     LoginActivity.startActivity(this@ActivationActivity)
                     finish()
-                }, 2000)
+                }
+                binding.root.postDelayed(jumpRunnable!!, 2000)
             }
             is ActivationUiState.Error -> {
                 binding.tvStatus.text = state.message
@@ -121,6 +128,9 @@ class ActivationActivity : BaseBindingActivity<ActivityActivationBinding>() {
                 deviceOs = deviceOs,
                 appVersion = appVersion
             )
+
+            //logcat中打印结果
+            println("ActivationResponse: $result")
 
             result.onSuccess { response ->
                 currentUiState = ActivationUiState.Success("激活成功，即将跳转登录页")
@@ -157,5 +167,11 @@ class ActivationActivity : BaseBindingActivity<ActivityActivationBinding>() {
         } catch (e: Exception) {
             "1.0.0"
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        jumpRunnable?.let { binding.root.removeCallbacks(it) }
+        jumpRunnable = null
     }
 }
