@@ -15,6 +15,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="currentUserName" column="current_user_name"/>
         <result property="activationCodeId" column="activation_code_id"/>
         <result property="lastSyncTime"    column="last_sync_time"   />
+        <result property="heartbeatTime"     column="heartbeat_time"     />
+        <result property="heartbeatInterval" column="heartbeat_interval" />
         <result property="lastLoginTime"   column="last_login_time"  />
         <result property="lastLoginIp"     column="last_login_ip"    />
         <result property="status"          column="status"           />
@@ -26,7 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSysDeviceVo">
-        select device_id, device_uuid, device_name, device_model, device_os, app_version, current_user_id, current_user_name, activation_code_id, last_sync_time, last_login_time, last_login_ip, status, create_by, create_time, update_by, update_time, remark
+        select device_id, device_uuid, device_name, device_model, device_os, app_version, current_user_id, current_user_name, activation_code_id, last_sync_time, heartbeat_time, heartbeat_interval, last_login_time, last_login_ip, status, create_by, create_time, update_by, update_time, remark
         from sys_device
     </sql>
 
@@ -86,6 +88,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="currentUserName != null and currentUserName != ''">current_user_name,</if>
             <if test="activationCodeId != null">activation_code_id,</if>
             <if test="lastSyncTime != null">last_sync_time,</if>
+            <if test="heartbeatTime != null">heartbeat_time,</if>
+            <if test="heartbeatInterval != null">heartbeat_interval,</if>
             <if test="lastLoginTime != null">last_login_time,</if>
             <if test="lastLoginIp != null and lastLoginIp != ''">last_login_ip,</if>
             <if test="status != null">status,</if>
@@ -104,6 +108,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="currentUserName != null and currentUserName != ''">#{currentUserName},</if>
             <if test="activationCodeId != null">#{activationCodeId},</if>
             <if test="lastSyncTime != null">#{lastSyncTime},</if>
+            <if test="heartbeatTime != null">#{heartbeatTime},</if>
+            <if test="heartbeatInterval != null">#{heartbeatInterval},</if>
             <if test="lastLoginTime != null">#{lastLoginTime},</if>
             <if test="lastLoginIp != null and lastLoginIp != ''">#{lastLoginIp},</if>
             <if test="status != null">#{status},</if>
@@ -125,6 +131,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="currentUserName != null and currentUserName != ''">current_user_name = #{currentUserName},</if>
             <if test="activationCodeId != null">activation_code_id = #{activationCodeId},</if>
             <if test="lastSyncTime != null">last_sync_time = #{lastSyncTime},</if>
+            <if test="heartbeatTime != null">heartbeat_time = #{heartbeatTime},</if>
+            <if test="heartbeatInterval != null">heartbeat_interval = #{heartbeatInterval},</if>
             <if test="lastLoginTime != null">last_login_time = #{lastLoginTime},</if>
             <if test="lastLoginIp != null and lastLoginIp != ''">last_login_ip = #{lastLoginIp},</if>
             <if test="status != null">status = #{status},</if>
@@ -143,6 +151,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         set current_user_id = #{param2},
             current_user_name = #{param3},
             update_time = sysdate()
+        where device_uuid = #{param1}
+    </update>
+
+    <update id="updateHeartbeat" parameterType="java.util.Map">
+        update sys_device
+        set heartbeat_time = sysdate(),
+            status = #{param2},
+            last_login_time = sysdate()
         where device_uuid = #{param1}
     </update>
 
