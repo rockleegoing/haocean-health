@@ -145,6 +145,22 @@ class ActivationRepository(
     }
 
     /**
+     * 离线模式下预加载激活码
+     */
+    suspend fun preloadActivationCode(code: ActivationCodeEntity) {
+        activationCodeDao.insertActivationCode(code)
+    }
+
+    /**
+     * 检查激活码是否在本地有效
+     */
+    suspend fun isActivationCodeValidLocally(codeValue: String): Boolean {
+        val code = activationCodeDao.getActivationCodeByValue(codeValue)
+        return code != null && code.status == "0" &&
+               (code.expireTime == null || code.expireTime > System.currentTimeMillis())
+    }
+
+    /**
      * 后端 API 响应数据结构
      */
     data class ActivationApiResponse(
