@@ -9,6 +9,8 @@ import androidx.lifecycle.scopeNetLife
 import com.ruoyi.app.App
 import com.ruoyi.app.api.ConfigApi
 import com.ruoyi.app.api.OKHttpUtils
+import com.ruoyi.app.data.database.AppDatabase
+import com.ruoyi.app.data.database.entity.UserMapper
 import com.ruoyi.app.model.entity.ButtomItemEntity
 import com.ruoyi.app.model.entity.MineEntity
 import com.ruoyi.app.model.entity.WorkIndexEntity
@@ -186,15 +188,20 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * 预加载登录验证数据
      * 后台异步获取用户信息并存储到本地数据库
-     * TODO: 等后端 /getInfo 接口返回完整数据后完善存储逻辑
      */
     fun preloadLoginData() {
         scopeNetLife {
             try {
                 val body = authRepository.getUserInfo()
                 if (body.code == ConfigApi.SUCESSS) {
-                    // TODO: 等后端接口完善后，将 user、roles、permissions 存储到本地数据库
-                    // 当前阶段只获取数据，不做本地存储（等 UserEntity 字段对齐后实现）
+                    // 存储用户信息到本地数据库
+                    body.user?.let { apiUser ->
+                        val roomUser = UserMapper.fromApi(apiUser)
+                        AppDatabase.getInstance(getApplication()).userDao().insertUser(roomUser)
+                    }
+                    // TODO: 存储 roles 和 permissions 到本地
+                    // 目前 MineEntity 只有 roles: List<String> 和 permissions: List<String>
+                    // 后续可能需要创建 roles 和 permissions 表来存储
                 }
             } catch (e: Exception) {
                 // 预加载失败，不阻塞用户操作

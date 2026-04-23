@@ -12,10 +12,13 @@ data class MineEntity(
 
 @kotlinx.serialization.Serializable
 data class UserEntity(
-    val avatar: String,
-    val createTime: String,
-    val email: String,
-    val nickName: String,
-    val phonenumber: String,
-    val userName: String
+    val userId: Long = 0,
+    val userName: String = "",
+    val nickName: String = "",
+    val email: String = "",
+    val phonenumber: String = "",
+    val avatar: String = "",
+    val createTime: String = "",
+    val sex: String = "",
+    val status: String = "0"
 )
