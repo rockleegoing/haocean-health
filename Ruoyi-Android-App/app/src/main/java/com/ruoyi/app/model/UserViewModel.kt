@@ -15,6 +15,7 @@ import com.ruoyi.app.model.entity.WorkIndexEntity
 import com.ruoyi.app.model.request.registerRequest
 import com.ruoyi.code.base.scopeDialog
 import com.tencent.mmkv.MMKV
+import com.therouter.TheRouter
 
 class UserViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -70,7 +71,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             val data = authRepository.login(code, username, password, uuid.value)
             if (data.isSuceess()) {
                 MMKV.defaultMMKV().encode("token", data.token)
-                loginSuceess.value = true
+                // 登录成功，跳转到同步等待页面
+                TheRouter.build(Constant.syncWaitRoute).navigation()
             } else {
                 errorMsg.value = data.msg
             }

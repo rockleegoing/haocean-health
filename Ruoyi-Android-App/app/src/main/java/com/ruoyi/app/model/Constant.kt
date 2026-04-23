@@ -20,6 +20,7 @@ object Constant {
     const val workFragment = "http://com.ruoyi/work/fragment"
     const val mineFragment = "http://com.ruoyi/mine/fragment"
     const val loginRoute = "http://com.ruoyi/login"
+    const val syncWaitRoute = "http://com.ruoyi/syncWait"
 
     // 首页动态设置
     const val mainStyleDefault = "1" // 1 首页图片+文字

@@ -12,9 +12,11 @@ import com.ruoyi.app.sync.SyncService
 import com.ruoyi.app.sync.model.SyncStatus
 import com.ruoyi.code.base.BaseBindingActivity
 import com.therouter.TheRouter
+import com.therouter.router.Route
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@Route(path = Constant.syncWaitRoute)
 class SyncWaitActivity : BaseBindingActivity<ActivitySyncWaitBinding>() {
 
     private val syncManager = SyncManager.getInstance()
