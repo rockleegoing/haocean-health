@@ -20,6 +20,7 @@ import com.ruoyi.app.fragment.WorkFragment
 import com.ruoyi.app.model.Constant
 import com.ruoyi.app.model.UserViewModel
 import com.ruoyi.app.model.entity.ButtomItemEntity
+import com.ruoyi.app.sync.SyncWorker
 import com.ruoyi.code.Frame
 import com.ruoyi.code.base.BaseBindingActivity
 import com.ruoyi.code.base.activityViewModels
@@ -170,6 +171,9 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
 
         // 启动心跳定时器
         heartbeatHandler.post(heartbeatRunnable)
+
+        // 调度后台同步 WorkManager（30分钟周期）
+        SyncWorker.schedule(this)
     }
 
     override fun onDestroy() {
