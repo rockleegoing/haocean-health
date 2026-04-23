@@ -11,6 +11,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="expireTime"    column="expire_time"    />
         <result property="bindDeviceId"  column="bind_device_id" />
         <result property="bindUserId"    column="bind_user_id"   />
+        <result property="maxDeviceCount"    column="max_device_count"   />
+        <result property="activatedCount"    column="activated_count"   />
         <result property="createBy"      column="create_by"      />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"      column="update_by"      />
@@ -19,7 +21,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSysActivationCodeVo">
-        select code_id, code_value, status, expire_time, bind_device_id, bind_user_id, create_by, create_time, update_by, update_time, remark
+        select code_id, code_value, status, expire_time, bind_device_id, bind_user_id, max_device_count, activated_count, create_by, create_time, update_by, update_time, remark
         from sys_activation_code
     </sql>
 
@@ -66,6 +68,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="expireTime != null">expire_time,</if>
             <if test="bindDeviceId != null and bindDeviceId != ''">bind_device_id,</if>
             <if test="bindUserId != null">bind_user_id,</if>
+            <if test="maxDeviceCount != null">max_device_count,</if>
+            <if test="activatedCount != null">activated_count,</if>
             <if test="createBy != null and createBy != ''">create_by,</if>
             <if test="remark != null and remark != ''">remark,</if>
             create_time
@@ -77,6 +81,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="expireTime != null">#{expireTime},</if>
             <if test="bindDeviceId != null and bindDeviceId != ''">#{bindDeviceId},</if>
             <if test="bindUserId != null">#{bindUserId},</if>
+            <if test="maxDeviceCount != null">#{maxDeviceCount},</if>
+            <if test="activatedCount != null">#{activatedCount},</if>
             <if test="createBy != null and createBy != ''">#{createBy},</if>
             <if test="remark != null and remark != ''">#{remark},</if>
             sysdate()
@@ -84,10 +90,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
 
     <insert id="batchInsertSysActivationCode" parameterType="java.util.List">
-        insert into sys_activation_code (code_value, status, expire_time, bind_device_id, bind_user_id, create_by, create_time, remark)
+        insert into sys_activation_code (code_value, status, expire_time, bind_device_id, bind_user_id, max_device_count, activated_count, create_by, create_time, remark)
         values
         <foreach item="item" collection="list" separator=",">
-            (#{item.codeValue}, #{item.status}, #{item.expireTime}, #{item.bindDeviceId}, #{item.bindUserId}, #{item.createBy}, sysdate(), #{item.remark})
+            (#{item.codeValue}, #{item.status}, #{item.expireTime}, #{item.bindDeviceId}, #{item.bindUserId},
+             #{item.maxDeviceCount}, #{item.activatedCount}, #{item.createBy}, sysdate(), #{item.remark})
         </foreach>
     </insert>
 
@@ -99,6 +106,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="expireTime != null">expire_time = #{expireTime},</if>
             <if test="bindDeviceId != null and bindDeviceId != ''">bind_device_id = #{bindDeviceId},</if>
             <if test="bindUserId != null">bind_user_id = #{bindUserId},</if>
+            <if test="maxDeviceCount != null">max_device_count = #{maxDeviceCount},</if>
+            <if test="activatedCount != null">activated_count = #{activatedCount},</if>
             <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
             <if test="remark != null">remark = #{remark},</if>
             update_time = sysdate()
