@@ -53,7 +53,7 @@ class LoginActivity : BaseBindingActivity<ActivityLoginBinding>() {
 
         binding.btnLogin.clickDelay {
             viewModel.login(
-                this,
+                this@LoginActivity,
                 binding.etAccount.text.toString().trim(),
                 binding.etPassword.text.toString().trim(),
                 binding.etCode.text.toString().trim()
@@ -65,11 +65,11 @@ class LoginActivity : BaseBindingActivity<ActivityLoginBinding>() {
         }
 
         binding.tvProtocol.clickDelay {
-            WebActivity.startActivity(this, Frame.getString(R.string.login_agreement), ConfigApi.blogUrl + "/app/agreement.html")
+            WebActivity.startActivity(this@LoginActivity, Frame.getString(R.string.login_agreement), ConfigApi.blogUrl + "/app/agreement.html")
         }
 
         binding.tvPrivacy.clickDelay {
-            WebActivity.startActivity(this, Frame.getString(R.string.login_privacy), ConfigApi.blogUrl + "/app/privacy.html")
+            WebActivity.startActivity(this@LoginActivity, Frame.getString(R.string.login_privacy), ConfigApi.blogUrl + "/app/privacy.html")
         }
 
         binding.tvRegister.clickDelay {
