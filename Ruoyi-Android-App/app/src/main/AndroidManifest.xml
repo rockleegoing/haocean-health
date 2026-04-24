@@ -135,7 +135,7 @@
         <activity
             android:name=".feature.addunit.AddUnitActivity"
             android:exported="false"
-            android:theme="@style/Theme.RuoYi" />
+            android:launchMode="singleTop" />
         <service
             android:name=".sync.SyncService"
             android:exported="false"

@@ -3,6 +3,7 @@ package com.ruoyi.app.fragment
 import com.ruoyi.app.databinding.FragmentWorkBinding
 import com.ruoyi.app.model.Constant
 import com.ruoyi.code.base.BaseBindingFragment
+import com.therouter.TheRouter
 import com.therouter.router.Route
 
 @Route(path = Constant.workFragment)

@@ -62,8 +62,10 @@ class HomeFragment : BaseBindingFragment<FragmentHomeBinding>() {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val allGranted = permissions.all { it.value }
+        android.util.Log.d("HomeFragment", "permissionLauncher callback: allGranted=$allGranted, permissions=$permissions")
         if (allGranted) {
-            recordAudio()
+            // 应该根据请求的权限类型决定调用哪个方法，这里暂时记录日志
+            android.util.Log.d("HomeFragment", "All permissions granted, but no action taken in callback")
         } else {
             ToastUtils.show("需要相关权限才能使用此功能")
         }
@@ -116,6 +118,7 @@ class HomeFragment : BaseBindingFragment<FragmentHomeBinding>() {
     override fun onResume() {
         super.onResume()
         updateUnitSelector()
+        loadSelectedUnit()
     }
 
     private fun updateUnitSelector() {
@@ -158,14 +161,17 @@ class HomeFragment : BaseBindingFragment<FragmentHomeBinding>() {
     }
 
     private fun checkPermissionsAndTakePhoto() {
+        android.util.Log.d("HomeFragment", "checkPermissionsAndTakePhoto called")
         if (!checkUnitSelected()) return
         val permissions = arrayOf(Manifest.permission.CAMERA)
         val allGranted = permissions.all {
             ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
         }
+        android.util.Log.d("HomeFragment", "Camera permission check: allGranted=$allGranted")
         if (allGranted) {
             takePhoto()
         } else {
+            android.util.Log.d("HomeFragment", "Launching camera permission request")
             permissionLauncher.launch(permissions)
         }
     }
@@ -218,19 +224,23 @@ class HomeFragment : BaseBindingFragment<FragmentHomeBinding>() {
     }
 
     private fun checkPermissionsAndRecord() {
+        android.util.Log.d("HomeFragment", "checkPermissionsAndRecord called")
         if (!checkUnitSelected()) return
         val permissions = arrayOf(Manifest.permission.RECORD_AUDIO)
         val allGranted = permissions.all {
             ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
         }
+        android.util.Log.d("HomeFragment", "Audio permission check: allGranted=$allGranted")
         if (allGranted) {
             recordAudio()
         } else {
-            ToastUtils.show("需要相关权限才能使用此功能")
+            android.util.Log.d("HomeFragment", "Launching audio permission request")
+            permissionLauncher.launch(permissions)
         }
     }
 
     private fun recordAudio() {
+        android.util.Log.d("HomeFragment", "recordAudio called")
         try {
             val audioFile = createAudioFile()
             currentAudioPath = audioFile.absolutePath
@@ -260,6 +270,7 @@ class HomeFragment : BaseBindingFragment<FragmentHomeBinding>() {
             }, 10000) // 录音10秒后自动停止
 
         } catch (e: Exception) {
+            android.util.Log.e("HomeFragment", "recordAudio failed: ${e.message}", e)
             ToastUtils.show("录音失败: ${e.message}")
             e.printStackTrace()
         }

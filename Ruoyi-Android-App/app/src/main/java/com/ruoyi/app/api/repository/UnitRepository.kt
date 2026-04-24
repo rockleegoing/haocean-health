@@ -7,7 +7,7 @@ import com.ruoyi.app.api.ConfigApi
 import com.ruoyi.app.data.database.AppDatabase
 import com.ruoyi.app.data.database.entity.UnitEntity
 import com.ruoyi.app.data.database.entity.toDTO
-import com.ruoyi.app.utils.OKHttpUtils
+import com.ruoyi.app.api.OKHttpUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -199,7 +199,18 @@ data class UnitDTO(
             delFlag = delFlag ?: "0",
             createTime = createTime?.toLongOrNull() ?: System.currentTimeMillis(),
             updateTime = updateTime?.toLongOrNull(),
-            remark = remark
+            remark = remark,
+            personName = null,
+            registrationAddress = null,
+            businessArea = null,
+            licenseName = null,
+            licenseNo = null,
+            gender = null,
+            nation = null,
+            post = null,
+            idCard = null,
+            birthday = null,
+            homeAddress = null
         )
     }
 }
