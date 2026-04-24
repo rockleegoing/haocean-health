@@ -138,6 +138,17 @@
       <el-table-column label="经营地址" align="center" prop="businessAddress" />
       <el-table-column label="纬度" align="center" prop="latitude" />
       <el-table-column label="经度" align="center" prop="longitude" />
+      <el-table-column label="当事人" align="center" prop="personName" width="80" />
+      <el-table-column label="注册地址" align="center" prop="registrationAddress" width="150" />
+      <el-table-column label="经营面积" align="center" prop="businessArea" width="80" />
+      <el-table-column label="许可证名称" align="center" prop="licenseName" width="120" />
+      <el-table-column label="许可证号" align="center" prop="licenseNo" width="120" />
+      <el-table-column label="性别" align="center" prop="gender" width="50" />
+      <el-table-column label="民族" align="center" prop="nation" width="60" />
+      <el-table-column label="职务" align="center" prop="post" width="80" />
+      <el-table-column label="身份证" align="center" prop="idCard" width="150" />
+      <el-table-column label="出生日期" align="center" prop="birthday" width="100" />
+      <el-table-column label="家庭住址" align="center" prop="homeAddress" width="200" />
       <el-table-column label="状态:0正常,1停用" align="center" prop="status" />
       <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -215,6 +226,61 @@
           <el-col :span="24">
             <el-form-item label="经度" prop="longitude">
               <el-input v-model="form.longitude" placeholder="请输入经度" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="当事人" prop="personName">
+              <el-input v-model="form.personName" placeholder="请输入当事人" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="注册地址" prop="registrationAddress">
+              <el-input v-model="form.registrationAddress" placeholder="请输入注册地址" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="经营面积" prop="businessArea">
+              <el-input v-model="form.businessArea" placeholder="请输入经营面积" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="许可证名称" prop="licenseName">
+              <el-input v-model="form.licenseName" placeholder="请输入许可证名称" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="许可证号" prop="licenseNo">
+              <el-input v-model="form.licenseNo" placeholder="请输入许可证号" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="性别" prop="gender">
+              <el-input v-model="form.gender" placeholder="请输入性别" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="民族" prop="nation">
+              <el-input v-model="form.nation" placeholder="请输入民族" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="职务" prop="post">
+              <el-input v-model="form.post" placeholder="请输入职务" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="身份证" prop="idCard">
+              <el-input v-model="form.idCard" placeholder="请输入身份证" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="出生日期" prop="birthday">
+              <el-input v-model="form.birthday" placeholder="请输入出生日期" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="家庭住址" prop="homeAddress">
+              <el-input v-model="form.homeAddress" placeholder="请输入家庭住址" />
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -320,6 +386,17 @@ export default {
         businessAddress: null,
         latitude: null,
         longitude: null,
+        personName: null,
+        registrationAddress: null,
+        businessArea: null,
+        licenseName: null,
+        licenseNo: null,
+        gender: null,
+        nation: null,
+        post: null,
+        idCard: null,
+        birthday: null,
+        homeAddress: null,
         status: null,
         delFlag: null,
         createBy: null,
