@@ -89,11 +89,59 @@ data class EnforcementRecordEntity(
     val createTime: Long,                 // 创建时间
     val updateBy: String?,                // 更新人
     val updateTime: Long?,                // 更新时间
-    val delFlag: String = "0"            // 删除标志
+    val delFlag: String = "0",           // 删除标志
+    // 以下为非持久化字段，用于列表展示
+    @Ignore
+    val photoCount: Int = 0,              // 照片数量（非持久化）
+    @Ignore
+    val audioCount: Int = 0,              // 录音数量（非持久化）
+    @Ignore
+    val videoCount: Int = 0               // 录像数量（非持久化）
 )
 ```
 
-- [ ] **Step 2: 创建 EvidenceMaterialEntity.kt**
+---
+
+## ⚠️ 实施前需要确认的问题
+
+在开始实施前，请确认以下事项：
+
+### 1. FileProvider 配置
+需要在 `res/xml/file_paths.xml` 中添加证据文件路径配置：
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-files-path name="photos" path="photos/" />
+    <external-files-path name="videos" path="videos/" />
+    <external-files-path name="audio" path="audio/" />
+</paths>
+```
+
+并在 `AndroidManifest.xml` 中注册：
+```xml
+<provider
+    android:name="androidx.core.content.FileProvider"
+    android:authorities="${applicationId}.fileprovider"
+    android:exported="false"
+    android:grantUriPermissions="true">
+    <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/file_paths" />
+</provider>
+```
+
+### 2. 录音功能方案
+系统 Intent `MediaStore.Audio.Media.RECORD_SOUND_ACTION` 无法返回文件路径。建议：
+- **方案A（推荐）**：使用自定义录音界面，直接保存录音文件
+- **方案B**：使用 MediaStore 查询最新录音文件（不推荐，复杂且不可靠）
+
+### 3. 证据统计查询
+RecordListAdapter 需要在绑定时查询每条记录的证据数量。需要在 Repository 中添加统计查询方法，或在 Entity 中添加临时字段存储统计结果。
+
+---
+
+## Task 1: 创建执法记录和证据材料 Entity
 
 ```kotlin
 package com.ruoyi.app.data.database.entity
@@ -722,10 +770,13 @@ class LawEnforcementViewModel(application: Application) : AndroidViewModel(appli
     }
 
     /**
-     * 获取当前用户名（临时实现，需根据实际登录信息获取）
+     * 获取当前用户名
      */
     private fun getCurrentUserName(): String {
-        return "admin"  // TODO: 从登录信息获取
+        // 从本地数据库获取当前登录用户
+        val user = com.ruoyi.app.data.database.AppDatabase.getInstance(getApplication())
+            .userDao().getCurrentUser()
+        return user?.userName ?: "unknown"
     }
 }
 ```
@@ -983,6 +1034,23 @@ class RecordDetailViewModel(application: Application) : AndroidViewModel(applica
     }
 
     /**
+     * 删除记录
+     */
+    fun deleteRecord(recordId: Long) {
+        viewModelScope.launch {
+            try {
+                isLoading.value = true
+                repository.deleteRecord(recordId)
+                operationResult.value = "删除成功"
+            } catch (e: Exception) {
+                error.value = "删除失败：${e.message}"
+            } finally {
+                isLoading.value = false
+            }
+        }
+    }
+
+    /**
      * 获取证据统计
      */
     fun getEvidenceStats(): EvidenceStats {
@@ -1021,8 +1089,37 @@ git commit -m "feat(lawenforcement): 添加 ViewModel"
 - Create: `app/src/main/res/layout/activity_record_detail.xml`
 - Create: `app/src/main/res/layout/item_enforcement_record.xml`
 - Create: `app/src/main/res/layout/item_evidence_material.xml`
+- Create: `app/src/main/res/xml/file_paths.xml`
+- Modify: `app/src/main/AndroidManifest.xml`
 
-- [ ] **Step 1: 创建 fragment_law_enforcement.xml**
+- [ ] **Step 1: 创建 file_paths.xml**
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-files-path name="photos" path="photos/" />
+    <external-files-path name="videos" path="videos/" />
+    <external-files-path name="audio" path="audio/" />
+</paths>
+```
+
+- [ ] **Step 2: 更新 AndroidManifest.xml**
+
+在 `<application>` 标签内添加 FileProvider：
+
+```xml
+<provider
+    android:name="androidx.core.content.FileProvider"
+    android:authorities="${applicationId}.fileprovider"
+    android:exported="false"
+    android:grantUriPermissions="true">
+    <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/file_paths" />
+</provider>
+```
+
+- [ ] **Step 3: 创建 fragment_law_enforcement.xml**
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -1770,10 +1867,14 @@ git commit -m "feat(lawenforcement): 添加布局文件"
 package com.ruoyi.app.feature.lawenforcement.ui
 
 import android.Manifest
+import android.content.ContentObserver
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.ContentObserver
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -1782,8 +1883,10 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.viewModels
 import com.ruoyi.app.feature.lawenforcement.viewmodel.LawEnforcementViewModel
 import com.ruoyi.code.base.BaseBindingFragment
+import com.ruoyi.code.router.TheRouter
 import com.ruoyi.code.utils.SelectedUnitManager
 import com.ruoyi.code.utils.ToastUtils
+import com.ruoyi.code.utils.ActivationManager
 import com.ruoyi.ruoyi_app.R
 import com.ruoyi.ruoyi_app.databinding.FragmentLawEnforcementBinding
 import java.io.File
@@ -1912,7 +2015,14 @@ class LawEnforcementFragment : BaseBindingFragment<FragmentLawEnforcementBinding
     }
 
     private fun checkActivation(): Boolean {
-        // TODO: 检查设备激活状态
+        // 检查设备激活状态
+        val activationManager = ActivationManager.getInstance()
+        if (!activationManager.isActivated()) {
+            ToastUtils.showShort("请先激活设备")
+            // 可选：跳转到激活页面
+            // TheRouter.build("/activation").navigation()
+            return false
+        }
         return true
     }
 
@@ -2000,6 +2110,56 @@ class LawEnforcementFragment : BaseBindingFragment<FragmentLawEnforcementBinding
             recordAudioLauncher.launch(intent)
         } else {
             ToastUtils.showShort("未找到录音应用")
+        }
+        // 注意：系统录音机无法返回文件路径
+        // 替代方案：监听 ContentObserver 检测新录音文件（见下方代码）
+    }
+
+    // ContentObserver 用于监听新录音文件
+    private var audioObserver: ContentObserver? = null
+
+    private fun registerAudioObserver() {
+        audioObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) {
+                super.onChange(selfChange)
+                // 查询最新创建的录音文件
+                queryLatestAudioFile()?.let { filePath ->
+                    viewModel.addAudioToRecord(filePath, File(filePath).name, File(filePath).length(), null)
+                }
+            }
+        }
+        requireContext().contentResolver.registerContentObserver(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            true,
+            audioObserver!!
+        )
+    }
+
+    private fun queryLatestAudioFile(): String? {
+        val projection = arrayOf(MediaStore.Audio.Media.DATA)
+        val sortOrder = "${MediaStore.Audio.Media.DATE_ADDED} DESC"
+        val cursor = requireContext().contentResolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            null,
+            null,
+            sortOrder
+        )
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val columnIndex = it.getColumnIndex(MediaStore.Audio.Media.DATA)
+                if (columnIndex != -1) {
+                    return it.getString(columnIndex)
+                }
+            }
+        }
+        return null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        audioObserver?.let {
+            requireContext().contentResolver.unregisterContentObserver(it)
         }
     }
 
@@ -2133,7 +2293,6 @@ class RecordListAdapter(
         }
 
         fun bind(record: EnforcementRecordEntity) {
-            binding.tvRecordNo.text = record.recordNo
             binding.tvUnitName.text = record.unitName
             binding.tvIndustry.text = record.industryCode
             binding.tvCreateTime.text = dateFormat.format(Date(record.createTime))
@@ -2157,6 +2316,11 @@ class RecordListAdapter(
                 else -> android.graphics.Color.GRAY
             }
             binding.statusIndicator.setBackgroundColor(statusColor)
+
+            // 证据统计显示
+            binding.tvPhotoCount.text = "${record.photoCount}"
+            binding.tvAudioCount.text = "${record.audioCount}"
+            binding.tvVideoCount.text = "${record.videoCount}"
 
             // 操作按钮可见性
             binding.btnSubmit.visibility = if (record.recordStatus == RecordStatus.DRAFT) {
@@ -2182,6 +2346,7 @@ class RecordListAdapter(
 ```kotlin
 package com.ruoyi.app.feature.lawenforcement.ui
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -2192,9 +2357,13 @@ import com.ruoyi.app.feature.lawenforcement.model.RecordStatus
 import com.ruoyi.app.feature.lawenforcement.ui.adapter.RecordListAdapter
 import com.ruoyi.app.feature.lawenforcement.viewmodel.RecordListViewModel
 import com.ruoyi.code.base.BaseBindingActivity
+import com.ruoyi.code.router.TheRouter
 import com.ruoyi.code.utils.ToastUtils
+import com.ruoyi.code.widget.OnTitleBarListener
+import com.ruoyi.code.widget.TitleBar
 import com.ruoyi.ruoyi_app.R
 import com.ruoyi.ruoyi_app.databinding.ActivityRecordListBinding
+import java.util.Calendar
 
 class RecordListActivity : BaseBindingActivity<ActivityRecordListBinding>() {
 
@@ -2291,9 +2460,25 @@ class RecordListActivity : BaseBindingActivity<ActivityRecordListBinding>() {
 
         // 日期筛选
         binding.btnDateFilter.setOnClickListener {
-            // TODO: 显示日期选择器
-            ToastUtils.showShort("日期筛选功能开发中")
+            showDateRangePicker()
         }
+
+    private fun showDateRangePicker() {
+        val startCalendar = Calendar.getInstance()
+        val endCalendar = Calendar.getInstance()
+
+        // 选择开始日期
+        DatePickerDialog(this, { _, year, month, dayOfMonth ->
+            startCalendar.set(year, month, dayOfMonth, 0, 0, 0)
+            // 选择结束日期
+            DatePickerDialog(this, { _, year2, month2, dayOfMonth2 ->
+                endCalendar.set(year2, month2, dayOfMonth2, 23, 59, 59)
+                val startTime = startCalendar.timeInMillis
+                val endTime = endCalendar.timeInMillis
+                viewModel.filterByDateRange(startTime, endTime)
+            }, endCalendar.get(Calendar.YEAR), endCalendar.get(Calendar.MONTH), endCalendar.get(Calendar.DAY_OF_MONTH)).show()
+        }, startCalendar.get(Calendar.YEAR), startCalendar.get(Calendar.MONTH), startCalendar.get(Calendar.DAY_OF_MONTH)).show()
+    }
     }
 
     private fun observeViewModel() {
@@ -2447,7 +2632,10 @@ import com.ruoyi.app.feature.lawenforcement.model.RecordStatus
 import com.ruoyi.app.feature.lawenforcement.ui.adapter.EvidenceAdapter
 import com.ruoyi.app.feature.lawenforcement.viewmodel.RecordDetailViewModel
 import com.ruoyi.code.base.BaseBindingActivity
+import com.ruoyi.code.router.TheRouter
 import com.ruoyi.code.utils.ToastUtils
+import com.ruoyi.code.widget.OnTitleBarListener
+import com.ruoyi.code.widget.TitleBar
 import com.ruoyi.ruoyi_app.R
 import com.ruoyi.ruoyi_app.databinding.ActivityRecordDetailBinding
 import java.io.File
@@ -2537,7 +2725,8 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
                 .setTitle("确认删除")
                 .setMessage("确定要删除这条执法记录吗？")
                 .setPositiveButton("确定") { _, _ ->
-                    // TODO: 调用删除接口
+                    val record = viewModel.record.value ?: return@setPositiveButton
+                    viewModel.deleteRecord(record.id)
                     finish()
                 }
                 .setNegativeButton("取消", null)
