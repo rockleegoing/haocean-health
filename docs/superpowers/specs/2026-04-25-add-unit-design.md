@@ -160,7 +160,11 @@ public AjaxResult add(@RequestBody SysUnit unit) {
     unit.setCreateTime(new Date());
 
     int rows = unitService.insertSysUnit(unit);
-    return rows > 0 ? AjaxResult.success() : AjaxResult.error("添加失败");
+    if (rows > 0) {
+        // 返回新增的单位ID，便于移动端更新本地记录
+        return AjaxResult.success("添加成功", unit.getUnitId());
+    }
+    return AjaxResult.error("添加失败");
 }
 ```
 
@@ -410,7 +414,7 @@ class AddUnitActivity : BaseBindingActivity<ActivityAddUnitBinding>() {
 ├─────────────────────────────────────────────────────────────┤
 │  1. SyncManager 检测需要同步的单位模块                          │
 │  2. 查询本地 UnitDao 中 syncStatus = 'PENDING' 的记录         │
-│  3. 遍历待同步记录，调用后端 API /app/unit                    │
+│  3. POST /app/unit 遍历待同步记录，上传单位数据                 │
 │  4. 上传成功后更新本地记录的 syncStatus = 'SYNCED'             │
 │  5. 如有失败，记录错误，等待下次重试                            │
 └─────────────────────────────────────────────────────────────┘
@@ -476,26 +480,15 @@ private suspend fun syncUnit(context: Context?): Boolean {
 }
 
 /**
- * 上传单位到服务器
+ * 上传单位到服务器（SyncManager 调用层）
  */
 private suspend fun uploadUnitToServer(unit: UnitEntity): Boolean {
-    // TODO: 调用后端 API POST /app/unit
-    return try {
-        // 构造请求体，转换为与后端 SysUnit 对应的格式
-        val request = UnitDTO(
-            unitName = unit.unitName,
-            personName = unit.personName,
-            // ... 其他字段映射
-        )
-        // 调用 API
-        true
-    } catch (e: Exception) {
-        false
-    }
+    // 调用 UnitRepository 的实际实现
+    return repository.uploadUnitToServer(unit).isSuccess
 }
 ```
 
-**UnitRepository 扩展方法**：
+**UnitRepository 扩展方法**（实际实现）：
 
 ```kotlin
 /**
@@ -519,7 +512,7 @@ suspend fun markAsSynced(unitId: Long) {
 /**
  * 上传单个单位到服务器
  */
-suspend fun uploadUnitToServer(unit: UnitEntity): Result<Unit> {
+suspend fun uploadUnitToServer(unit: UnitEntity): Result<UnitDTO> {
     return withContext(Dispatchers.IO) {
         try {
             val result = Get<UnitResult>(ConfigApi.baseUrl + "/app/unit")
@@ -553,7 +546,7 @@ data class UnitDTO(
     val nation: String? = null,
     val post: String? = null,
     val idCard: String? = null,
-    val birthday: String? = null,
+    val birthday: Long? = null,  // 毫秒时间戳，与 UnitEntity 保持一致
     val homeAddress: String? = null,
     // ...
 )
