@@ -128,7 +128,7 @@ class EditInfoActivity : BaseBindingActivity<ActivityEditInfoBinding>() {
     override fun initData() {
         scopeNetLife {
             val body = Get<UserResult>(ConfigApi.getProfile).await()
-            if (body.code == ConfigApi.SUCESSS) {
+            if (body.code == ConfigApi.SUCCESS) {
                 binding.etName.setText(body.data.nickName)
                 binding.etMobile.setText(body.data.phonenumber)
                 binding.etEmail.setText(body.data.email)
@@ -156,7 +156,7 @@ class EditInfoActivity : BaseBindingActivity<ActivityEditInfoBinding>() {
                 body = OKHttpUtils.getRequestBody(request)
             }.await()
             toast(body.msg)
-            if (body.code == ConfigApi.SUCESSS) {
+            if (body.code == ConfigApi.SUCCESS) {
                 val userInfoEntidy = UserInfoEntidy()
                 userInfoEntidy.nickName = request.nickName
                 FlowBus.withStick<UserInfoEntidy>(FlowBus.update_user_info).post(lifecycleScope, userInfoEntidy)

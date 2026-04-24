@@ -24,6 +24,9 @@ interface UnitDao {
     @Query("SELECT * FROM sys_unit WHERE delFlag = '0' AND region = :region ORDER BY createTime DESC")
     suspend fun getUnitsByRegion(region: String): List<UnitEntity>
 
+    @Query("SELECT * FROM sys_unit WHERE delFlag = '0' AND supervisionType = :supervisionType ORDER BY createTime DESC")
+    suspend fun getUnitsBySupervisionType(supervisionType: String): List<UnitEntity>
+
     @Query("SELECT * FROM sys_unit WHERE unitId = :unitId")
     suspend fun getUnitById(unitId: Long): UnitEntity?
 

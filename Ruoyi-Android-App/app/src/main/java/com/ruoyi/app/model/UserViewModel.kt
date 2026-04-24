@@ -55,7 +55,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         scopeNetLife {
             isRegister.value = false
             val data = authRepository.getVerificationCode()
-            if (data.code == ConfigApi.SUCESSS) {
+            if (data.code == ConfigApi.SUCCESS) {
                 captchaEnabled.value = data.captchaEnabled
                 if (captchaEnabled.value == true) {
                     uuid.value = data.uuid
@@ -196,7 +196,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             // 如果本地没有数据，尝试从网络获取
             try {
                 val body = authRepository.getUserInfo()
-                if (body.code == ConfigApi.SUCESSS) {
+                if (body.code == ConfigApi.SUCCESS) {
                     mineEntity.value = body
                 } else {
                     errorMsg.value = body.msg
@@ -210,7 +210,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     fun getWorkData(activity: FragmentActivity) {
         scopeDialog(activity) {
             val body = authRepository.getWorkData()
-            if (body.code == ConfigApi.SUCESSS) {
+            if (body.code == ConfigApi.SUCCESS) {
                 workData.value = body
             } else {
                 errorMsg.value = body.msg
@@ -278,7 +278,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     fun getHomeButtomData(activity: FragmentActivity) {
         scopeDialog(activity) {
             val body = authRepository.getHomeButtomData()
-            if (body.code == ConfigApi.SUCESSS) {
+            if (body.code == ConfigApi.SUCCESS) {
                 val data = body.data
                 val list = ArrayList<ButtomItemEntity>();
                 data.forEach {

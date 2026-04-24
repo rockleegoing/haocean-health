@@ -16,7 +16,7 @@ import java.lang.reflect.Type
 import kotlin.reflect.KType
 
 class SerializationConverter(
-    val success: String = "" +  ConfigApi.SUCESSS,
+    val success: String = "" +  ConfigApi.SUCCESS,
     val code: String = "code",
     val message: String = "msg",
 ) : NetConverter {

@@ -10,7 +10,7 @@ data class LoginEntity(
     val token: String = ""
 ){
     fun isSuceess(): Boolean {
-        return code == ConfigApi.SUCESSS
+        return code == ConfigApi.SUCCESS
     }
 
 }

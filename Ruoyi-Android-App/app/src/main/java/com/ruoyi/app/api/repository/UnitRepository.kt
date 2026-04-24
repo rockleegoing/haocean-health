@@ -21,7 +21,7 @@ class UnitRepository(private val context: Context) {
     suspend fun syncUnitsFromServer(): Result<List<UnitEntity>> = withContext(Dispatchers.IO) {
         try {
             val result = Get<UnitResult>(ConfigApi.baseUrl + ConfigApi.unitList).await()
-            if (result.code == ConfigApi.SUCESSS) {
+            if (result.code == ConfigApi.SUCCESS) {
                 val units = result.data.map { it.toEntity() }
                 unitDao.insertUnits(units)
                 Result.success(units)
@@ -66,6 +66,13 @@ class UnitRepository(private val context: Context) {
      */
     suspend fun getUnitsByRegion(region: String): List<UnitEntity> = withContext(Dispatchers.IO) {
         unitDao.getUnitsByRegion(region)
+    }
+
+    /**
+     * 根据监管类型获取单位
+     */
+    suspend fun getUnitsBySupervisionType(supervisionType: String): List<UnitEntity> = withContext(Dispatchers.IO) {
+        unitDao.getUnitsBySupervisionType(supervisionType)
     }
 }
 

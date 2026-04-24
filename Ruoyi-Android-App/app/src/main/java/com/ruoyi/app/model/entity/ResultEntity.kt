@@ -10,6 +10,6 @@ data class ResultEntity<T>(
     val data: T
 ) {
     fun isSuceess(): Boolean {
-        return code == ConfigApi.SUCESSS
+        return code == ConfigApi.SUCCESS
     }
 }

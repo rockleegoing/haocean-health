@@ -38,7 +38,7 @@ class InfoActivity : BaseBindingActivity<ActivityInfoBinding>() {
     override fun initData() {
         scopeNetLife {
             val body = Get<UserResult>(ConfigApi.getProfile).await()
-            if (body.code == ConfigApi.SUCESSS) {
+            if (body.code == ConfigApi.SUCCESS) {
                 binding.tvInfoName.text = body.data.nickName
                 binding.tvInfoMobile.text = body.data.phonenumber
                 binding.tvInfoEmail.text = body.data.email

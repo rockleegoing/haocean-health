@@ -3,7 +3,7 @@ package com.ruoyi.app.api
 object ConfigApi {
 
     // 成功
-    const val SUCESSS: Int = 200
+    const val SUCCESS: Int = 200
     // token 失效
     const val TOKEN_ERROR: String = "401"
     const val API_ERROR: String = "500"

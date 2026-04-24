@@ -60,7 +60,7 @@ class AuthRepository(
         try {
             val url = "${ConfigApi.baseUrl}${ConfigApi.appSync}?userId=$userId"
             val data = Get<SyncDataEntity>(url).await()
-            if (data.code == ConfigApi.SUCESSS) {
+            if (data.code == ConfigApi.SUCCESS) {
                 Result.success(data)
             } else {
                 Result.failure(Exception(data.msg))

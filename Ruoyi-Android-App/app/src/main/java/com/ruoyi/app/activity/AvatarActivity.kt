@@ -136,7 +136,7 @@ class AvatarActivity : BaseBindingActivity<ActivityAvatarBinding>() {
         bitmap = BitmapFactory.decodeResource(resources, R.mipmap.profile, null)
         scopeNetLife {
             val body = Get<MineEntity>(ConfigApi.getInfo).await()
-            if (body.code == ConfigApi.SUCESSS) {
+            if (body.code == ConfigApi.SUCCESS) {
                 val avatar = body.user?.avatar
                 if (!TextUtils.isEmpty(avatar)) {
                     Glide.with(Frame.getContext())
@@ -160,7 +160,7 @@ class AvatarActivity : BaseBindingActivity<ActivityAvatarBinding>() {
             val body = Post<AvatarEntity>(ConfigApi.updateAvatar) {
                 body = requestBody
             }.await()
-            if (body.code == ConfigApi.SUCESSS) {
+            if (body.code == ConfigApi.SUCCESS) {
                 val imgUrl = body.imgUrl
                 val userInfoEntidy = UserInfoEntidy()
                 userInfoEntidy.avatar = imgUrl

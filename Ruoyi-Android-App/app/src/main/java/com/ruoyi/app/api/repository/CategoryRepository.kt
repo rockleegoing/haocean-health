@@ -21,7 +21,7 @@ class CategoryRepository(private val context: Context) {
     suspend fun syncCategoriesFromServer(): Result<List<IndustryCategoryEntity>> = withContext(Dispatchers.IO) {
         try {
             val result = Get<CategoryResult>(ConfigApi.baseUrl + ConfigApi.categoryList).await()
-            if (result.code == ConfigApi.SUCESSS) {
+            if (result.code == ConfigApi.SUCCESS) {
                 val categories = result.data.map { it.toEntity() }
                 categoryDao.insertCategories(categories)
                 Result.success(categories)
