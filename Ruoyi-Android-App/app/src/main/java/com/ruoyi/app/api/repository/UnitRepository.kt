@@ -2,9 +2,12 @@ package com.ruoyi.app.api.repository
 
 import android.content.Context
 import com.drake.net.Get
+import com.drake.net.Post
 import com.ruoyi.app.api.ConfigApi
 import com.ruoyi.app.data.database.AppDatabase
 import com.ruoyi.app.data.database.entity.UnitEntity
+import com.ruoyi.app.data.database.entity.toDTO
+import com.ruoyi.app.utils.OKHttpUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -80,6 +83,71 @@ class UnitRepository(private val context: Context) {
      */
     suspend fun getUnitsBySupervisionType(supervisionType: String): List<UnitEntity> = withContext(Dispatchers.IO) {
         unitDao.getUnitsBySupervisionType(supervisionType)
+    }
+
+    /**
+     * 获取本地待同步的单位列表
+     */
+    suspend fun getPendingUnits(): List<UnitEntity> {
+        return withContext(Dispatchers.IO) {
+            unitDao.getPendingUnits()
+        }
+    }
+
+    /**
+     * 标记单位为已同步
+     */
+    suspend fun markAsSynced(unitId: Long) {
+        withContext(Dispatchers.IO) {
+            unitDao.markAsSynced(unitId)
+        }
+    }
+
+    /**
+     * 上传单个单位到服务器
+     */
+    suspend fun uploadUnitToServer(unit: UnitEntity): Result<UnitDTO> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val params = mapOf(
+                    "unitId" to unit.unitId.toString(),
+                    "unitName" to unit.unitName,
+                    "industryCategoryId" to (unit.industryCategoryId?.toString() ?: ""),
+                    "industryCategoryName" to (unit.industryCategoryName ?: ""),
+                    "region" to (unit.region ?: ""),
+                    "supervisionType" to (unit.supervisionType ?: ""),
+                    "creditCode" to (unit.creditCode ?: ""),
+                    "legalPerson" to (unit.legalPerson ?: ""),
+                    "contactPhone" to (unit.contactPhone ?: ""),
+                    "businessAddress" to (unit.businessAddress ?: ""),
+                    "latitude" to (unit.latitude?.toString() ?: ""),
+                    "longitude" to (unit.longitude?.toString() ?: ""),
+                    "status" to unit.status,
+                    "remark" to (unit.remark ?: ""),
+                    "personName" to (unit.personName ?: ""),
+                    "registrationAddress" to (unit.registrationAddress ?: ""),
+                    "businessArea" to (unit.businessArea?.toString() ?: ""),
+                    "licenseName" to (unit.licenseName ?: ""),
+                    "licenseNo" to (unit.licenseNo ?: ""),
+                    "gender" to (unit.gender ?: ""),
+                    "nation" to (unit.nation ?: ""),
+                    "post" to (unit.post ?: ""),
+                    "idCard" to (unit.idCard ?: ""),
+                    "birthday" to (unit.birthday?.toString() ?: ""),
+                    "homeAddress" to (unit.homeAddress ?: "")
+                )
+                val result = Post<UnitResult>(ConfigApi.baseUrl + ConfigApi.appUnitAdd) {
+                    body = OKHttpUtils.getRequestBody(params)
+                }.await()
+                if (result.code == ConfigApi.SUCCESS) {
+                    Result.success(result.data.firstOrNull() ?: unit.toDTO())
+                } else {
+                    Result.failure(Exception(result.msg))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
     }
 }
 

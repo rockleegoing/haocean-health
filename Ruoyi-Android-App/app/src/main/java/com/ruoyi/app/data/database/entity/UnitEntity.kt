@@ -2,6 +2,7 @@ package com.ruoyi.app.data.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.ruoyi.app.api.repository.UnitDTO
 
 /**
  * 执法单位实体类
@@ -38,3 +39,28 @@ data class UnitEntity(
     val homeAddress: String?,           // 家庭住址
     val syncStatus: String = "PENDING"  // 同步状态：PENDING=待同步, SYNCED=已同步
 )
+
+/**
+ * 将 UnitEntity 转换为 UnitDTO
+ */
+fun UnitEntity.toDTO(): UnitDTO {
+    return UnitDTO(
+        unitId = unitId,
+        unitName = unitName,
+        industryCategoryId = industryCategoryId,
+        industryCategoryName = industryCategoryName,
+        region = region,
+        supervisionType = supervisionType,
+        creditCode = creditCode,
+        legalPerson = legalPerson,
+        contactPhone = contactPhone,
+        businessAddress = businessAddress,
+        latitude = latitude,
+        longitude = longitude,
+        status = status,
+        delFlag = delFlag,
+        createTime = createTime.toString(),
+        updateTime = updateTime?.toString(),
+        remark = remark
+    )
+}
