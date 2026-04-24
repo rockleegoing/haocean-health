@@ -13,39 +13,62 @@
         android:layout_height="44dp"
         android:gravity="center"
         android:background="@color/white"
-        android:text="@string/work_nav_index"
+        android:text="日常办公"
         android:textColor="@color/black" />
 
-   <LinearLayout
-       android:layout_width="match_parent"
-       android:orientation="vertical"
-       android:layout_height="180dp">
-
-       <com.stx.xhb.androidx.XBanner
-           android:id="@+id/xbanner"
-           android:layout_width="match_parent"
-           android:layout_height="match_parent"
-           app:isAutoPlay="true"
-           app:isHandLoop="false"
-           app:AutoPlayTime="3000"
-           app:pointNormal="@drawable/shape_noraml"
-           app:pointSelect="@drawable/shape_selected"
-           app:pointsPosition="CENTER"
-           app:tipTextSize="12sp"
-           app:isShowNumberIndicator="false"
-           app:isShowIndicatorOnlyOne="true"
-           app:pageChangeDuration="800"/>
-
-   </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerview"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_add_unit"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="10dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:spanCount="1"
-        tools:listitem="@layout/item_work_index"
-        tools:itemCount="2"/>
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp"
+        app:rippleColor="@color/primary">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_assignment"
+                android:contentDescription="添加单位"
+                android:background="@drawable/bg_circle"
+                android:padding="12dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="添加单位"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="快速录入执法单位信息"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>
