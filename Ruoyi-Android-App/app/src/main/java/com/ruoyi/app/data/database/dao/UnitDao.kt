@@ -44,4 +44,10 @@ interface UnitDao {
 
     @Query("SELECT COUNT(*) FROM sys_unit")
     suspend fun getUnitCount(): Int
+
+    @Query("SELECT * FROM sys_unit WHERE syncStatus = 'PENDING'")
+    suspend fun getPendingUnits(): List<UnitEntity>
+
+    @Query("UPDATE sys_unit SET syncStatus = 'SYNCED' WHERE unitId = :unitId")
+    suspend fun markAsSynced(unitId: Long)
 }
