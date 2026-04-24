@@ -23,6 +23,11 @@ object Constant {
     const val syncWaitRoute = "http://com.ruoyi/syncWait"
     const val selectUnitRoute = "http://com.ruoyi/selectUnit"
 
+    // 便捷执法模块路由
+    const val recordListRoute = "/lawenforcement/record/list"
+    const val recordDetailRoute = "/lawenforcement/record/detail"
+    const val recordEditRoute = "/lawenforcement/record/edit"
+
     // 首页动态设置
     const val mainStyleDefault = "1" // 1 首页图片+文字
     const val mainStyleAlipay = "2" //  2 首页图片

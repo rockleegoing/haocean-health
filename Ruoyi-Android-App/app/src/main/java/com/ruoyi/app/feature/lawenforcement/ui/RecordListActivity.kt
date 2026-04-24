@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import com.ruoyi.app.feature.lawenforcement.model.RecordStatus
 import com.ruoyi.app.feature.lawenforcement.ui.adapter.RecordListAdapter
 import com.ruoyi.app.feature.lawenforcement.viewmodel.RecordListViewModel
+import com.ruoyi.app.model.Constant
 import com.ruoyi.code.base.BaseBindingActivity
 import com.ruoyi.code.router.TheRouter
 import com.ruoyi.code.utils.ToastUtils
@@ -17,8 +18,10 @@ import com.ruoyi.code.widget.OnTitleBarListener
 import com.ruoyi.code.widget.TitleBar
 import com.ruoyi.ruoyi_app.R
 import com.ruoyi.ruoyi_app.databinding.ActivityRecordListBinding
+import com.therouter.router.Route
 import java.util.Calendar
 
+@Route(path = Constant.recordListRoute)
 class RecordListActivity : BaseBindingActivity<ActivityRecordListBinding>() {
 
     private val viewModel: RecordListViewModel by viewModels()

@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import com.ruoyi.app.feature.lawenforcement.model.RecordStatus
 import com.ruoyi.app.feature.lawenforcement.ui.adapter.EvidenceAdapter
 import com.ruoyi.app.feature.lawenforcement.viewmodel.RecordDetailViewModel
+import com.ruoyi.app.model.Constant
 import com.ruoyi.code.base.BaseBindingActivity
 import com.ruoyi.code.router.TheRouter
 import com.ruoyi.code.utils.ToastUtils
@@ -14,11 +15,13 @@ import com.ruoyi.code.widget.OnTitleBarListener
 import com.ruoyi.code.widget.TitleBar
 import com.ruoyi.ruoyi_app.R
 import com.ruoyi.ruoyi_app.databinding.ActivityRecordDetailBinding
+import com.therouter.router.Route
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@Route(path = Constant.recordDetailRoute)
 class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() {
 
     private val viewModel: RecordDetailViewModel by viewModels()
