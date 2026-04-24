@@ -42,6 +42,8 @@ class SyncManager private constructor() {
         const val MODULE_SUPERVISION = "监管事项"
         const val MODULE_DOCUMENT_TEMPLATE = "文书模板"
         const val MODULE_MEDIA_FILE = "媒体文件"
+        const val MODULE_ENFORCEMENT_RECORD = "执法记录"
+        const val MODULE_EVIDENCE_MATERIAL = "证据材料"
 
         // 全量同步模块列表（阶段二）
         val FULL_SYNC_MODULES = listOf(
@@ -52,7 +54,9 @@ class SyncManager private constructor() {
             MODULE_PHRASE,
             MODULE_SUPERVISION,
             MODULE_DOCUMENT_TEMPLATE,
-            MODULE_MEDIA_FILE
+            MODULE_MEDIA_FILE,
+            MODULE_ENFORCEMENT_RECORD,
+            MODULE_EVIDENCE_MATERIAL
         )
     }
 
@@ -139,6 +143,8 @@ class SyncManager private constructor() {
                 MODULE_SUPERVISION -> syncSupervision(context)
                 MODULE_DOCUMENT_TEMPLATE -> syncDocumentTemplate(context)
                 MODULE_MEDIA_FILE -> syncMediaFile(context)
+                MODULE_ENFORCEMENT_RECORD -> syncEnforcementRecord(context)
+                MODULE_EVIDENCE_MATERIAL -> syncEvidenceMaterial(context)
                 else -> true
             }
         } catch (e: Exception) {
@@ -213,6 +219,26 @@ class SyncManager private constructor() {
         // TODO: 调用后端 GET /media/file/list
         // 下载文件到本地存储
         delay(1000) // 模拟网络请求
+        return true
+    }
+
+    private suspend fun syncEnforcementRecord(context: Context?): Boolean {
+        // 执法记录同步
+        // TODO: 调用后端 API 同步执法记录
+        // 从本地数据库读取待同步的记录 (syncStatus = 'PENDING')
+        // 上传到服务器
+        // 更新同步状态
+        delay(500) // 模拟网络请求
+        return true
+    }
+
+    private suspend fun syncEvidenceMaterial(context: Context?): Boolean {
+        // 证据材料同步
+        // TODO: 调用后端 API 同步证据材料
+        // 从本地数据库读取待同步的证据 (syncStatus = 'PENDING')
+        // 上传到服务器
+        // 更新同步状态
+        delay(500) // 模拟网络请求
         return true
     }
 }
