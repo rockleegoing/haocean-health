@@ -51,6 +51,8 @@ ALTER TABLE `sys_unit`
     ADD COLUMN `id_card` varchar(18) DEFAULT NULL COMMENT '身份证号码' AFTER `post`,
     ADD COLUMN `birthday` datetime DEFAULT NULL COMMENT '出生年月' AFTER `id_card`,
     ADD COLUMN `home_address` varchar(255) DEFAULT NULL COMMENT '家庭住址' AFTER `birthday`;
+
+-- 注：legal_person（法定代表人）是现有字段，无需新增
 ```
 
 ### 2.2 完整字段列表
@@ -515,9 +517,8 @@ suspend fun markAsSynced(unitId: Long) {
 suspend fun uploadUnitToServer(unit: UnitEntity): Result<UnitDTO> {
     return withContext(Dispatchers.IO) {
         try {
-            val result = Get<UnitResult>(ConfigApi.baseUrl + "/app/unit")
+            val result = Post<UnitResult>(ConfigApi.baseUrl + "/app/unit")
                 .body(unit.toDTO())
-                .post()
                 .await()
             if (result.code == ConfigApi.SUCCESS) {
                 Result.success(result.data)
