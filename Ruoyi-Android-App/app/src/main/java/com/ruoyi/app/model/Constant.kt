@@ -23,6 +23,9 @@ object Constant {
     const val syncWaitRoute = "http://com.ruoyi/syncWait"
     const val selectUnitRoute = "http://com.ruoyi/selectUnit"
 
+    // 日常办公模块路由
+    const val addUnitRoute = "http://com.ruoyi/addUnit"
+
     // 便捷执法模块路由
     const val lawEnforcementRoute = "http://com.ruoyi/lawenforcement"
     const val recordListRoute = "/lawenforcement/record/list"
