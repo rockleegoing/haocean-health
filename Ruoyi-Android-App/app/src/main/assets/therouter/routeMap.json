@@ -14,10 +14,31 @@
     "params": {}
   },
   {
+    "path": "http://com.ruoyi/lawenforcement",
+    "className": "com.ruoyi.app.fragment.LawEnforcementFragment",
+    "action": "action://scheme.com",
+    "description": "便捷执法",
+    "params": {}
+  },
+  {
     "path": "http://com.ruoyi/home/fragment",
     "className": "com.ruoyi.app.fragment.HomeFragment",
     "action": "action://scheme.com",
     "description": "home",
+    "params": {}
+  },
+  {
+    "path": "/lawenforcement/record/list",
+    "className": "com.ruoyi.app.feature.lawenforcement.ui.RecordListActivity",
+    "action": "",
+    "description": "执法记录列表",
+    "params": {}
+  },
+  {
+    "path": "/lawenforcement/record/detail",
+    "className": "com.ruoyi.app.feature.lawenforcement.ui.RecordDetailActivity",
+    "action": "",
+    "description": "执法记录详情",
     "params": {}
   },
   {

@@ -167,7 +167,7 @@ class LawEnforcementFragment : BaseBindingFragment<FragmentLawEnforcementBinding
 
         val photoUri = FileProvider.getUriForFile(
             requireContext(),
-            "${requireContext().packageName}.fileprovider",
+            "${requireContext().packageName}.provider",
             photoFile
         )
 
@@ -199,7 +199,7 @@ class LawEnforcementFragment : BaseBindingFragment<FragmentLawEnforcementBinding
 
         val videoUri = FileProvider.getUriForFile(
             requireContext(),
-            "${requireContext().packageName}.fileprovider",
+            "${requireContext().packageName}.provider",
             videoFile
         )
 
