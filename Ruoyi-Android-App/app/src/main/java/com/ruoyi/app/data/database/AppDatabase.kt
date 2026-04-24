@@ -8,15 +8,19 @@ import com.ruoyi.app.data.database.dao.ActivationCodeDao
 import com.ruoyi.app.data.database.dao.DataVersionDao
 import com.ruoyi.app.data.database.dao.DeviceDao
 import com.ruoyi.app.data.database.dao.DeptDao
+import com.ruoyi.app.data.database.dao.EnforcementRecordDao
+import com.ruoyi.app.data.database.dao.EvidenceMaterialDao
 import com.ruoyi.app.data.database.dao.IndustryCategoryDao
 import com.ruoyi.app.data.database.dao.RoleDao
 import com.ruoyi.app.data.database.dao.SyncQueueDao
-import com.ruoyi.app.data.database.dao.UserDao
 import com.ruoyi.app.data.database.dao.UnitDao
+import com.ruoyi.app.data.database.dao.UserDao
 import com.ruoyi.app.data.database.entity.ActivationCodeEntity
 import com.ruoyi.app.data.database.entity.DataVersionEntity
 import com.ruoyi.app.data.database.entity.DeviceEntity
 import com.ruoyi.app.data.database.entity.DeptEntity
+import com.ruoyi.app.data.database.entity.EnforcementRecordEntity
+import com.ruoyi.app.data.database.entity.EvidenceMaterialEntity
 import com.ruoyi.app.data.database.entity.IndustryCategoryEntity
 import com.ruoyi.app.data.database.entity.RoleEntity
 import com.ruoyi.app.data.database.entity.SyncQueueEntity
@@ -37,9 +41,11 @@ import com.ruoyi.app.data.database.entity.UserEntity
         DeviceEntity::class,
         SyncQueueEntity::class,
         DataVersionEntity::class,
-        UnitEntity::class
+        UnitEntity::class,
+        EnforcementRecordEntity::class,
+        EvidenceMaterialEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -53,6 +59,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun syncQueueDao(): SyncQueueDao
     abstract fun dataVersionDao(): DataVersionDao
     abstract fun unitDao(): UnitDao
+    abstract fun enforcementRecordDao(): EnforcementRecordDao
+    abstract fun evidenceMaterialDao(): EvidenceMaterialDao
 
     companion object {
         @Volatile
