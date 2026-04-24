@@ -1,6 +1,8 @@
 package com.ruoyi.system.domain;
 
 import java.math.BigDecimal;
+import java.util.Date;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -69,6 +71,50 @@ public class SysUnit extends BaseEntity
 
     /** 删除标志:0存在,1删除 */
     private String delFlag;
+
+    /** 当事人姓名 */
+    @Excel(name = "当事人姓名")
+    private String personName;
+
+    /** 注册地址 */
+    @Excel(name = "注册地址")
+    private String registrationAddress;
+
+    /** 经营面积 */
+    @Excel(name = "经营面积")
+    private BigDecimal businessArea;
+
+    /** 许可证名称 */
+    @Excel(name = "许可证名称")
+    private String licenseName;
+
+    /** 许可证号 */
+    @Excel(name = "许可证号")
+    private String licenseNo;
+
+    /** 性别 */
+    @Excel(name = "性别")
+    private String gender;
+
+    /** 民族 */
+    @Excel(name = "民族")
+    private String nation;
+
+    /** 职务 */
+    @Excel(name = "职务")
+    private String post;
+
+    /** 身份证号码 */
+    @Excel(name = "身份证号码")
+    private String idCard;
+
+    /** 出生年月 */
+    @Excel(name = "出生年月")
+    private Date birthday;
+
+    /** 家庭住址 */
+    @Excel(name = "家庭住址")
+    private String homeAddress;
 
     public void setUnitId(Long unitId) 
     {
@@ -205,9 +251,119 @@ public class SysUnit extends BaseEntity
         this.delFlag = delFlag;
     }
 
-    public String getDelFlag() 
+    public String getDelFlag()
     {
         return delFlag;
+    }
+
+    public String getPersonName()
+    {
+        return personName;
+    }
+
+    public void setPersonName(String personName)
+    {
+        this.personName = personName;
+    }
+
+    public String getRegistrationAddress()
+    {
+        return registrationAddress;
+    }
+
+    public void setRegistrationAddress(String registrationAddress)
+    {
+        this.registrationAddress = registrationAddress;
+    }
+
+    public BigDecimal getBusinessArea()
+    {
+        return businessArea;
+    }
+
+    public void setBusinessArea(BigDecimal businessArea)
+    {
+        this.businessArea = businessArea;
+    }
+
+    public String getLicenseName()
+    {
+        return licenseName;
+    }
+
+    public void setLicenseName(String licenseName)
+    {
+        this.licenseName = licenseName;
+    }
+
+    public String getLicenseNo()
+    {
+        return licenseNo;
+    }
+
+    public void setLicenseNo(String licenseNo)
+    {
+        this.licenseNo = licenseNo;
+    }
+
+    public String getGender()
+    {
+        return gender;
+    }
+
+    public void setGender(String gender)
+    {
+        this.gender = gender;
+    }
+
+    public String getNation()
+    {
+        return nation;
+    }
+
+    public void setNation(String nation)
+    {
+        this.nation = nation;
+    }
+
+    public String getPost()
+    {
+        return post;
+    }
+
+    public void setPost(String post)
+    {
+        this.post = post;
+    }
+
+    public String getIdCard()
+    {
+        return idCard;
+    }
+
+    public void setIdCard(String idCard)
+    {
+        this.idCard = idCard;
+    }
+
+    public Date getBirthday()
+    {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday)
+    {
+        this.birthday = birthday;
+    }
+
+    public String getHomeAddress()
+    {
+        return homeAddress;
+    }
+
+    public void setHomeAddress(String homeAddress)
+    {
+        this.homeAddress = homeAddress;
     }
 
     @Override
@@ -227,6 +383,17 @@ public class SysUnit extends BaseEntity
             .append("longitude", getLongitude())
             .append("status", getStatus())
             .append("delFlag", getDelFlag())
+            .append("personName", getPersonName())
+            .append("registrationAddress", getRegistrationAddress())
+            .append("businessArea", getBusinessArea())
+            .append("licenseName", getLicenseName())
+            .append("licenseNo", getLicenseNo())
+            .append("gender", getGender())
+            .append("nation", getNation())
+            .append("post", getPost())
+            .append("idCard", getIdCard())
+            .append("birthday", getBirthday())
+            .append("homeAddress", getHomeAddress())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
