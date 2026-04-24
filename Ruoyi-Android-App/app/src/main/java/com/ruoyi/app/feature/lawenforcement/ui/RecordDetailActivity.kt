@@ -2,19 +2,20 @@ package com.ruoyi.app.feature.lawenforcement.ui
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.viewModels
+import android.view.View
 import androidx.appcompat.app.AlertDialog
+import com.hjq.bar.OnTitleBarListener
+import com.hjq.bar.TitleBar
+import com.hjq.toast.ToastUtils
+import com.ruoyi.app.R
+import com.ruoyi.app.databinding.ActivityRecordDetailBinding
 import com.ruoyi.app.feature.lawenforcement.model.RecordStatus
 import com.ruoyi.app.feature.lawenforcement.ui.adapter.EvidenceAdapter
 import com.ruoyi.app.feature.lawenforcement.viewmodel.RecordDetailViewModel
 import com.ruoyi.app.model.Constant
 import com.ruoyi.code.base.BaseBindingActivity
-import com.ruoyi.code.router.TheRouter
-import com.ruoyi.code.utils.ToastUtils
-import com.ruoyi.code.widget.OnTitleBarListener
-import com.ruoyi.code.widget.TitleBar
-import com.ruoyi.ruoyi_app.R
-import com.ruoyi.ruoyi_app.databinding.ActivityRecordDetailBinding
+import com.ruoyi.code.base.activityViewModels
+import com.therouter.TheRouter
 import com.therouter.router.Route
 import java.io.File
 import java.text.SimpleDateFormat
@@ -24,7 +25,7 @@ import java.util.Locale
 @Route(path = Constant.recordDetailRoute)
 class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() {
 
-    private val viewModel: RecordDetailViewModel by viewModels()
+    private val viewModel: RecordDetailViewModel by activityViewModels()
     private lateinit var evidenceAdapter: EvidenceAdapter
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA)
@@ -40,7 +41,7 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
         if (recordId != -1L) {
             viewModel.loadRecord(recordId)
         } else {
-            ToastUtils.showShort("记录不存在")
+            ToastUtils.show("记录不存在")
             finish()
         }
     }
@@ -80,7 +81,7 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
     }
 
     private fun setupButtons() {
-        binding.btnSubmit.setOnClickListener {
+        binding.btnReport.setOnClickListener {
             AlertDialog.Builder(this)
                 .setTitle("确认上报")
                 .setMessage("确定要上报这条执法记录吗？")
@@ -116,10 +117,10 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
     private fun observeViewModel() {
         viewModel.record.observe(this) { record ->
             if (record != null) {
-                binding.tvRecordNo.text = record.recordNo
                 binding.tvUnitName.text = record.unitName
                 binding.tvIndustry.text = record.industryCode
                 binding.tvCreateTime.text = dateFormat.format(Date(record.createTime))
+                binding.tvDescription.text = record.description ?: "暂无描述"
 
                 val statusText = when (record.recordStatus) {
                     RecordStatus.DRAFT -> "待上报"
@@ -131,10 +132,10 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
                 binding.tvStatus.text = statusText
 
                 // 上报按钮可见性
-                binding.btnSubmit.visibility = if (record.recordStatus == RecordStatus.DRAFT) {
-                    android.view.View.VISIBLE
+                binding.btnReport.visibility = if (record.recordStatus == RecordStatus.DRAFT) {
+                    View.VISIBLE
                 } else {
-                    android.view.View.GONE
+                    View.GONE
                 }
             }
         }
@@ -150,11 +151,11 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
         }
 
         viewModel.error.observe(this) { error ->
-            ToastUtils.showShort(error)
+            ToastUtils.show(error)
         }
 
         viewModel.operationResult.observe(this) { result ->
-            ToastUtils.showShort(result)
+            ToastUtils.show(result)
             if (result == "上报成功") {
                 // 刷新数据
                 val recordId = intent.getLongExtra("record_id", -1L)

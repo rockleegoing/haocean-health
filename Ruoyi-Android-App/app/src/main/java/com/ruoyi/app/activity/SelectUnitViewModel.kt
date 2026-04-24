@@ -70,12 +70,13 @@ class SelectUnitViewModel(application: Application) : AndroidViewModel(applicati
             isLoadingPage = true
             isLoadingMore.value = true
 
-            currentPage++
-            val result = queryUnits()
+            val offset = currentPage * pageSize
+            val result = queryUnits(offset)
             val currentList = units.value.orEmpty()
             val newList = currentList + result
             units.value = newList
             hasMoreData = result.size >= pageSize
+            currentPage++
             isLoadingMore.value = false
             isLoadingPage = false
         }
@@ -207,13 +208,13 @@ class SelectUnitViewModel(application: Application) : AndroidViewModel(applicati
 
     fun getCurrentLatLon(): Pair<Double?, Double?> = Pair(currentLat, currentLon)
 
-    private suspend fun queryUnits(): List<UnitEntity> {
+    private suspend fun queryUnits(offset: Int = 0, limit: Int = pageSize): List<UnitEntity> {
         return when {
             currentKeyword.isNotEmpty() -> repository.searchUnits(currentKeyword)
             currentCategoryId != null -> repository.getUnitsByCategory(currentCategoryId!!)
             currentRegion != null -> repository.getUnitsByRegion(currentRegion!!)
             currentSupervisionType != null -> repository.getUnitsBySupervisionType(currentSupervisionType!!)
-            else -> repository.getAllUnitsFromLocal()
+            else -> repository.getUnitsPaged(offset, limit)
         }
     }
 }

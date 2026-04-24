@@ -173,8 +173,21 @@ class LawEnforcementViewModel(application: Application) : AndroidViewModel(appli
      */
     private fun getCurrentUserName(): String {
         // 从本地数据库获取当前登录用户
-        val user = com.ruoyi.app.data.database.AppDatabase.getInstance(getApplication())
-            .userDao().getCurrentUser()
-        return user?.userName ?: "unknown"
+        return try {
+            val token = com.tencent.mmkv.MMKV.defaultMMKV().decodeString("token")
+            val userId = token?.toLongOrNull()
+            if (userId != null) {
+                // 使用 runBlocking 在非协程上下文中获取用户
+                val user = kotlinx.coroutines.runBlocking {
+                    com.ruoyi.app.data.database.AppDatabase.getInstance(getApplication())
+                        .userDao().getUserById(userId)
+                }
+                user?.userName ?: "unknown"
+            } else {
+                "unknown"
+            }
+        } catch (e: Exception) {
+            "unknown"
+        }
     }
 }

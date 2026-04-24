@@ -41,6 +41,13 @@ class UnitRepository(private val context: Context) {
     }
 
     /**
+     * 从本地分页获取单位
+     */
+    suspend fun getUnitsPaged(offset: Int, limit: Int): List<UnitEntity> = withContext(Dispatchers.IO) {
+        unitDao.getUnitsPaged(limit, offset)
+    }
+
+    /**
      * 从本地搜索单位
      */
     suspend fun searchUnits(keyword: String): List<UnitEntity> = withContext(Dispatchers.IO) {

@@ -41,7 +41,7 @@ class SelectUnitActivity : BaseBindingActivity<ActivitySelectUnitBinding>() {
     }
 
     private lateinit var unitAdapter: UnitListAdapter
-    private val viewModel = SelectUnitViewModel(application)
+    private val viewModel by lazy { SelectUnitViewModel(application) }
 
     private var currentLat: Double? = null
     private var currentLon: Double? = null

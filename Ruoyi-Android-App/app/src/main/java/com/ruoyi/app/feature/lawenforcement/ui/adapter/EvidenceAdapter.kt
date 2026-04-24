@@ -7,10 +7,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.ruoyi.app.R
 import com.ruoyi.app.data.database.entity.EvidenceMaterialEntity
+import com.ruoyi.app.databinding.ItemEvidenceMaterialBinding
 import com.ruoyi.app.feature.lawenforcement.model.EvidenceType
-import com.ruoyi.ruoyi_app.R
-import com.ruoyi.ruoyi_app.databinding.ItemEvidenceMaterialBinding
 import java.io.File
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -50,13 +50,13 @@ class EvidenceAdapter(
                         .load(File(material.filePath))
                         .centerCrop()
                         .into(binding.ivThumbnail)
-                    binding.ivPlayIcon.visibility = View.GONE
+                    binding.playOverlay.visibility = View.GONE
                     binding.tvDuration.visibility = View.GONE
                 }
                 EvidenceType.AUDIO -> {
                     // 录音显示播放图标
                     binding.ivThumbnail.setImageResource(R.drawable.ic_audio_placeholder)
-                    binding.ivPlayIcon.visibility = View.VISIBLE
+                    binding.playOverlay.visibility = View.VISIBLE
                     material.duration?.let { duration ->
                         binding.tvDuration.visibility = View.VISIBLE
                         binding.tvDuration.text = formatDuration(duration)
@@ -68,7 +68,7 @@ class EvidenceAdapter(
                         .load(File(material.filePath))
                         .centerCrop()
                         .into(binding.ivThumbnail)
-                    binding.ivPlayIcon.visibility = View.VISIBLE
+                    binding.playOverlay.visibility = View.VISIBLE
                     material.duration?.let { duration ->
                         binding.tvDuration.visibility = View.VISIBLE
                         binding.tvDuration.text = formatDuration(duration)

@@ -70,9 +70,15 @@ class LawEnforcementRepository(private val context: Context) {
                 industryCode = industryCode,
                 recordType = "ROUTINE",  // 例行检查
                 recordStatus = RecordStatus.DRAFT,
+                description = null,
+                longitude = null,
+                latitude = null,
+                locationName = null,
                 syncStatus = SyncStatus.PENDING,
                 createBy = userName,
-                createTime = now
+                createTime = now,
+                updateBy = null,
+                updateTime = null
             )
             val id = recordDao.insertRecord(newRecord)
             newRecord.copy(id = id)

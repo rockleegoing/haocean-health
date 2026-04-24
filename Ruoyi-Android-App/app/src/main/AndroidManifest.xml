@@ -21,6 +21,8 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:name=".App"
@@ -115,6 +117,10 @@
             android:launchMode="singleTop" /> <!-- 表示当前已经适配了分区存储 -->
         <activity
             android:name=".activity.SyncWaitActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".activity.SelectUnitActivity"
             android:exported="false"
             android:launchMode="singleTop" />
         <service

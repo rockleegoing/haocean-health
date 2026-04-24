@@ -6,8 +6,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ruoyi.app.data.database.entity.EnforcementRecordEntity
+import com.ruoyi.app.databinding.ItemEnforcementRecordBinding
 import com.ruoyi.app.feature.lawenforcement.model.RecordStatus
-import com.ruoyi.ruoyi_app.databinding.ItemEnforcementRecordBinding
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -50,7 +50,7 @@ class RecordListAdapter(
                 }
             }
 
-            binding.btnSubmit.setOnClickListener {
+            binding.btnReport.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onSubmitClick(getItem(position))
@@ -96,7 +96,7 @@ class RecordListAdapter(
             binding.tvVideoCount.text = "${record.videoCount}"
 
             // 操作按钮可见性
-            binding.btnSubmit.visibility = if (record.recordStatus == RecordStatus.DRAFT) {
+            binding.btnReport.visibility = if (record.recordStatus == RecordStatus.DRAFT) {
                 android.view.View.VISIBLE
             } else {
                 android.view.View.GONE

@@ -12,11 +12,21 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="blue">#0081ff</color>
+    <color name="primary">@color/blue</color>
     <color name="red">#dd524d</color>
     <color name="color_9">#999999</color>
 
     <!-- UI 状态颜色 -->
     <color name="success_green">#FF4CAF50</color>
     <color name="error_red">#FFF44336</color>
+    <color name="error">@color/error_red</color>
+
+    <!-- 文本颜色 -->
+    <color name="text_primary">#FF212121</color>
+    <color name="text_secondary">#FF757575</color>
+    <color name="text_hint">#FFBDBDBD</color>
+
+    <!-- 背景颜色 -->
+    <color name="background">#FFFAFAFA</color>
 
 </resources>

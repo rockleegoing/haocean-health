@@ -5,26 +5,26 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import com.ruoyi.app.feature.lawenforcement.model.RecordStatus
 import com.ruoyi.app.feature.lawenforcement.ui.adapter.RecordListAdapter
 import com.ruoyi.app.feature.lawenforcement.viewmodel.RecordListViewModel
 import com.ruoyi.app.model.Constant
 import com.ruoyi.code.base.BaseBindingActivity
-import com.ruoyi.code.router.TheRouter
-import com.ruoyi.code.utils.ToastUtils
-import com.ruoyi.code.widget.OnTitleBarListener
-import com.ruoyi.code.widget.TitleBar
-import com.ruoyi.ruoyi_app.R
-import com.ruoyi.ruoyi_app.databinding.ActivityRecordListBinding
+import com.ruoyi.code.base.activityViewModels
+import com.hjq.bar.OnTitleBarListener
+import com.hjq.bar.TitleBar
+import com.hjq.toast.ToastUtils
+import com.ruoyi.app.R
+import com.ruoyi.app.databinding.ActivityRecordListBinding
+import com.therouter.TheRouter
 import com.therouter.router.Route
 import java.util.Calendar
 
 @Route(path = Constant.recordListRoute)
 class RecordListActivity : BaseBindingActivity<ActivityRecordListBinding>() {
 
-    private val viewModel: RecordListViewModel by viewModels()
+    private val viewModel: RecordListViewModel by activityViewModels()
     private lateinit var adapter: RecordListAdapter
 
     override fun initView() {
@@ -150,11 +150,11 @@ class RecordListActivity : BaseBindingActivity<ActivityRecordListBinding>() {
         }
 
         viewModel.error.observe(this) { error ->
-            ToastUtils.showShort(error)
+            ToastUtils.show(error)
         }
 
         viewModel.operationResult.observe(this) { result ->
-            ToastUtils.showShort(result)
+            ToastUtils.show(result)
         }
     }
 }
