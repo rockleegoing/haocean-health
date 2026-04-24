@@ -7,13 +7,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="SysUnit" id="SysUnitResult">
         <result property="unitId"    column="unit_id"    />
         <result property="unitName"    column="unit_name"    />
+        <result property="personName"    column="person_name"    />
+        <result property="registrationAddress"    column="registration_address"    />
+        <result property="businessArea"    column="business_area"    />
         <result property="industryCategoryId"    column="industry_category_id"    />
         <result property="industryCategoryName"    column="industry_category_name"    />
         <result property="region"    column="region"    />
         <result property="supervisionType"    column="supervision_type"    />
         <result property="creditCode"    column="credit_code"    />
+        <result property="licenseName"    column="license_name"    />
+        <result property="licenseNo"    column="license_no"    />
         <result property="legalPerson"    column="legal_person"    />
+        <result property="gender"    column="gender"    />
+        <result property="nation"    column="nation"    />
+        <result property="post"    column="post"    />
+        <result property="idCard"    column="id_card"    />
+        <result property="birthday"    column="birthday"    />
         <result property="contactPhone"    column="contact_phone"    />
+        <result property="homeAddress"    column="home_address"    />
         <result property="businessAddress"    column="business_address"    />
         <result property="latitude"    column="latitude"    />
         <result property="longitude"    column="longitude"    />
@@ -56,40 +67,58 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into sys_unit
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="unitName != null and unitName != ''">unit_name,</if>
+            <if test="personName != null and personName != ''">person_name,</if>
+            <if test="registrationAddress != null and registrationAddress != ''">registration_address,</if>
+            <if test="businessArea != null">business_area,</if>
             <if test="industryCategoryId != null">industry_category_id,</if>
-            <if test="region != null">region,</if>
-            <if test="supervisionType != null">supervision_type,</if>
-            <if test="creditCode != null">credit_code,</if>
-            <if test="legalPerson != null">legal_person,</if>
-            <if test="contactPhone != null">contact_phone,</if>
-            <if test="businessAddress != null">business_address,</if>
+            <if test="region != null and region != ''">region,</if>
+            <if test="supervisionType != null and supervisionType != ''">supervision_type,</if>
+            <if test="creditCode != null and creditCode != ''">credit_code,</if>
+            <if test="licenseName != null and licenseName != ''">license_name,</if>
+            <if test="licenseNo != null and licenseNo != ''">license_no,</if>
+            <if test="legalPerson != null and legalPerson != ''">legal_person,</if>
+            <if test="gender != null and gender != ''">gender,</if>
+            <if test="nation != null and nation != ''">nation,</if>
+            <if test="post != null and post != ''">post,</if>
+            <if test="idCard != null and idCard != ''">id_card,</if>
+            <if test="birthday != null">birthday,</if>
+            <if test="contactPhone != null and contactPhone != ''">contact_phone,</if>
+            <if test="homeAddress != null and homeAddress != ''">home_address,</if>
+            <if test="businessAddress != null and businessAddress != ''">business_address,</if>
             <if test="latitude != null">latitude,</if>
             <if test="longitude != null">longitude,</if>
-            <if test="status != null">status,</if>
+            <if test="status != null and status != ''">status,</if>
             <if test="delFlag != null">del_flag,</if>
-            <if test="createBy != null">create_by,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
             <if test="createTime != null">create_time,</if>
-            <if test="updateBy != null">update_by,</if>
-            <if test="updateTime != null">update_time,</if>
             <if test="remark != null">remark,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="unitName != null and unitName != ''">#{unitName},</if>
+            <if test="personName != null and personName != ''">#{personName},</if>
+            <if test="registrationAddress != null and registrationAddress != ''">#{registrationAddress},</if>
+            <if test="businessArea != null">#{businessArea},</if>
             <if test="industryCategoryId != null">#{industryCategoryId},</if>
-            <if test="region != null">#{region},</if>
-            <if test="supervisionType != null">#{supervisionType},</if>
-            <if test="creditCode != null">#{creditCode},</if>
-            <if test="legalPerson != null">#{legalPerson},</if>
-            <if test="contactPhone != null">#{contactPhone},</if>
-            <if test="businessAddress != null">#{businessAddress},</if>
+            <if test="region != null and region != ''">#{region},</if>
+            <if test="supervisionType != null and supervisionType != ''">#{supervisionType},</if>
+            <if test="creditCode != null and creditCode != ''">#{creditCode},</if>
+            <if test="licenseName != null and licenseName != ''">#{licenseName},</if>
+            <if test="licenseNo != null and licenseNo != ''">#{licenseNo},</if>
+            <if test="legalPerson != null and legalPerson != ''">#{legalPerson},</if>
+            <if test="gender != null and gender != ''">#{gender},</if>
+            <if test="nation != null and nation != ''">#{nation},</if>
+            <if test="post != null and post != ''">#{post},</if>
+            <if test="idCard != null and idCard != ''">#{idCard},</if>
+            <if test="birthday != null">#{birthday},</if>
+            <if test="contactPhone != null and contactPhone != ''">#{contactPhone},</if>
+            <if test="homeAddress != null and homeAddress != ''">#{homeAddress},</if>
+            <if test="businessAddress != null and businessAddress != ''">#{businessAddress},</if>
             <if test="latitude != null">#{latitude},</if>
             <if test="longitude != null">#{longitude},</if>
-            <if test="status != null">#{status},</if>
+            <if test="status != null and status != ''">#{status},</if>
             <if test="delFlag != null">#{delFlag},</if>
-            <if test="createBy != null">#{createBy},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
-            <if test="updateBy != null">#{updateBy},</if>
-            <if test="updateTime != null">#{updateTime},</if>
             <if test="remark != null">#{remark},</if>
          </trim>
     </insert>
