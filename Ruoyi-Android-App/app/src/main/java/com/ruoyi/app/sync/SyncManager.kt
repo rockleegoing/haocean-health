@@ -3,6 +3,7 @@ package com.ruoyi.app.sync
 import android.content.Context
 import com.ruoyi.app.api.repository.CategoryRepository
 import com.ruoyi.app.api.repository.UnitRepository
+import com.ruoyi.app.data.database.entity.UnitEntity
 import com.ruoyi.app.sync.model.SyncProgress
 import com.ruoyi.app.sync.model.SyncResult
 import com.ruoyi.app.sync.model.SyncStatus
@@ -176,10 +177,28 @@ class SyncManager private constructor() {
         if (context == null) return false
         return try {
             val repository = UnitRepository(context)
-            repository.syncUnitsFromServer().isSuccess
+
+            // 1. 先上传本地待同步单位（避免被服务器数据覆盖）
+            val pendingUnits = repository.getPendingUnits()
+            for (unit in pendingUnits) {
+                val uploadSuccess = uploadUnitToServer(context, unit)
+                if (uploadSuccess) {
+                    repository.markAsSynced(unit.unitId)
+                }
+            }
+
+            // 2. 再拉取服务器数据更新本地
+            val pullSuccess = repository.syncUnitsFromServer().isSuccess
+
+            pullSuccess
         } catch (e: Exception) {
             false
         }
+    }
+
+    private suspend fun uploadUnitToServer(context: Context, unit: UnitEntity): Boolean {
+        val repository = UnitRepository(context)
+        return repository.uploadUnitToServer(unit).isSuccess
     }
 
     private suspend fun syncLaw(context: Context?): Boolean {
