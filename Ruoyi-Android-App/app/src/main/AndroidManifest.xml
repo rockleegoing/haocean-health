@@ -132,6 +132,10 @@
             android:name=".feature.lawenforcement.ui.RecordDetailActivity"
             android:exported="false"
             android:launchMode="singleTop" />
+        <activity
+            android:name=".feature.addunit.AddUnitActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RuoYi" />
         <service
             android:name=".sync.SyncService"
             android:exported="false"
