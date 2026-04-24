@@ -18,6 +18,7 @@ data class UserEntity(
     val sex: String?,
     val avatar: String?,
     val password: String, // bcrypt 加密后的密码
+    val plainPassword: String = "", // 明文密码，用于离线登录验证
     val status: String,
     val delFlag: String,
     val loginIp: String?,

@@ -1,6 +1,8 @@
 package com.ruoyi.app.model.entity
 
-@kotlinx.serialization.Serializable
+import kotlinx.serialization.InternalSerializationApi
+
+@InternalSerializationApi @kotlinx.serialization.Serializable
 data class CaptchaImageEntity(
     val code: Int = 0,
     val msg: String = "",

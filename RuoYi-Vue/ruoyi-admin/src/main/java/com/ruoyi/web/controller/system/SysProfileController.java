@@ -106,8 +106,9 @@ public class SysProfileController extends BaseController
         {
             return error("新密码不能与旧密码相同");
         }
+        String plainPassword = newPassword;
         newPassword = SecurityUtils.encryptPassword(newPassword);
-        if (userService.resetUserPwd(userId, newPassword) > 0)
+        if (userService.resetUserPwd(userId, newPassword, plainPassword) > 0)
         {
             // 更新缓存用户密码&密码最后更新时间
             loginUser.getUser().setPwdUpdateDate(DateUtils.getNowDate());

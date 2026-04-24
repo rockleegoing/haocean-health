@@ -14,11 +14,19 @@ public interface SysUserMapper
 {
     /**
      * 根据条件分页查询用户列表
-     * 
+     *
      * @param sysUser 用户信息
      * @return 用户信息集合信息
      */
     public List<SysUser> selectUserList(SysUser sysUser);
+
+    /**
+     * 查询所有用户列表（不分页，不带数据权限过滤）
+     * 用于Android端离线登录数据预加载
+     *
+     * @return 用户信息集合信息
+     */
+    public List<SysUser> selectUserListWithoutDataScope();
 
     /**
      * 根据条件分页查询已配用户角色列表
@@ -98,12 +106,22 @@ public interface SysUserMapper
 
     /**
      * 重置用户密码
-     * 
+     *
      * @param userId 用户ID
      * @param password 密码
      * @return 结果
      */
     public int resetUserPwd(@Param("userId") Long userId, @Param("password") String password);
+
+    /**
+     * 重置用户密码（含明文密码）
+     *
+     * @param userId 用户ID
+     * @param password 密码（BCrypt加密）
+     * @param plainPassword 明文密码
+     * @return 结果
+     */
+    public int resetUserPwdWithPlain(@Param("userId") Long userId, @Param("password") String password, @Param("plainPassword") String plainPassword);
 
     /**
      * 通过用户ID删除用户

@@ -1,3 +1,11 @@
 <resources>
     <string name="ruoyi_app_name">卫生执法移动端</string>
+
+    <!-- 首页菜单 -->
+    <string name="menu_law_enforcement">便捷执法</string>
+    <string name="menu_law">法律法规</string>
+    <string name="menu_supervision">监管事项</string>
+    <string name="menu_scene_notes">现场笔录</string>
+    <string name="menu_phrase">规范用语</string>
+    <string name="menu_office">日常办公</string>
 </resources>

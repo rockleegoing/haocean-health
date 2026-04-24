@@ -182,12 +182,22 @@ public interface ISysUserService
 
     /**
      * 重置用户密码
-     * 
+     *
      * @param userId 用户ID
      * @param password 密码
      * @return 结果
      */
     public int resetUserPwd(Long userId, String password);
+
+    /**
+     * 重置用户密码（含明文密码）
+     *
+     * @param userId 用户ID
+     * @param password 密码（BCrypt加密）
+     * @param plainPassword 明文密码
+     * @return 结果
+     */
+    public int resetUserPwd(Long userId, String password, String plainPassword);
 
     /**
      * 通过用户ID删除用户

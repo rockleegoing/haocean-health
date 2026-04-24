@@ -19,7 +19,8 @@ object UserMapper {
             phonenumber = apiUser.phonenumber,
             sex = apiUser.sex,
             avatar = apiUser.avatar,
-            password = "", // 密码不应从 API 获取
+            password = "", // BCrypt 密码不使用
+            plainPassword = apiUser.plainPassword, // 明文密码用于离线验证
             status = apiUser.status,
             delFlag = "0",
             loginIp = null,

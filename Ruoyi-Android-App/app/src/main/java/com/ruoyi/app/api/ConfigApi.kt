@@ -14,6 +14,7 @@ object ConfigApi {
     const val login = "/login";// 登录
     const val register = "/register"// 注册
     const val getInfo = "/getInfo"// 获取信息
+    const val appSync = "/app/sync"// Android端数据预加载
     const val logout = "/logout"//退出
     const val getCaptchaImage = "/captchaImage"//获取验证码
     const val updatePwd = "/system/user/profile/updatePwd"// put修改密码

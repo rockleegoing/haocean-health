@@ -3,8 +3,9 @@ package com.ruoyi.app.model.entity
 import android.os.Parcelable
 import com.chad.library.adapter.base.entity.SectionEntity
 import kotlinx.android.parcel.Parcelize
+import kotlinx.serialization.InternalSerializationApi
 
-@kotlinx.serialization.Serializable
+@InternalSerializationApi @kotlinx.serialization.Serializable
 @Parcelize
 data class QuestionEntity(
     val question: String = "",

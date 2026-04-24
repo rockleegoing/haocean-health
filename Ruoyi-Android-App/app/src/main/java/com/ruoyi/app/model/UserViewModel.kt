@@ -10,7 +10,6 @@ import com.ruoyi.app.App
 import com.ruoyi.app.api.ConfigApi
 import com.ruoyi.app.api.OKHttpUtils
 import com.ruoyi.app.data.database.AppDatabase
-import com.ruoyi.app.data.database.entity.UserMapper
 import com.ruoyi.app.model.entity.ButtomItemEntity
 import com.ruoyi.app.model.entity.MineEntity
 import com.ruoyi.app.model.entity.WorkIndexEntity
@@ -33,6 +32,11 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     var workData: MutableLiveData<WorkIndexEntity> = MutableLiveData()
     var homeButtomData: MutableLiveData<List<ButtomItemEntity>> = MutableLiveData()
 
+    companion object {
+        // 离线登录用户名缓存 Key
+        private const val KEY_OFFLINE_USERNAME = "offline_username"
+    }
+
     fun getVerificationCode() {
         scopeNetLife {
             isRegister.value = false
@@ -52,14 +56,11 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
+    /**
+     * 登录验证
+     * 直接使用预加载缓存的明文密码进行验证
+     */
     fun login(activity: FragmentActivity, username: String, password: String, code: String) {
-        if (captchaEnabled.value == true) {
-            if (TextUtils.isEmpty(code)) {
-                errorMsg.value = "请输入验证码"
-                return
-            }
-        }
-
         if (TextUtils.isEmpty(username)) {
             errorMsg.value = "请输入账号"
             return
@@ -69,17 +70,34 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             errorMsg.value = "请输入密码"
             return
         }
-        scopeDialog(activity) {
-            val data = authRepository.login(code, username, password, uuid.value)
-            if (data.isSuceess()) {
-                MMKV.defaultMMKV().encode("token", data.token)
-                // 登录成功，跳转到同步等待页面
-                TheRouter.build(Constant.syncWaitRoute).navigation()
-            } else {
-                errorMsg.value = data.msg
-            }
-        }.catch {
-            errorMsg.value = it.message
+
+        // 直接使用离线登录验证
+        scopeNetLife {
+            offlineLogin(username, password)
+        }
+    }
+
+    /**
+     * 离线登录
+     * 使用 Room DB 中预加载的明文密码进行验证
+     */
+    private suspend fun offlineLogin(username: String, password: String) {
+        // 从 Room DB 查询用户
+        val user = AppDatabase.getInstance(getApplication()).userDao().getUserByUserName(username)
+
+        if (user == null) {
+            errorMsg.postValue("用户不存在，请联系管理员")
+            return
+        }
+
+        // 直接比对明文密码
+        if (password == user.plainPassword) {
+            // 离线登录成功，使用 userId 作为临时 token
+            MMKV.defaultMMKV().encode("token", user.userId.toString())
+            MMKV.defaultMMKV().encode(KEY_OFFLINE_USERNAME, username)
+            TheRouter.build(Constant.syncWaitRoute).navigation()
+        } else {
+            errorMsg.postValue("密码错误")
         }
     }
 
@@ -181,30 +199,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 homeButtomData.value = list
             } else {
                 errorMsg.value = body.msg
-            }
-        }
-    }
-
-    /**
-     * 预加载登录验证数据
-     * 后台异步获取用户信息并存储到本地数据库
-     */
-    fun preloadLoginData() {
-        scopeNetLife {
-            try {
-                val body = authRepository.getUserInfo()
-                if (body.code == ConfigApi.SUCESSS) {
-                    // 存储用户信息到本地数据库
-                    body.user?.let { apiUser ->
-                        val roomUser = UserMapper.fromApi(apiUser)
-                        AppDatabase.getInstance(getApplication()).userDao().insertUser(roomUser)
-                    }
-                    // TODO: 存储 roles 和 permissions 到本地
-                    // 目前 MineEntity 只有 roles: List<String> 和 permissions: List<String>
-                    // 后续可能需要创建 roles 和 permissions 表来存储
-                }
-            } catch (e: Exception) {
-                // 预加载失败，不阻塞用户操作
             }
         }
     }

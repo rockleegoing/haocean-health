@@ -54,6 +54,12 @@
 		from sys_menu m where m.menu_type in ('M', 'C') and m.status = 0
 		order by m.parent_id, m.order_num
 	</select>
+
+	<select id="selectMenuAll" resultMap="SysMenuResult">
+		select menu_id, parent_id, menu_name, path, component, `query`, route_name, visible, status, ifnull(perms,'') as perms, is_frame, is_cache, menu_type, icon, order_num, create_time
+		from sys_menu
+		order by parent_id, order_num
+	</select>
 	
 	<select id="selectMenuListByUserId" parameterType="SysMenu" resultMap="SysMenuResult">
 		select distinct m.menu_id, m.parent_id, m.menu_name, m.path, m.component, m.`query`, m.route_name, m.visible, m.status, ifnull(m.perms,'') as perms, m.is_frame, m.is_cache, m.menu_type, m.icon, m.order_num, m.create_time

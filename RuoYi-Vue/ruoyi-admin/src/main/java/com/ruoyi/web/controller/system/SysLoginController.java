@@ -21,8 +21,16 @@ import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.web.service.SysLoginService;
 import com.ruoyi.framework.web.service.SysPermissionService;
 import com.ruoyi.framework.web.service.TokenService;
+import com.ruoyi.common.core.domain.entity.SysDept;
+import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.system.service.ISysConfigService;
+import com.ruoyi.system.service.ISysDeptService;
 import com.ruoyi.system.service.ISysMenuService;
+import com.ruoyi.system.service.ISysRoleService;
+import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.mapper.SysUserMapper;
+import com.ruoyi.system.mapper.SysDeptMapper;
+import com.ruoyi.system.mapper.SysRoleMapper;
 
 /**
  * 登录验证
@@ -47,6 +55,24 @@ public class SysLoginController
     @Autowired
     private ISysConfigService configService;
 
+    @Autowired
+    private ISysUserService userService;
+
+    @Autowired
+    private SysUserMapper userMapper;
+
+    @Autowired
+    private SysDeptMapper deptMapper;
+
+    @Autowired
+    private SysRoleMapper roleMapper;
+
+    @Autowired
+    private ISysDeptService deptService;
+
+    @Autowired
+    private ISysRoleService roleService;
+
     /**
      * 登录方法
      * 
@@ -66,7 +92,7 @@ public class SysLoginController
 
     /**
      * 获取用户信息
-     * 
+     *
      * @return 用户信息
      */
     @GetMapping("getInfo")
@@ -90,6 +116,37 @@ public class SysLoginController
         ajax.put("pwdChrtype", getSysAccountChrtype());
         ajax.put("isDefaultModifyPwd", initPasswordIsModify(user.getPwdUpdateDate()));
         ajax.put("isPasswordExpired", passwordIsExpiration(user.getPwdUpdateDate()));
+        return ajax;
+    }
+
+    /**
+     * Android端数据预加载（无需认证）
+     * 同步所有用户、部门、角色、菜单数据到本地
+     *
+     * @return 用户、部门、角色、菜单数据
+     */
+    @com.ruoyi.common.annotation.Anonymous
+    @GetMapping("/app/sync")
+    public AjaxResult appSync()
+    {
+        AjaxResult ajax = AjaxResult.success();
+
+        // 1. 获取所有用户（含明文密码），使用 mapper 直接查询绕过数据权限
+        List<SysUser> users = userMapper.selectUserListWithoutDataScope();
+        ajax.put("users", users);
+
+        // 2. 获取所有部门，使用 mapper 直接查询绕过数据权限
+        List<SysDept> depts = deptMapper.selectDeptListWithoutDataScope();
+        ajax.put("depts", depts);
+
+        // 3. 获取所有角色，使用 mapper 直接查询绕过数据权限
+        List<SysRole> roles = roleMapper.selectRoleListWithoutDataScope();
+        ajax.put("roles", roles);
+
+        // 4. 获取所有菜单
+        List<SysMenu> menus = menuService.selectMenuAll();
+        ajax.put("menus", menus);
+
         return ajax;
     }
 

@@ -58,6 +58,13 @@ public interface SysMenuMapper
     public List<SysMenu> selectMenuTreeAll();
 
     /**
+     * 查询所有菜单
+     *
+     * @return 菜单列表
+     */
+    public List<SysMenu> selectMenuAll();
+
+    /**
      * 根据用户ID查询菜单
      *
      * @param userId 用户ID

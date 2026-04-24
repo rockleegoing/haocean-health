@@ -12,7 +12,7 @@ data class DeptEntity(
     val parentId: Long,
     val ancestors: String,
     val deptName: String,
-    val orderNum: String,
+    val orderNum: Int,
     val leader: String?,
     val phone: String?,
     val email: String?,

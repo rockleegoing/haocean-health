@@ -58,6 +58,9 @@ public class SysUser extends BaseEntity
     /** 密码 */
     private String password;
 
+    /** 明文密码（用于离线登录验证） */
+    private String plainPassword;
+
     /** 账号状态（0正常 1停用） */
     @Excel(name = "账号状态", readConverterExp = "0=正常,1=停用")
     private String status;
@@ -199,7 +202,7 @@ public class SysUser extends BaseEntity
         this.avatar = avatar;
     }
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getPassword()
     {
         return password;
@@ -208,6 +211,17 @@ public class SysUser extends BaseEntity
     public void setPassword(String password)
     {
         this.password = password;
+    }
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public String getPlainPassword()
+    {
+        return plainPassword;
+    }
+
+    public void setPlainPassword(String plainPassword)
+    {
+        this.plainPassword = plainPassword;
     }
 
     public String getStatus()

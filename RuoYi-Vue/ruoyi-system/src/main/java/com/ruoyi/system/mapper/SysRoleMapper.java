@@ -28,10 +28,18 @@ public interface SysRoleMapper
 
     /**
      * 查询所有角色
-     * 
+     *
      * @return 角色列表
      */
     public List<SysRole> selectRoleAll();
+
+    /**
+     * 查询所有角色列表（不带数据权限过滤）
+     * 用于Android端离线登录数据预加载
+     *
+     * @return 角色列表
+     */
+    public List<SysRole> selectRoleListWithoutDataScope();
 
     /**
      * 根据用户ID获取角色选择框列表

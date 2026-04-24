@@ -147,6 +147,7 @@ class SyncManager private constructor() {
     private suspend fun syncUserPermissions(): Boolean {
         // 用户权限同步（阶段一已预加载，阶段二确认同步完成）
         // 这里主要确认本地数据完整性
+        delay(300) // 模拟网络请求
         return true
     }
 
@@ -154,6 +155,7 @@ class SyncManager private constructor() {
         // 行业分类同步
         // TODO: 调用后端 GET /industry/category/list
         // 存储到 IndustryCategoryEntity
+        delay(500) // 模拟网络请求
         return true
     }
 
@@ -161,6 +163,7 @@ class SyncManager private constructor() {
         // 法律法规同步
         // TODO: 调用后端 GET /law/regulation/list
         // 存储到 law_regulation 表
+        delay(800) // 模拟网络请求
         return true
     }
 
@@ -168,6 +171,7 @@ class SyncManager private constructor() {
         // 规范用语同步
         // TODO: 调用后端 GET /phrase/library/list
         // 存储到 phrase_library 表
+        delay(300) // 模拟网络请求
         return true
     }
 
@@ -175,6 +179,7 @@ class SyncManager private constructor() {
         // 监管事项同步
         // TODO: 调用后端 GET /supervision/item/list
         // 存储到 supervision_item 表
+        delay(800) // 模拟网络请求
         return true
     }
 
@@ -182,6 +187,7 @@ class SyncManager private constructor() {
         // 文书模板同步
         // TODO: 调用后端 GET /document/template/list
         // 存储到 document_template 表
+        delay(500) // 模拟网络请求
         return true
     }
 
@@ -189,6 +195,7 @@ class SyncManager private constructor() {
         // 媒体文件同步
         // TODO: 调用后端 GET /media/file/list
         // 下载文件到本地存储
+        delay(1000) // 模拟网络请求
         return true
     }
 }

@@ -61,6 +61,9 @@ android {
 
     kotlinOptions {
         jvmTarget = '17'
+        freeCompilerArgs += [
+            '-opt-in=kotlinx.serialization.InternalSerializationApi'
+        ]
     }
 
     compileOptions {

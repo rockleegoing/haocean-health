@@ -13,11 +13,19 @@ public interface SysDeptMapper
 {
     /**
      * 查询部门管理数据
-     * 
+     *
      * @param dept 部门信息
      * @return 部门信息集合
      */
     public List<SysDept> selectDeptList(SysDept dept);
+
+    /**
+     * 查询所有部门列表（不带数据权限过滤）
+     * 用于Android端离线登录数据预加载
+     *
+     * @return 部门信息集合
+     */
+    public List<SysDept> selectDeptListWithoutDataScope();
 
     /**
      * 根据角色ID查询部门树信息

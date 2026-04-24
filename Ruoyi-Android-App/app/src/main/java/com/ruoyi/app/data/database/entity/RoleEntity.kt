@@ -11,7 +11,7 @@ data class RoleEntity(
     @PrimaryKey val roleId: Long,
     val roleName: String,
     val roleKey: String,
-    val roleSort: String,
+    val roleSort: Int,
     val dataScope: String?,
     val menuCheckStrictly: Boolean,
     val deptCheckStrictly: Boolean,
