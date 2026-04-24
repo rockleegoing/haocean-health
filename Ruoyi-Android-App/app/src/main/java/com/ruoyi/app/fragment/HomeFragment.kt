@@ -9,14 +9,20 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.hjq.toast.ToastUtils
 import com.ruoyi.app.activity.SelectUnitActivity
+import com.ruoyi.app.data.database.AppDatabase
 import com.ruoyi.app.databinding.FragmentHomeBinding
 import com.ruoyi.app.feature.lawenforcement.viewmodel.LawEnforcementViewModel
 import com.ruoyi.app.model.Constant
 import com.ruoyi.app.model.SelectedUnitManager
+import com.ruoyi.app.utils.NavigationUtils
 import com.ruoyi.code.base.BaseBindingFragment
 import com.ruoyi.code.base.activityViewModels
 import com.therouter.TheRouter
 import com.therouter.router.Route
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -298,6 +304,29 @@ class HomeFragment : BaseBindingFragment<FragmentHomeBinding>() {
 
     private fun openNavigation() {
         if (!checkUnitSelected()) return
-        ToastUtils.show("该单位暂无位置信息")
+
+        val unitId = SelectedUnitManager.getSelectedUnitId() ?: return
+        val unitName = SelectedUnitManager.getSelectedUnitName() ?: return
+
+        CoroutineScope(Dispatchers.Main).launch {
+            val unitEntity = withContext(Dispatchers.IO) {
+                AppDatabase.getInstance(requireContext()).unitDao().getUnitById(unitId)
+            }
+
+            if (unitEntity == null) {
+                ToastUtils.show("无法获取单位信息")
+                return@launch
+            }
+
+            val latitude = unitEntity.latitude
+            val longitude = unitEntity.longitude
+
+            if (latitude == null || longitude == null) {
+                ToastUtils.show("该单位暂无位置信息")
+                return@launch
+            }
+
+            NavigationUtils.navigate(requireContext(), latitude, longitude, unitEntity.unitName)
+        }
     }
 }

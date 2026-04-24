@@ -64,6 +64,27 @@
                         android:layout_width="match_parent"
                         android:layout_height="12dp" />
 
+                    <!-- 记录编号 -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="记录编号"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_hint" />
+
+                    <TextView
+                        android:id="@+id/tv_record_no"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="ER2026042414300001"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="12dp" />
+
                     <!-- 创建时间 -->
                     <TextView
                         android:layout_width="wrap_content"
@@ -165,132 +186,220 @@
                 android:layout_width="match_parent"
                 android:layout_height="12dp" />
 
-            <!-- 照片统计 -->
-            <LinearLayout
+            <!-- 照片分组 -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_camera"
-                    android:contentDescription="照片" />
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="照片"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary" />
+                    android:orientation="vertical">
 
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    <!-- 照片标题 -->
+                    <LinearLayout
+                        android:id="@+id/layout_photo_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp"
+                        android:background="?attr/selectableItemBackground">
 
-                <TextView
-                    android:id="@+id/tv_photo_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0 张"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_primary" />
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_camera"
+                            android:contentDescription="照片" />
 
-            </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="照片"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:id="@+id/tv_photo_count"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="(0)"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_hint" />
+
+                        <ImageView
+                            android:id="@+id/iv_photo_expand"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_arrow_down"
+                            android:contentDescription="展开" />
+
+                    </LinearLayout>
+
+                    <!-- 照片列表 -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_photo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="12dp"
+                        android:paddingBottom="12dp"
+                        android:nestedScrollingEnabled="false"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
 
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="8dp" />
 
-            <!-- 录音统计 -->
-            <LinearLayout
+            <!-- 录音分组 -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_mic"
-                    android:contentDescription="录音" />
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="录音"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary" />
+                    android:orientation="vertical">
 
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    <!-- 录音标题 -->
+                    <LinearLayout
+                        android:id="@+id/layout_audio_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp"
+                        android:background="?attr/selectableItemBackground">
 
-                <TextView
-                    android:id="@+id/tv_audio_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0 条"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_primary" />
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_mic"
+                            android:contentDescription="录音" />
 
-            </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="录音"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:id="@+id/tv_audio_count"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="(0)"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_hint" />
+
+                        <ImageView
+                            android:id="@+id/iv_audio_expand"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_arrow_down"
+                            android:contentDescription="展开" />
+
+                    </LinearLayout>
+
+                    <!-- 录音列表 -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_audio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="12dp"
+                        android:paddingBottom="12dp"
+                        android:nestedScrollingEnabled="false"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
 
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="8dp" />
 
-            <!-- 录像统计 -->
-            <LinearLayout
+            <!-- 录像分组 -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_videocam"
-                    android:contentDescription="录像" />
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="录像"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary" />
+                    android:orientation="vertical">
 
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    <!-- 录像标题 -->
+                    <LinearLayout
+                        android:id="@+id/layout_video_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp"
+                        android:background="?attr/selectableItemBackground">
 
-                <TextView
-                    android:id="@+id/tv_video_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0 条"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_primary" />
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_videocam"
+                            android:contentDescription="录像" />
 
-            </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="录像"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary" />
 
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="16dp" />
+                        <TextView
+                            android:id="@+id/tv_video_count"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="(0)"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_hint" />
 
-            <!-- 证据材料列表 -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_evidence"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
+                        <ImageView
+                            android:id="@+id/iv_video_expand"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_arrow_down"
+                            android:contentDescription="展开" />
+
+                    </LinearLayout>
+
+                    <!-- 录像列表 -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_video"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="12dp"
+                        android:paddingBottom="12dp"
+                        android:nestedScrollingEnabled="false"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
 

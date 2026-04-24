@@ -124,6 +124,14 @@
             android:name=".activity.SelectUnitActivity"
             android:exported="false"
             android:launchMode="singleTop" />
+        <activity
+            android:name=".feature.lawenforcement.ui.RecordListActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".feature.lawenforcement.ui.RecordDetailActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
         <service
             android:name=".sync.SyncService"
             android:exported="false"

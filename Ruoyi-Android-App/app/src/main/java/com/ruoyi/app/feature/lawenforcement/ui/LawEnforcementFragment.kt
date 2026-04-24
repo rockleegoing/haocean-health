@@ -3,19 +3,26 @@ package com.ruoyi.app.feature.lawenforcement.ui
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Bundle
+import android.media.MediaRecorder
+import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.hjq.toast.ToastUtils
+import com.ruoyi.app.data.database.AppDatabase
 import com.ruoyi.app.databinding.FragmentLawEnforcementBinding
 import com.ruoyi.app.feature.lawenforcement.viewmodel.LawEnforcementViewModel
 import com.ruoyi.app.model.Constant
 import com.ruoyi.app.model.SelectedUnitManager
+import com.ruoyi.app.utils.NavigationUtils
 import com.ruoyi.code.base.BaseBindingFragment
 import com.ruoyi.code.base.activityViewModels
 import com.therouter.TheRouter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -247,9 +254,26 @@ class LawEnforcementFragment : BaseBindingFragment<FragmentLawEnforcementBinding
             return
         }
 
-        // 注意：SelectedUnitManager 只存储了 ID 和名称，没有经纬度信息
-        // 如果需要导航功能，需要扩展 SelectedUnitManager 或从 UnitEntity 获取经纬度
-        ToastUtils.show("该单位暂无位置信息")
+        CoroutineScope(Dispatchers.Main).launch {
+            val unitEntity = withContext(Dispatchers.IO) {
+                AppDatabase.getInstance(requireContext()).unitDao().getUnitById(unitId)
+            }
+
+            if (unitEntity == null) {
+                ToastUtils.show("无法获取单位信息")
+                return@launch
+            }
+
+            val latitude = unitEntity.latitude
+            val longitude = unitEntity.longitude
+
+            if (latitude == null || longitude == null) {
+                ToastUtils.show("该单位暂无位置信息")
+                return@launch
+            }
+
+            NavigationUtils.navigate(requireContext(), latitude, longitude, unitEntity.unitName)
+        }
     }
 
     companion object {

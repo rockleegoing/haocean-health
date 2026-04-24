@@ -1,11 +1,10 @@
 package com.ruoyi.app.feature.lawenforcement.ui
 
-import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
+import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.tabs.TabLayout
 import com.ruoyi.app.feature.lawenforcement.model.RecordStatus
 import com.ruoyi.app.feature.lawenforcement.ui.adapter.RecordListAdapter
 import com.ruoyi.app.feature.lawenforcement.viewmodel.RecordListViewModel
@@ -15,11 +14,9 @@ import com.ruoyi.code.base.activityViewModels
 import com.hjq.bar.OnTitleBarListener
 import com.hjq.bar.TitleBar
 import com.hjq.toast.ToastUtils
-import com.ruoyi.app.R
 import com.ruoyi.app.databinding.ActivityRecordListBinding
 import com.therouter.TheRouter
 import com.therouter.router.Route
-import java.util.Calendar
 
 @Route(path = Constant.recordListRoute)
 class RecordListActivity : BaseBindingActivity<ActivityRecordListBinding>() {
@@ -90,52 +87,36 @@ class RecordListActivity : BaseBindingActivity<ActivityRecordListBinding>() {
     }
 
     private fun setupFilters() {
-        // 状态下拉框
-        val statusOptions = listOf("全部", "待上报", "已上报", "已审核", "已驳回")
-        val statusAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, statusOptions)
-        binding.spinnerStatus.adapter = statusAdapter
-        binding.spinnerStatus.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val status = when (position) {
-                    0 -> null
-                    1 -> RecordStatus.DRAFT
-                    2 -> RecordStatus.SUBMITTED
-                    3 -> RecordStatus.APPROVED
-                    4 -> RecordStatus.REJECTED
+        // TabLayout 状态切换
+        binding.tabLayout.addTab(binding.tabLayout.newTab().setText("全部"))
+        binding.tabLayout.addTab(binding.tabLayout.newTab().setText("待上报"))
+        binding.tabLayout.addTab(binding.tabLayout.newTab().setText("已上报"))
+
+        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                val status = when (tab?.position) {
+                    0 -> null // 全部
+                    1 -> RecordStatus.DRAFT // 待上报
+                    2 -> RecordStatus.SUBMITTED // 已上报
                     else -> null
                 }
                 viewModel.filterByStatus(status)
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
+
+        // 搜索功能
+        binding.etSearch.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                val keyword = binding.etSearch.text.toString().trim()
+                viewModel.searchRecords(keyword)
+                true
+            } else {
+                false
+            }
         }
-
-        // 单位下拉框（简化版，暂无单位筛选）
-        val unitOptions = listOf("全部单位")
-        val unitAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, unitOptions)
-        binding.spinnerUnit.adapter = unitAdapter
-
-        // 日期筛选
-        binding.btnDateFilter.setOnClickListener {
-            showDateRangePicker()
-        }
-    }
-
-    private fun showDateRangePicker() {
-        val startCalendar = Calendar.getInstance()
-        val endCalendar = Calendar.getInstance()
-
-        // 选择开始日期
-        DatePickerDialog(this, { _, year, month, dayOfMonth ->
-            startCalendar.set(year, month, dayOfMonth, 0, 0, 0)
-            // 选择结束日期
-            DatePickerDialog(this, { _, year2, month2, dayOfMonth2 ->
-                endCalendar.set(year2, month2, dayOfMonth2, 23, 59, 59)
-                val startTime = startCalendar.timeInMillis
-                val endTime = endCalendar.timeInMillis
-                viewModel.filterByDateRange(startTime, endTime)
-            }, endCalendar.get(Calendar.YEAR), endCalendar.get(Calendar.MONTH), endCalendar.get(Calendar.DAY_OF_MONTH)).show()
-        }, startCalendar.get(Calendar.YEAR), startCalendar.get(Calendar.MONTH), startCalendar.get(Calendar.DAY_OF_MONTH)).show()
     }
 
     private fun observeViewModel() {

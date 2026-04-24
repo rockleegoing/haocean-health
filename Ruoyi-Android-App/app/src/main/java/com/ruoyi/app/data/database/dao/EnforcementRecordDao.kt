@@ -21,6 +21,7 @@ interface EnforcementRecordDao {
         AND (:industryId IS NULL OR industryId = :industryId)
         AND (:startTime IS NULL OR createTime >= :startTime)
         AND (:endTime IS NULL OR createTime <= :endTime)
+        AND (:keyword IS NULL OR :keyword = '' OR unitName LIKE '%' || :keyword || '%' OR industryCode LIKE '%' || :keyword || '%' OR recordNo LIKE '%' || :keyword || '%')
         ORDER BY createTime DESC
     """)
     fun getRecordsFiltered(
@@ -28,7 +29,8 @@ interface EnforcementRecordDao {
         unitId: Long?,
         industryId: Long?,
         startTime: Long?,
-        endTime: Long?
+        endTime: Long?,
+        keyword: String?
     ): Flow<List<EnforcementRecordEntity>>
 
     @Query("SELECT * FROM t_enforcement_record WHERE id = :id")

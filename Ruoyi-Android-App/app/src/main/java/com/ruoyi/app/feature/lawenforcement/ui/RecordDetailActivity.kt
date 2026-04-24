@@ -4,13 +4,19 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.hjq.bar.OnTitleBarListener
 import com.hjq.bar.TitleBar
 import com.hjq.toast.ToastUtils
 import com.ruoyi.app.R
+import com.ruoyi.app.data.database.entity.EvidenceMaterialEntity
 import com.ruoyi.app.databinding.ActivityRecordDetailBinding
+import com.ruoyi.app.feature.lawenforcement.model.EvidenceType
 import com.ruoyi.app.feature.lawenforcement.model.RecordStatus
-import com.ruoyi.app.feature.lawenforcement.ui.adapter.EvidenceAdapter
+import com.ruoyi.app.feature.lawenforcement.ui.adapter.AudioAdapter
+import com.ruoyi.app.feature.lawenforcement.ui.adapter.PhotoAdapter
+import com.ruoyi.app.feature.lawenforcement.ui.adapter.VideoAdapter
 import com.ruoyi.app.feature.lawenforcement.viewmodel.RecordDetailViewModel
 import com.ruoyi.app.model.Constant
 import com.ruoyi.code.base.BaseBindingActivity
@@ -26,13 +32,20 @@ import java.util.Locale
 class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() {
 
     private val viewModel: RecordDetailViewModel by activityViewModels()
-    private lateinit var evidenceAdapter: EvidenceAdapter
+    private lateinit var photoAdapter: PhotoAdapter
+    private lateinit var audioAdapter: AudioAdapter
+    private lateinit var videoAdapter: VideoAdapter
+
+    private var isPhotoExpanded = false
+    private var isAudioExpanded = false
+    private var isVideoExpanded = false
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA)
 
     override fun initView() {
         setupTitleBar()
-        setupRecyclerView()
+        setupRecyclerViews()
+        setupExpandableHeaders()
         setupButtons()
         observeViewModel()
 
@@ -58,26 +71,59 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
         })
     }
 
-    private fun setupRecyclerView() {
-        evidenceAdapter = EvidenceAdapter { material ->
-            // 点击证据材料
-            when (material.evidenceType) {
-                "photo" -> {
-                    // 预览照片
-                    previewPhoto(material.filePath)
-                }
-                "audio" -> {
-                    // 播放录音
-                    playAudio(material.filePath)
-                }
-                "video" -> {
-                    // 播放视频
-                    playVideo(material.filePath)
-                }
-            }
+    private fun setupRecyclerViews() {
+        // 照片适配器
+        photoAdapter = PhotoAdapter { material ->
+            previewPhoto(material.filePath)
+        }
+        binding.rvPhoto.apply {
+            layoutManager = GridLayoutManager(this@RecordDetailActivity, 3)
+            adapter = photoAdapter
         }
 
-        binding.rvEvidence.adapter = evidenceAdapter
+        // 录音适配器
+        audioAdapter = AudioAdapter { material ->
+            playAudio(material.filePath)
+        }
+        binding.rvAudio.apply {
+            layoutManager = LinearLayoutManager(this@RecordDetailActivity)
+            adapter = audioAdapter
+        }
+
+        // 录像适配器
+        videoAdapter = VideoAdapter { material ->
+            playVideo(material.filePath)
+        }
+        binding.rvVideo.apply {
+            layoutManager = GridLayoutManager(this@RecordDetailActivity, 3)
+            adapter = videoAdapter
+        }
+    }
+
+    private fun setupExpandableHeaders() {
+        binding.layoutPhotoHeader.setOnClickListener {
+            isPhotoExpanded = !isPhotoExpanded
+            binding.rvPhoto.visibility = if (isPhotoExpanded) View.VISIBLE else View.GONE
+            binding.ivPhotoExpand.setImageResource(
+                if (isPhotoExpanded) R.drawable.ic_arrow_up else R.drawable.ic_arrow_down
+            )
+        }
+
+        binding.layoutAudioHeader.setOnClickListener {
+            isAudioExpanded = !isAudioExpanded
+            binding.rvAudio.visibility = if (isAudioExpanded) View.VISIBLE else View.GONE
+            binding.ivAudioExpand.setImageResource(
+                if (isAudioExpanded) R.drawable.ic_arrow_up else R.drawable.ic_arrow_down
+            )
+        }
+
+        binding.layoutVideoHeader.setOnClickListener {
+            isVideoExpanded = !isVideoExpanded
+            binding.rvVideo.visibility = if (isVideoExpanded) View.VISIBLE else View.GONE
+            binding.ivVideoExpand.setImageResource(
+                if (isVideoExpanded) R.drawable.ic_arrow_up else R.drawable.ic_arrow_down
+            )
+        }
     }
 
     private fun setupButtons() {
@@ -117,6 +163,7 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
     private fun observeViewModel() {
         viewModel.record.observe(this) { record ->
             if (record != null) {
+                binding.tvRecordNo.text = record.recordNo
                 binding.tvUnitName.text = record.unitName
                 binding.tvIndustry.text = record.industryCode
                 binding.tvCreateTime.text = dateFormat.format(Date(record.createTime))
@@ -141,13 +188,22 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
         }
 
         viewModel.evidenceMaterials.observe(this) { materials ->
-            evidenceAdapter.submitList(materials)
-
-            // 更新统计
             val stats = viewModel.getEvidenceStats()
-            binding.tvPhotoCount.text = "${stats.photoCount} 张照片"
-            binding.tvAudioCount.text = "${stats.audioCount} 条录音"
-            binding.tvVideoCount.text = "${stats.videoCount} 条录像"
+
+            // 照片
+            val photos = materials.filter { it.evidenceType == EvidenceType.PHOTO }
+            photoAdapter.submitList(photos)
+            binding.tvPhotoCount.text = "(${photos.size})"
+
+            // 录音
+            val audios = materials.filter { it.evidenceType == EvidenceType.AUDIO }
+            audioAdapter.submitList(audios)
+            binding.tvAudioCount.text = "(${audios.size})"
+
+            // 录像
+            val videos = materials.filter { it.evidenceType == EvidenceType.VIDEO }
+            videoAdapter.submitList(videos)
+            binding.tvVideoCount.text = "(${videos.size})"
         }
 
         viewModel.error.observe(this) { error ->
@@ -165,12 +221,11 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
     }
 
     private fun previewPhoto(filePath: String) {
-        // 使用系统图片查看器
         val intent = Intent(Intent.ACTION_VIEW).apply {
             val file = File(filePath)
             val uri = androidx.core.content.FileProvider.getUriForFile(
                 this@RecordDetailActivity,
-                "${packageName}.fileprovider",
+                "${packageName}.provider",
                 file
             )
             setDataAndType(uri, "image/*")
@@ -180,12 +235,11 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
     }
 
     private fun playAudio(filePath: String) {
-        // 使用系统音乐播放器
         val intent = Intent(Intent.ACTION_VIEW).apply {
             val file = File(filePath)
             val uri = androidx.core.content.FileProvider.getUriForFile(
                 this@RecordDetailActivity,
-                "${packageName}.fileprovider",
+                "${packageName}.provider",
                 file
             )
             setDataAndType(uri, "audio/*")
@@ -195,12 +249,11 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
     }
 
     private fun playVideo(filePath: String) {
-        // 使用系统视频播放器
         val intent = Intent(Intent.ACTION_VIEW).apply {
             val file = File(filePath)
             val uri = androidx.core.content.FileProvider.getUriForFile(
                 this@RecordDetailActivity,
-                "${packageName}.fileprovider",
+                "${packageName}.provider",
                 file
             )
             setDataAndType(uri, "video/*")

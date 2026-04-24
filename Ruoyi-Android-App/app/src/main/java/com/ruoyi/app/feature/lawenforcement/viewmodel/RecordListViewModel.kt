@@ -23,7 +23,8 @@ class RecordListViewModel(application: Application) : AndroidViewModel(applicati
         val unitId: Long? = null,
         val industryId: Long? = null,
         val startTime: Long? = null,
-        val endTime: Long? = null
+        val endTime: Long? = null,
+        val keyword: String? = null
     )
     val filterParams = MutableLiveData(FilterParams())
 
@@ -54,7 +55,8 @@ class RecordListViewModel(application: Application) : AndroidViewModel(applicati
                     unitId = params.unitId,
                     industryId = params.industryId,
                     startTime = params.startTime,
-                    endTime = params.endTime
+                    endTime = params.endTime,
+                    keyword = params.keyword
                 ).collectLatest { recordList ->
                     records.value = recordList
                     isLoading.value = false
@@ -64,6 +66,15 @@ class RecordListViewModel(application: Application) : AndroidViewModel(applicati
                 isLoading.value = false
             }
         }
+    }
+
+    /**
+     * 搜索记录
+     */
+    fun searchRecords(keyword: String?) {
+        val current = filterParams.value ?: FilterParams()
+        filterParams.value = current.copy(keyword = keyword)
+        loadRecords()
     }
 
     /**

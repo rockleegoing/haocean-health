@@ -35,9 +35,10 @@ class LawEnforcementRepository(private val context: Context) {
         unitId: Long?,
         industryId: Long?,
         startTime: Long?,
-        endTime: Long?
+        endTime: Long?,
+        keyword: String? = null
     ): Flow<List<EnforcementRecordEntity>> {
-        return recordDao.getRecordsFiltered(status, unitId, industryId, startTime, endTime)
+        return recordDao.getRecordsFiltered(status, unitId, industryId, startTime, endTime, keyword)
     }
 
     // 获取单条记录
