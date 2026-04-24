@@ -8,19 +8,24 @@
     android:fillViewport="true"
     tools:context=".feature.addunit.AddUnitActivity">
 
-    <com.hjq.bar.TitleBar
-        android:id="@id/titlebar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_48"
-        app:lineVisible="false"
-        app:leftIcon="@mipmap/icon_title_left"
-        app:title="添加单位" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
+
+        <com.hjq.bar.TitleBar
+            android:id="@id/titlebar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_48"
+            app:lineVisible="false"
+            app:leftIcon="@mipmap/icon_title_left"
+            app:title="添加单位" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
         <!-- 行业分类选择 -->
         <LinearLayout
@@ -745,6 +750,8 @@
             app:shape_radius="6dp"
             app:shape_solidColor="#0081ff"
             app:shape_solidPressedColor="#AA5A8DDF" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
