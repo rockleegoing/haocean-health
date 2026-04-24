@@ -422,6 +422,143 @@ class AddUnitActivity : BaseBindingActivity<ActivityAddUnitBinding>() {
 - 网络恢复后自动触发同步
 - 同步状态可在单位列表中查看
 
+### 6.3 同步单位数据检查与扩展
+
+**现有 SyncManager 单位同步分析**：
+
+现有 `SyncManager.syncUnit()` 方法仅从服务器拉取单位数据到本地：
+```kotlin
+private suspend fun syncUnit(context: Context?): Boolean {
+    if (context == null) return false
+    return try {
+        val repository = UnitRepository(context)
+        repository.syncUnitsFromServer().isSuccess
+    } catch (e: Exception) {
+        false
+    }
+}
+```
+
+**问题**：
+1. 仅支持单向同步（服务器 → 本地）
+2. 没有上传本地新增单位到服务器的功能
+3. 没有增量检查机制
+
+**扩展设计**：
+
+```kotlin
+/**
+ * 增量同步单位数据
+ * 1. 从服务器拉取最新单位列表（完整覆盖）
+ * 2. 上传本地新增的单位（syncStatus = 'PENDING'）
+ */
+private suspend fun syncUnit(context: Context?): Boolean {
+    if (context == null) return false
+    return try {
+        val repository = UnitRepository(context)
+
+        // 1. 拉取服务器数据并更新本地
+        val pullSuccess = repository.syncUnitsFromServer().isSuccess
+
+        // 2. 上传本地待同步单位
+        val pendingUnits = repository.getPendingUnits()
+        for (unit in pendingUnits) {
+            val uploadSuccess = uploadUnitToServer(unit)
+            if (uploadSuccess) {
+                repository.markAsSynced(unit.unitId)
+            }
+        }
+
+        pullSuccess
+    } catch (e: Exception) {
+        false
+    }
+}
+
+/**
+ * 上传单位到服务器
+ */
+private suspend fun uploadUnitToServer(unit: UnitEntity): Boolean {
+    // TODO: 调用后端 API POST /app/unit
+    return try {
+        // 构造请求体，转换为与后端 SysUnit 对应的格式
+        val request = UnitDTO(
+            unitName = unit.unitName,
+            personName = unit.personName,
+            // ... 其他字段映射
+        )
+        // 调用 API
+        true
+    } catch (e: Exception) {
+        false
+    }
+}
+```
+
+**UnitRepository 扩展方法**：
+
+```kotlin
+/**
+ * 获取本地待同步的单位列表
+ */
+suspend fun getPendingUnits(): List<UnitEntity> {
+    return withContext(Dispatchers.IO) {
+        unitDao.getPendingUnits()
+    }
+}
+
+/**
+ * 标记单位为已同步
+ */
+suspend fun markAsSynced(unitId: Long) {
+    withContext(Dispatchers.IO) {
+        unitDao.markAsSynced(unitId)
+    }
+}
+
+/**
+ * 上传单个单位到服务器
+ */
+suspend fun uploadUnitToServer(unit: UnitEntity): Result<Unit> {
+    return withContext(Dispatchers.IO) {
+        try {
+            val result = Get<UnitResult>(ConfigApi.baseUrl + "/app/unit")
+                .body(unit.toDTO())
+                .post()
+                .await()
+            if (result.code == ConfigApi.SUCCESS) {
+                Result.success(result.data)
+            } else {
+                Result.failure(Exception(result.msg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+}
+```
+
+**UnitDTO 扩展**（与后端 SysUnit 对应）：
+
+```kotlin
+@kotlinx.serialization.Serializable
+data class UnitDTO(
+    // ... 现有字段
+    val personName: String? = null,
+    val registrationAddress: String? = null,
+    val businessArea: Double? = null,
+    val licenseName: String? = null,
+    val licenseNo: String? = null,
+    val gender: String? = null,
+    val nation: String? = null,
+    val post: String? = null,
+    val idCard: String? = null,
+    val birthday: String? = null,
+    val homeAddress: String? = null,
+    // ...
+)
+```
+
 ---
 
 ## 7. 验收标准
@@ -441,6 +578,10 @@ class AddUnitActivity : BaseBindingActivity<ActivityAddUnitBinding>() {
 - [ ] 后端 API 能正确接收新增单位数据
 - [ ] 增量同步能将本地新增单位上传到后台
 - [ ] 同步状态正确更新
+- [ ] 本地 syncStatus = 'PENDING' 的单位能正确上传
+- [ ] 上传成功后 syncStatus 更新为 'SYNCED'
+- [ ] 离线状态下添加的单位在联网后能正确同步
+- [ ] 同步失败时能正确记录错误并等待重试
 
 ### 7.3 前端验收
 
@@ -468,9 +609,11 @@ class AddUnitActivity : BaseBindingActivity<ActivityAddUnitBinding>() {
 5. 新增 AddUnitActivity.kt（添加单位页面）
 6. 新增 AddUnitViewModel.kt（ViewModel）
 7. 新增 AddUnitRepository.kt（数据仓库）
-8. 创建 activity_add_unit.xml 布局
-9. 在 AndroidManifest.xml 注册 AddUnitActivity
-10. 扩展 SyncManager.kt（增量同步单位）
+8. 扩展 UnitRepository.kt（新增 getPendingUnits、markAsSynced、uploadUnitToServer 方法）
+9. 创建 activity_add_unit.xml 布局
+10. 在 AndroidManifest.xml 注册 AddUnitActivity
+11. 扩展 SyncManager.kt（增量同步：拉取+上传）
+12. 扩展 ConfigApi.kt（新增 appUnitAdd 接口地址）
 
 ### 8.4 前端
 1. 扩展单位管理页面表格列
