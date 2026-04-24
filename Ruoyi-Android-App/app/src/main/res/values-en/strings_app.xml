@@ -18,7 +18,7 @@
     <string name="login_privacy">《Privacy》</string>
 
     <string name="welcome">Hello RuoYi</string>
-    <string name="index_nav_index">home</string>
+    <string name="index_nav_index">Enforcement</string>
     <string name="work_nav_index">workbench</string>
     <string name="mine_nav_index">mine</string>
     <string name="mine_edit_avatar">ChangeProfilePicture</string>
@@ -79,4 +79,15 @@
     <string name="privacy_desc"><![CDATA[Welcome to use "RuoYi". We attach great importance to the protection of your personal information and privacy. Before using RuoYi\'s services, please carefully read <a href="privacy_policy"><font color="#FF007AFF">《RuoYi Privacy Policy》</font></a> and <a href="user_agreement"><font color="#FF007AFF">《RuoYi User Agreement》</font></a>. We will use your personal information in strict accordance with the terms you have agreed to, so as to provide you with better services. If you agree to this policy, please click "Agree" to start using our products and services. We will do our utmost to protect the security of your personal information.]]></string>
     <string name="btn_refuse">refuse</string>
     <string name="btn_agree">agree</string>
+
+    <string name="select_unit">Select Enforcement Unit</string>
+    <string name="current_unit">Current Unit: %s</string>
+    <string name="please_select_unit">Please select enforcement unit</string>
+    <string name="skip_select">Skip, enter main page</string>
+    <string name="unit_name">Unit Name</string>
+    <string name="industry_category">Industry Category</string>
+    <string name="region">Region</string>
+    <string name="supervision_type">Supervision Type</string>
+    <string name="search_unit_hint">Search unit name</string>
+    <string name="no_unit_selected">Please select enforcement unit first</string>
 </resources>

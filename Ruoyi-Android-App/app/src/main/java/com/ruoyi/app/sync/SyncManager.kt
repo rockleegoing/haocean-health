@@ -34,6 +34,7 @@ class SyncManager private constructor() {
         // 同步模块定义
         const val MODULE_USER_PERMISSION = "用户权限"
         const val MODULE_INDUSTRY_CATEGORY = "行业分类"
+        const val MODULE_UNIT = "执法单位"
         const val MODULE_LAW = "法律法规"
         const val MODULE_PHRASE = "规范用语"
         const val MODULE_SUPERVISION = "监管事项"
@@ -44,6 +45,7 @@ class SyncManager private constructor() {
         val FULL_SYNC_MODULES = listOf(
             MODULE_USER_PERMISSION,
             MODULE_INDUSTRY_CATEGORY,
+            MODULE_UNIT,
             MODULE_LAW,
             MODULE_PHRASE,
             MODULE_SUPERVISION,
@@ -129,6 +131,7 @@ class SyncManager private constructor() {
             when (module) {
                 MODULE_USER_PERMISSION -> syncUserPermissions()
                 MODULE_INDUSTRY_CATEGORY -> syncIndustryCategory(context)
+                MODULE_UNIT -> syncUnit(context)
                 MODULE_LAW -> syncLaw(context)
                 MODULE_PHRASE -> syncPhrase(context)
                 MODULE_SUPERVISION -> syncSupervision(context)
@@ -155,6 +158,14 @@ class SyncManager private constructor() {
         // 行业分类同步
         // TODO: 调用后端 GET /industry/category/list
         // 存储到 IndustryCategoryEntity
+        delay(500) // 模拟网络请求
+        return true
+    }
+
+    private suspend fun syncUnit(context: Context?): Boolean {
+        // 执法单位同步
+        // TODO: 调用后端 GET /app/unit/list
+        // 存储到 UnitEntity
         delay(500) // 模拟网络请求
         return true
     }

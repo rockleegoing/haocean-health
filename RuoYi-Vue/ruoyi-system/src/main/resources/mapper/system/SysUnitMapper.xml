@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysUnitMapper">
+    
+    <resultMap type="SysUnit" id="SysUnitResult">
+        <result property="unitId"    column="unit_id"    />
+        <result property="unitName"    column="unit_name"    />
+        <result property="industryCategoryId"    column="industry_category_id"    />
+        <result property="industryCategoryName"    column="industry_category_name"    />
+        <result property="region"    column="region"    />
+        <result property="supervisionType"    column="supervision_type"    />
+        <result property="creditCode"    column="credit_code"    />
+        <result property="legalPerson"    column="legal_person"    />
+        <result property="contactPhone"    column="contact_phone"    />
+        <result property="businessAddress"    column="business_address"    />
+        <result property="latitude"    column="latitude"    />
+        <result property="longitude"    column="longitude"    />
+        <result property="status"    column="status"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectSysUnitVo">
+        select unit_id, unit_name, industry_category_id, region, supervision_type, credit_code, legal_person, contact_phone, business_address, latitude, longitude, status, del_flag, create_by, create_time, update_by, update_time, remark from sys_unit
+    </sql>
+
+    <select id="selectSysUnitList" parameterType="SysUnit" resultMap="SysUnitResult">
+        <include refid="selectSysUnitVo"/>
+        <where>  
+            <if test="unitName != null  and unitName != ''"> and unit_name like concat('%', #{unitName}, '%')</if>
+            <if test="industryCategoryId != null "> and industry_category_id = #{industryCategoryId}</if>
+            <if test="region != null  and region != ''"> and region = #{region}</if>
+            <if test="supervisionType != null  and supervisionType != ''"> and supervision_type = #{supervisionType}</if>
+            <if test="creditCode != null  and creditCode != ''"> and credit_code = #{creditCode}</if>
+            <if test="legalPerson != null  and legalPerson != ''"> and legal_person = #{legalPerson}</if>
+            <if test="contactPhone != null  and contactPhone != ''"> and contact_phone = #{contactPhone}</if>
+            <if test="businessAddress != null  and businessAddress != ''"> and business_address = #{businessAddress}</if>
+            <if test="latitude != null "> and latitude = #{latitude}</if>
+            <if test="longitude != null "> and longitude = #{longitude}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysUnitByUnitId" parameterType="Long" resultMap="SysUnitResult">
+        <include refid="selectSysUnitVo"/>
+        where unit_id = #{unitId}
+    </select>
+
+    <insert id="insertSysUnit" parameterType="SysUnit" useGeneratedKeys="true" keyProperty="unitId">
+        insert into sys_unit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="unitName != null and unitName != ''">unit_name,</if>
+            <if test="industryCategoryId != null">industry_category_id,</if>
+            <if test="region != null">region,</if>
+            <if test="supervisionType != null">supervision_type,</if>
+            <if test="creditCode != null">credit_code,</if>
+            <if test="legalPerson != null">legal_person,</if>
+            <if test="contactPhone != null">contact_phone,</if>
+            <if test="businessAddress != null">business_address,</if>
+            <if test="latitude != null">latitude,</if>
+            <if test="longitude != null">longitude,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="unitName != null and unitName != ''">#{unitName},</if>
+            <if test="industryCategoryId != null">#{industryCategoryId},</if>
+            <if test="region != null">#{region},</if>
+            <if test="supervisionType != null">#{supervisionType},</if>
+            <if test="creditCode != null">#{creditCode},</if>
+            <if test="legalPerson != null">#{legalPerson},</if>
+            <if test="contactPhone != null">#{contactPhone},</if>
+            <if test="businessAddress != null">#{businessAddress},</if>
+            <if test="latitude != null">#{latitude},</if>
+            <if test="longitude != null">#{longitude},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysUnit" parameterType="SysUnit">
+        update sys_unit
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="unitName != null and unitName != ''">unit_name = #{unitName},</if>
+            <if test="industryCategoryId != null">industry_category_id = #{industryCategoryId},</if>
+            <if test="region != null">region = #{region},</if>
+            <if test="supervisionType != null">supervision_type = #{supervisionType},</if>
+            <if test="creditCode != null">credit_code = #{creditCode},</if>
+            <if test="legalPerson != null">legal_person = #{legalPerson},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="businessAddress != null">business_address = #{businessAddress},</if>
+            <if test="latitude != null">latitude = #{latitude},</if>
+            <if test="longitude != null">longitude = #{longitude},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where unit_id = #{unitId}
+    </update>
+
+    <delete id="deleteSysUnitByUnitId" parameterType="Long">
+        delete from sys_unit where unit_id = #{unitId}
+    </delete>
+
+    <delete id="deleteSysUnitByUnitIds" parameterType="String">
+        delete from sys_unit where unit_id in
+        <foreach item="unitId" collection="array" open="(" separator="," close=")">
+            #{unitId}
+        </foreach>
+    </delete>
+
+    <select id="selectUnitListWithCategory" parameterType="SysUnit" resultMap="SysUnitResult">
+        SELECT u.unit_id, u.unit_name, u.industry_category_id,
+               c.category_name AS industry_category_name,
+               u.region, u.supervision_type, u.credit_code,
+               u.legal_person, u.contact_phone, u.business_address,
+               u.latitude, u.longitude, u.status, u.del_flag,
+               u.create_by, u.create_time, u.update_by, u.update_time, u.remark
+        FROM sys_unit u
+        LEFT JOIN sys_industry_category c ON u.industry_category_id = c.category_id
+        WHERE u.del_flag = '0'
+        <if test="unitName != null and unitName != ''">
+            AND u.unit_name LIKE CONCAT('%', #{unitName}, '%')
+        </if>
+        <if test="industryCategoryId != null">
+            AND u.industry_category_id = #{industryCategoryId}
+        </if>
+        <if test="region != null and region != ''">
+            AND u.region = #{region}
+        </if>
+        <if test="supervisionType != null and supervisionType != ''">
+            AND u.supervision_type = #{supervisionType}
+        </if>
+        ORDER BY u.create_time DESC
+    </select>
+</mapper>

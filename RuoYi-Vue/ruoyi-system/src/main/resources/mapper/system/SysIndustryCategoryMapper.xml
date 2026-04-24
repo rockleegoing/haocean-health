@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysIndustryCategoryMapper">
+    
+    <resultMap type="SysIndustryCategory" id="SysIndustryCategoryResult">
+        <result property="categoryId"    column="category_id"    />
+        <result property="categoryName"    column="category_name"    />
+        <result property="categoryCode"    column="category_code"    />
+        <result property="orderNum"    column="order_num"    />
+        <result property="status"    column="status"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectSysIndustryCategoryVo">
+        select category_id, category_name, category_code, order_num, status, del_flag, create_by, create_time, update_by, update_time, remark from sys_industry_category
+    </sql>
+
+    <select id="selectSysIndustryCategoryList" parameterType="SysIndustryCategory" resultMap="SysIndustryCategoryResult">
+        <include refid="selectSysIndustryCategoryVo"/>
+        <where>  
+            <if test="categoryName != null  and categoryName != ''"> and category_name like concat('%', #{categoryName}, '%')</if>
+            <if test="categoryCode != null  and categoryCode != ''"> and category_code = #{categoryCode}</if>
+            <if test="orderNum != null "> and order_num = #{orderNum}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysIndustryCategoryByCategoryId" parameterType="Long" resultMap="SysIndustryCategoryResult">
+        <include refid="selectSysIndustryCategoryVo"/>
+        where category_id = #{categoryId}
+    </select>
+
+    <insert id="insertSysIndustryCategory" parameterType="SysIndustryCategory" useGeneratedKeys="true" keyProperty="categoryId">
+        insert into sys_industry_category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">category_name,</if>
+            <if test="categoryCode != null">category_code,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">#{categoryName},</if>
+            <if test="categoryCode != null">#{categoryCode},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysIndustryCategory" parameterType="SysIndustryCategory">
+        update sys_industry_category
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">category_name = #{categoryName},</if>
+            <if test="categoryCode != null">category_code = #{categoryCode},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where category_id = #{categoryId}
+    </update>
+
+    <delete id="deleteSysIndustryCategoryByCategoryId" parameterType="Long">
+        delete from sys_industry_category where category_id = #{categoryId}
+    </delete>
+
+    <delete id="deleteSysIndustryCategoryByCategoryIds" parameterType="String">
+        delete from sys_industry_category where category_id in 
+        <foreach item="categoryId" collection="array" open="(" separator="," close=")">
+            #{categoryId}
+        </foreach>
+    </delete>
+</mapper>

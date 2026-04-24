@@ -67,8 +67,12 @@ class SyncWaitActivity : BaseBindingActivity<ActivitySyncWaitBinding>() {
                 when (result.status) {
                     SyncStatus.SUCCESS -> {
                         // 同步成功，跳转到首页
-                        TheRouter.build(Constant.mainRoute).navigation()
-                        finish()
+                        try {
+                            TheRouter.build(Constant.mainRoute).navigation()
+                            finish()
+                        } catch (e: Exception) {
+                            android.util.Log.e("SyncWaitActivity", "导航到MainActivity失败", e)
+                        }
                     }
                     SyncStatus.MAX_RETRIES_EXCEEDED -> {
                         showRetryDialog(result.message ?: "数据同步失败")

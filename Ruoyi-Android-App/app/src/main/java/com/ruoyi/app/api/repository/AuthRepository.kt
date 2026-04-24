@@ -11,6 +11,7 @@ import com.ruoyi.app.model.entity.CaptchaImageEntity
 import com.ruoyi.app.model.entity.LoginEntity
 import com.ruoyi.app.model.entity.MineEntity
 import com.ruoyi.app.model.entity.ResultEntity
+import com.ruoyi.app.model.entity.SyncDataEntity
 import com.ruoyi.app.model.entity.WorkIndexEntity
 import com.ruoyi.app.model.request.LoginRequest
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +50,24 @@ class AuthRepository(
 
     override suspend fun getUserInfo(): MineEntity = withContext(Dispatchers.IO) {
         Get<MineEntity>(ConfigApi.getInfo).await()
+    }
+
+    /**
+     * 获取当前用户完整数据（用于离线登录后获取 permissions 等）
+     * 调用 /app/sync?userId=xxx 获取当前用户的完整信息
+     */
+    override suspend fun syncCurrentUser(userId: Long): Result<SyncDataEntity> = withContext(Dispatchers.IO) {
+        try {
+            val url = "${ConfigApi.baseUrl}${ConfigApi.appSync}?userId=$userId"
+            val data = Get<SyncDataEntity>(url).await()
+            if (data.code == ConfigApi.SUCESSS) {
+                Result.success(data)
+            } else {
+                Result.failure(Exception(data.msg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun getWorkData(): WorkIndexEntity = withContext(Dispatchers.IO) {

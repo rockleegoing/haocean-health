@@ -1,9 +1,12 @@
 package com.ruoyi.web.controller.system;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,10 +28,14 @@ import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.service.ISysDeptService;
+import com.ruoyi.system.service.ISysIndustryCategoryService;
 import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.ISysRoleService;
+import com.ruoyi.system.service.ISysUnitService;
 import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.mapper.SysUserMapper;
+import com.ruoyi.system.domain.SysIndustryCategory;
+import com.ruoyi.system.domain.SysUnit;
 import com.ruoyi.system.mapper.SysDeptMapper;
 import com.ruoyi.system.mapper.SysRoleMapper;
 
@@ -72,6 +79,12 @@ public class SysLoginController
 
     @Autowired
     private ISysRoleService roleService;
+
+    @Autowired
+    private ISysIndustryCategoryService categoryService;
+
+    @Autowired
+    private ISysUnitService unitService;
 
     /**
      * 登录方法
@@ -121,9 +134,9 @@ public class SysLoginController
 
     /**
      * Android端数据预加载（无需认证）
-     * 同步所有用户、部门、角色、菜单数据到本地
+     * 同步所有用户（含完整权限信息）、部门、角色、菜单数据到本地
      *
-     * @return 用户、部门、角色、菜单数据
+     * @return 用户（含 permissions/roles）、部门、角色、菜单数据
      */
     @com.ruoyi.common.annotation.Anonymous
     @GetMapping("/app/sync")
@@ -133,7 +146,33 @@ public class SysLoginController
 
         // 1. 获取所有用户（含明文密码），使用 mapper 直接查询绕过数据权限
         List<SysUser> users = userMapper.selectUserListWithoutDataScope();
-        ajax.put("users", users);
+
+        // 为每个用户计算完整的权限信息
+        List<Map<String, Object>> usersWithPermission = users.stream().map(user -> {
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("userId", user.getUserId());
+            userMap.put("userName", user.getUserName());
+            userMap.put("nickName", user.getNickName());
+            userMap.put("email", user.getEmail());
+            userMap.put("phonenumber", user.getPhonenumber());
+            userMap.put("sex", user.getSex());
+            userMap.put("avatar", user.getAvatar());
+            userMap.put("status", user.getStatus());
+            userMap.put("password", user.getPassword());
+            userMap.put("plainPassword", user.getPlainPassword());
+            userMap.put("pwdChrtype", getSysAccountChrtype());
+            userMap.put("isDefaultModifyPwd", initPasswordIsModify(user.getPwdUpdateDate()));
+            userMap.put("isPasswordExpired", passwordIsExpiration(user.getPwdUpdateDate()));
+
+            // 获取该用户的角色和权限
+            Set<String> roleSet = permissionService.getRolePermission(user);
+            Set<String> permissionSet = permissionService.getMenuPermission(user);
+            userMap.put("roles", roleSet);
+            userMap.put("permissions", permissionSet);
+
+            return userMap;
+        }).toList();
+        ajax.put("users", usersWithPermission);
 
         // 2. 获取所有部门，使用 mapper 直接查询绕过数据权限
         List<SysDept> depts = deptMapper.selectDeptListWithoutDataScope();
@@ -146,6 +185,14 @@ public class SysLoginController
         // 4. 获取所有菜单
         List<SysMenu> menus = menuService.selectMenuAll();
         ajax.put("menus", menus);
+
+        // 5. 获取所有行业分类
+        List<SysIndustryCategory> categories = categoryService.selectSysIndustryCategoryList(new SysIndustryCategory());
+        ajax.put("categories", categories);
+
+        // 6. 获取所有执法单位，带行业分类名称
+        List<SysUnit> units = unitService.selectUnitListWithCategory(new SysUnit());
+        ajax.put("units", units);
 
         return ajax;
     }

@@ -41,14 +41,13 @@
 
 #### 2.1.1 行业分类表 `sys_industry_category`
 
+**设计说明**：行业分类为一级扁平结构（不支持多层级），便于后续扩展。
+
 ```sql
 CREATE TABLE `sys_industry_category` (
     `category_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '分类ID',
     `category_name` VARCHAR(50) NOT NULL COMMENT '分类名称',
-    `parent_id` BIGINT(20) DEFAULT 0 COMMENT '父分类ID',
-    `ancestors` VARCHAR(100) DEFAULT '' COMMENT '祖级列表',
     `category_code` VARCHAR(50) DEFAULT NULL COMMENT '分类编码',
-    `level` INT(1) DEFAULT 1 COMMENT '层级(1=一级,2=二级,3=三级)',
     `order_num` INT(3) DEFAULT 0 COMMENT '显示顺序',
     `status` CHAR(1) DEFAULT '0' COMMENT '状态(0=正常,1=停用)',
     `del_flag` CHAR(1) DEFAULT '0' COMMENT '删除标志(0=存在,1=删除)',
@@ -59,6 +58,19 @@ CREATE TABLE `sys_industry_category` (
     `remark` VARCHAR(500) DEFAULT NULL COMMENT '备注',
     PRIMARY KEY (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='行业分类表';
+```
+
+**预置数据**：
+```sql
+INSERT INTO `sys_industry_category` (`category_name`, `category_code`, `order_num`, `status`, `remark`) VALUES
+('公共场所', 'GCDG', 1, '0', '公共场所卫生监督'),
+('医疗机构', 'YLJG', 2, '0', '医疗机构卫生监督'),
+('学校卫生', 'XXWS', 3, '0', '学校卫生监督'),
+('饮用水卫生', 'YSXWS', 4, '0', '饮用水及涉水产品卫生监督'),
+('传染病防治', 'CRBFZ', 5, '0', '传染病防治卫生监督'),
+('放射卫生', 'FSWS', 6, '0', '放射卫生监督'),
+('消毒产品', 'XCCP', 7, '0', '消毒产品卫生监督'),
+('职业卫生', 'ZYWS', 8, '0', '职业卫生监督');
 ```
 
 #### 2.1.2 执法单位表 `sys_unit`（修改版）
@@ -90,8 +102,6 @@ CREATE TABLE `sys_unit` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='执法单位表';
 ```
 
-**关键变更**：`industry_category` (VARCHAR) → `industry_category_id` (BIGINT FK)
-
 ### 2.2 代码生成器使用
 
 #### 2.2.1 行业分类 CRUD
@@ -104,30 +114,74 @@ CREATE TABLE `sys_unit` (
    - 包名: `com.ruoyi.system`
    - 模块名: `system`
    - 业务名: `行业分类`
+3. **生成内容**: Entity、Mapper、Service、ServiceImpl、Controller、Vue页面
 
 #### 2.2.2 执法单位 CRUD
 1. **表名**: `sys_unit`
 2. **业务名**: `执法单位`
+3. **生成内容**: Entity、Mapper、Service、ServiceImpl、Controller、Vue页面
 
-### 2.3 后端 API 设计
+### 2.3 后端菜单配置
 
-#### 2.3.1 行业分类 API (`/app/category/*`)
+#### 2.3.1 行业分类菜单
+在 RuoYi 后台管理系统中创建菜单：
+
+```
+系统管理 (一级菜单)
+├── 行业分类管理 (二级菜单)
+    ├── 行业分类列表 (按钮)
+    ├── 新增行业分类 (按钮)
+    ├── 修改行业分类 (按钮)
+    └── 删除行业分类 (按钮)
+```
+
+#### 2.3.2 执法单位菜单
+```
+日常办公 (一级菜单) [需新建]
+├── 单位管理 (二级菜单)
+    ├── 单位列表 (按钮)
+    ├── 新增单位 (按钮)
+    ├── 修改单位 (按钮)
+    └── 删除单位 (按钮)
+```
+
+**SQL 菜单数据**：
+```sql
+-- 系统管理下新增行业分类菜单
+INSERT INTO `sys_menu` (`menu_name`, `parent_id`, `order_num`, `path`, `component`, `menu_type`, `visible`, `status`, `perms`, `icon`, `create_by`) VALUES
+('行业分类管理', 1, 1, 'industryCategory', 'system/industryCategory/index', 'C', '0', '0', 'system:industryCategory:list', 'tree', 'admin');
+
+-- 日常办公菜单组
+INSERT INTO `sys_menu` (`menu_name`, `parent_id`, `order_num`, `path`, `component`, `menu_type`, `visible`, `status`, `perms`, `icon`, `create_by`) VALUES
+('日常办公', 0, 10, 'dailyOffice', NULL, 'M', '0', '0', '', 'log', 'admin');
+
+-- 单位管理菜单
+INSERT INTO `sys_menu` (`menu_name`, `parent_id`, `order_num`, `path`, `component`, `menu_type`, `visible`, `status`, `perms`, `icon`, `create_by`) VALUES
+('单位管理', (SELECT menu_id FROM sys_menu WHERE path='dailyOffice'), 1, 'unit', 'system/unit/index', 'C', '0', '0', 'system:unit:list', 'building', 'admin');
+```
+
+### 2.4 后端 API 设计
+
+#### 2.4.1 行业分类 API (`/app/category/*`)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/app/category/list` | 获取行业分类列表（树形） |
+| GET | `/app/category/list` | 获取行业分类列表 |
 | GET | `/app/category/{categoryId}` | 获取分类详情 |
 
-#### 2.3.2 执法单位 API (`/app/unit/*`)
+#### 2.4.2 执法单位 API (`/app/unit/*`)
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | `/app/unit/list` | 获取单位列表 |
 | GET | `/app/unit/{unitId}` | 获取单位详情 |
+| POST | `/app/unit` | 新增单位 |
+| PUT | `/app/unit` | 修改单位 |
+| DELETE | `/app/unit/{unitId}` | 删除单位 |
 
 **说明**: 所有 `/app/*` 接口需加入 `permitAll` 列表，允许匿名访问。
 
-### 2.4 /app/sync 响应更新
+### 2.5 /app/sync 响应更新
 
 ```json
 {
@@ -140,33 +194,28 @@ CREATE TABLE `sys_unit` (
         {
             "categoryId": 1,
             "categoryName": "公共场所",
-            "parentId": 0,
-            "ancestors": "0",
             "categoryCode": "GCDG",
-            "level": 1,
             "orderNum": 1,
             "status": "0",
-            "children": [
-                {
-                    "categoryId": 2,
-                    "categoryName": "住宿场所",
-                    "parentId": 1,
-                    "ancestors": "0,1",
-                    "categoryCode": "GCDG-ZSDG",
-                    "level": 2,
-                    "orderNum": 1,
-                    "status": "0",
-                    "children": []
-                }
-            ]
+            "delFlag": "0",
+            "createTime": "2026-04-22 10:00:00"
+        },
+        {
+            "categoryId": 2,
+            "categoryName": "医疗机构",
+            "categoryCode": "YLJG",
+            "orderNum": 2,
+            "status": "0",
+            "delFlag": "0",
+            "createTime": "2026-04-22 10:00:00"
         }
     ],
     "units": [
         {
             "unitId": 1,
             "unitName": "北京饭店",
-            "industryCategoryId": 2,
-            "industryCategoryName": "住宿场所",
+            "industryCategoryId": 1,
+            "industryCategoryName": "公共场所",
             "region": "北京",
             "supervisionType": "日常监督",
             "creditCode": "91110000100001234",
@@ -191,12 +240,36 @@ CREATE TABLE `sys_unit` (
 
 ```
 MainActivity
+├── HomeFragment (便捷执法)
+│   └── 顶部单位选择栏（显示当前选中单位，点击弹出选择页）
 ├── SelectUnitActivity (选择单位页)
 │   ├── 搜索栏 + 筛选条件
 │   ├── 单位列表 (RecyclerView + 分页)
-│   └── 添加单位入口
+│   └── 跳过按钮
 └── AddUnitActivity (新增单位页) [可选后期]
 ```
+
+### 3.2 页面交互设计
+
+#### 3.2.1 首页顶部单位选择栏
+- **位置**：HomeFragment 顶部
+- **显示逻辑**：
+  - 已选单位：显示"当前单位：XXX"
+  - 未选单位：显示"请选择执法单位 ▼"
+- **点击行为**：弹出 SelectUnitActivity
+
+#### 3.2.2 选择单位页（SelectUnitActivity）
+- **跳过按钮**：底部"暂不选择，进入主页"
+- **跳过后状态**：未选单位，执法功能受限
+
+#### 3.2.3 执法功能拦截
+- **拦截时机**：用户点击执法功能时
+- **拦截行为**：Toast 提示"请先选择执法单位"
+- **功能列表**：
+  - 现场执法
+  - 法规查询
+  - 规范用语
+  - 监督要点
 
 ### 3.2 路由配置
 
@@ -215,10 +288,7 @@ const val addUnitRoute = "http://com.ruoyi/addUnit"
 data class IndustryCategoryEntity(
     @PrimaryKey val categoryId: Long,
     val categoryName: String,
-    val parentId: Long,          // 父分类ID，0表示顶级
-    val ancestors: String,        // 祖级列表 "0,1,2"
     val categoryCode: String?,   // 分类编码
-    val level: Int,              // 层级 1/2/3
     val orderNum: Int,           // 排序
     val status: String,
     val delFlag: String,
@@ -226,9 +296,7 @@ data class IndustryCategoryEntity(
     val createTime: Long,
     val updateBy: String?,
     val updateTime: Long?,
-    val remark: String?,
-    // 非数据库字段，用于内存中的树形结构
-    @Ignore var children: List<IndustryCategoryEntity> = emptyList()
+    val remark: String?
 )
 ```
 
@@ -265,35 +333,17 @@ interface IndustryCategoryDao {
     @Query("SELECT * FROM sys_industry_category WHERE delFlag = '0' AND status = '0' ORDER BY orderNum")
     suspend fun getAllCategories(): List<IndustryCategoryEntity>
 
-    @Query("SELECT * FROM sys_industry_category WHERE delFlag = '0' AND status = '0' AND parentId = :parentId ORDER BY orderNum")
-    suspend fun getCategoriesByParent(parentId: Long): List<IndustryCategoryEntity>
-
     @Query("SELECT * FROM sys_industry_category WHERE categoryId = :categoryId")
     suspend fun getCategoryById(categoryId: Long): IndustryCategoryEntity?
+
+    @Query("SELECT * FROM sys_industry_category WHERE categoryId IN (:ids)")
+    suspend fun getCategoriesByIds(ids: List<Long>): List<IndustryCategoryEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCategories(categories: List<IndustryCategoryEntity>)
 
     @Query("DELETE FROM sys_industry_category")
     suspend fun deleteAllCategories()
-
-    /**
-     * 构建分类树
-     * 将扁平列表转换为树形结构
-     */
-    suspend fun buildCategoryTree(): List<IndustryCategoryEntity> {
-        val allCategories = getAllCategories()
-        return buildTree(allCategories, 0)
-    }
-
-    private fun buildTree(categories: List<IndustryCategoryEntity>, parentId: Long): List<IndustryCategoryEntity> {
-        return categories.filter { it.parentId == parentId }
-            .map { category ->
-                category.copy(
-                    children = buildTree(categories, category.categoryId)
-                )
-            }
-    }
 }
 ```
 
@@ -378,15 +428,20 @@ object SelectedUnitManager {
 
 ### 阶段一：行业分类后端 (预计 1-2 小时)
 1. 创建 `sys_industry_category` 数据表
-2. 使用代码生成器生成 CRUD 代码
-3. 新增 `/app/category/*` 匿名可访问接口
-4. 修改 `/app/sync` 接口，添加 categories 字段
+2. 插入预置数据（8个行业分类）
+3. 使用代码生成器生成 CRUD 代码
+4. 在 RuoYi 后台创建菜单（系统管理 → 行业分类管理）
+5. 新增 `/app/category/*` 匿名可访问接口
+6. 修改 `/app/sync` 接口，添加 categories 字段
+7. 更新 SecurityConfig
 
 ### 阶段二：单位后端 (预计 1-2 小时)
-1. 创建 `sys_unit` 数据表（修改版，含外键）
-2. 使用代码生成器生成 CRUD 代码
-3. 新增 `/app/unit/*` 匿名可访问接口
-4. 更新 SecurityConfig
+1. 创建 `sys_unit` 数据表
+2. 插入测试数据（3-5条）
+3. 使用代码生成器生成 CRUD 代码
+4. 在 RuoYi 后台创建菜单（日常办公 → 单位管理）
+5. 新增 `/app/unit/*` 匿名可访问接口
+6. 更新 SecurityConfig
 
 ### 阶段三：Android 基础 (预计 2-3 小时)
 1. 新增/更新 `IndustryCategoryEntity.kt`
@@ -412,41 +467,41 @@ object SelectedUnitManager {
 ### 后端 (RuoYi-Vue)
 | 文件 | 说明 |
 |------|------|
-| `sql/sys_industry_category.sql` | 行业分类建表 |
-| `sql/sys_unit.sql` | 单位建表（修改版） |
-| `SysIndustryCategory.java` | 分类实体 |
-| `SysIndustryCategoryMapper.xml` | Mapper |
-| `ISysIndustryCategoryService.java` | 服务接口 |
-| `SysIndustryCategoryServiceImpl.java` | 服务实现 |
-| `SysIndustryCategoryController.java` | 控制器 |
-| `AppCategoryController.java` | Android分类接口 |
-| `SysUnit.java` | 单位实体 |
-| `SysUnitMapper.xml` | Mapper |
-| `ISysUnitService.java` | 服务接口 |
-| `SysUnitServiceImpl.java` | 服务实现 |
-| `SysUnitController.java` | 控制器 |
-| `AppUnitController.java` | Android单位接口 |
-| `SysLoginController.java` | 修改 /app/sync |
-| `SecurityConfig.java` | 添加 /app/** |
+| `sql/sys_industry_category.sql` | 行业分类建表 + 预置数据 |
+| `sql/sys_unit.sql` | 单位建表 |
+| `SysIndustryCategory.java` | 分类实体（代码生成器生成） |
+| `SysIndustryCategoryMapper.xml` | Mapper（代码生成器生成） |
+| `ISysIndustryCategoryService.java` | 服务接口（代码生成器生成） |
+| `SysIndustryCategoryServiceImpl.java` | 服务实现（代码生成器生成） |
+| `SysIndustryCategoryController.java` | 控制器（代码生成器生成） |
+| `AppCategoryController.java` | Android分类接口（需新增） |
+| `SysUnit.java` | 单位实体（代码生成器生成） |
+| `SysUnitMapper.xml` | Mapper（代码生成器生成） |
+| `ISysUnitService.java` | 服务接口（代码生成器生成） |
+| `SysUnitServiceImpl.java` | 服务实现（代码生成器生成） |
+| `SysUnitController.java` | 控制器（代码生成器生成） |
+| `AppUnitController.java` | Android单位接口（需新增） |
+| `SysLoginController.java` | 修改 /app/sync 添加 categories, units |
+| `SecurityConfig.java` | 添加 /app/** 到 permitAll |
 
 ### Android (Ruoyi-Android-App)
 | 文件 | 说明 |
 |------|------|
 | `IndustryCategoryEntity.kt` | 行业分类实体 |
 | `IndustryCategoryDao.kt` | 分类 DAO |
-| `UnitEntity.kt` | 单位实体（修改版） |
+| `UnitEntity.kt` | 单位实体（使用 industryCategoryId） |
 | `UnitDao.kt` | 单位 DAO |
-| `AppDatabase.kt` | 添加 DAO |
+| `AppDatabase.kt` | 添加 IndustryCategoryDao, UnitDao |
 | `CategoryRepository.kt` | 分类仓库 |
 | `UnitRepository.kt` | 单位仓库 |
 | `SelectUnitActivity.kt` | 选择单位页 |
 | `SelectUnitViewModel.kt` | VM |
 | `activity_select_unit.xml` | 布局 |
-| `SelectedUnitManager.kt` | 选中管理 |
-| `DistanceUtils.kt` | 距离工具 |
-| `Constant.kt` | 添加路由 |
-| `SyncManager.kt` | 添加同步 |
-| `LoginActivity.kt` | 修改同步 |
+| `SelectedUnitManager.kt` | 扩展保存 categoryId, categoryName |
+| `DistanceUtils.kt` | 距离工具（ Haversine 公式） |
+| `Constant.kt` | 添加 selectUnitRoute, addUnitRoute |
+| `SyncManager.kt` | 扩展同步 categories, units |
+| `LoginActivity.kt` | 解析 categories, units 并存储 |
 
 ---
 
@@ -474,8 +529,12 @@ curl http://localhost:8080/app/sync
 
 ---
 
-## 7. 待确认事项
+## 7. 已确认事项
 
-- [ ] 行业分类层级设计为几级？（建议3级）
-- [ ] 是否需要支持分类的新增/编辑功能？
-- [ ] 行业分类是否有预置数据需要初始化？
+- [x] 行业分类层级设计为1级（一级扁平结构）
+- [x] 需要支持分类的新增/编辑功能
+- [x] 行业分类需要预置数据初始化（8个行业分类）
+- [x] 行业分类需要添加功能菜单（系统管理 → 行业分类管理）
+- [x] /app/sync 返回 units 时，使用后端 SQL JOIN 查询行业分类名称
+- [x] 首页顶部显示单位选择入口
+- [x] 允许跳过选择单位，执法功能点击时提示"请先选择执法单位"

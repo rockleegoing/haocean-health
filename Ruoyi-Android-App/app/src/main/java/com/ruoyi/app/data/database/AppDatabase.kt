@@ -12,6 +12,7 @@ import com.ruoyi.app.data.database.dao.IndustryCategoryDao
 import com.ruoyi.app.data.database.dao.RoleDao
 import com.ruoyi.app.data.database.dao.SyncQueueDao
 import com.ruoyi.app.data.database.dao.UserDao
+import com.ruoyi.app.data.database.dao.UnitDao
 import com.ruoyi.app.data.database.entity.ActivationCodeEntity
 import com.ruoyi.app.data.database.entity.DataVersionEntity
 import com.ruoyi.app.data.database.entity.DeviceEntity
@@ -19,6 +20,7 @@ import com.ruoyi.app.data.database.entity.DeptEntity
 import com.ruoyi.app.data.database.entity.IndustryCategoryEntity
 import com.ruoyi.app.data.database.entity.RoleEntity
 import com.ruoyi.app.data.database.entity.SyncQueueEntity
+import com.ruoyi.app.data.database.entity.UnitEntity
 import com.ruoyi.app.data.database.entity.UserEntity
 
 /**
@@ -34,9 +36,10 @@ import com.ruoyi.app.data.database.entity.UserEntity
         ActivationCodeEntity::class,
         DeviceEntity::class,
         SyncQueueEntity::class,
-        DataVersionEntity::class
+        DataVersionEntity::class,
+        UnitEntity::class
     ],
-    version = 1,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -49,6 +52,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun deviceDao(): DeviceDao
     abstract fun syncQueueDao(): SyncQueueDao
     abstract fun dataVersionDao(): DataVersionDao
+    abstract fun unitDao(): UnitDao
 
     companion object {
         @Volatile

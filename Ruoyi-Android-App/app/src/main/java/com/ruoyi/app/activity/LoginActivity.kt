@@ -173,10 +173,22 @@ class LoginActivity : BaseBindingActivity<ActivityLoginBinding>() {
                         )
                     }
                     AppDatabase.getInstance(getApplication()).roleDao().insertRoles(roles)
-                    // 菜单暂时不存储，本地验证登录不需要菜单数据
+                    // 存储每个用户的权限信息到 SharedPreferences
+                    val userPrefs = getSharedPreferences("user_permissions", Context.MODE_PRIVATE)
+                    syncData.users.forEach { apiUser ->
+                        userPrefs.edit().apply {
+                            putString("user_${apiUser.userId}_permissions", apiUser.permissions.joinToString(","))
+                            putString("user_${apiUser.userId}_roles", apiUser.roles.joinToString(","))
+                            putInt("user_${apiUser.userId}_pwdChrtype", apiUser.pwdChrtype)
+                            putBoolean("user_${apiUser.userId}_isDefaultModifyPwd", apiUser.isDefaultModifyPwd)
+                            putBoolean("user_${apiUser.userId}_isPasswordExpired", apiUser.isPasswordExpired)
+                            apply()
+                        }
+                    }
                 }
             } catch (e: Exception) {
                 // 预加载失败，不阻塞用户操作
+                e.printStackTrace()
             }
         }
     }

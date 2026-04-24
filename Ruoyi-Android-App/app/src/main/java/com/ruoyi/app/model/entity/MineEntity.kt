@@ -9,7 +9,10 @@ import kotlinx.serialization.InternalSerializationApi
 data class MineEntity(
     val code: Int,
     val msg: String,
-    val permissions: List<String> = arrayListOf(),
-    val roles: List<String>?,
-    val user: UserEntity?
+    val permissions: List<String> = emptyList(),
+    val roles: List<String>? = null,
+    val user: UserEntity? = null,
+    val pwdChrtype: Int = 0,
+    val isDefaultModifyPwd: Boolean = false,
+    val isPasswordExpired: Boolean = false
 )

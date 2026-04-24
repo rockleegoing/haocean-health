@@ -5,6 +5,7 @@ import com.ruoyi.app.model.entity.CaptchaImageEntity
 import com.ruoyi.app.model.entity.LoginEntity
 import com.ruoyi.app.model.entity.MineEntity
 import com.ruoyi.app.model.entity.ResultEntity
+import com.ruoyi.app.model.entity.SyncDataEntity
 import com.ruoyi.app.model.entity.WorkIndexEntity
 import okhttp3.RequestBody
 
@@ -19,4 +20,5 @@ interface AuthRepoInterface {
     suspend fun getWorkData(): WorkIndexEntity
     suspend fun register(requestBody: RequestBody): LoginEntity
     suspend fun getHomeButtomData(): ResultEntity<List<ButtomItemEntityVo>>
+    suspend fun syncCurrentUser(userId: Long): Result<SyncDataEntity>
 }

@@ -17,7 +17,7 @@
     <string name="login_privacy">《隐私协议》</string>
 
     <string name="welcome">欢迎使用</string>
-    <string name="index_nav_index">首页</string>
+    <string name="index_nav_index">便捷执法</string>
     <string name="work_nav_index">工作台</string>
     <string name="mine_nav_index">我的</string>
     <string name="mine_edit_avatar">修改头像</string>
@@ -78,4 +78,15 @@
     <string name="privacy_desc"><![CDATA[欢迎您使用“移动卫生执法”，我们非常重视您的个人信息和隐私保护。在您使用“移动卫生执法”服务之前，请仔细阅读<a href="privacy_policy"><font color="#FF007AFF">《移动卫生执法隐私政策》</font></a>和<a href="user_agreement"><font color="#FF007AFF">《移动卫生执法用户协议》</font></a>，我们将严格按照经您同意的各项条款使用您的个人信息，以便为您提供更好的服务。如您同意此政策，请点击“同意”并开始使用我们的产品和服务，我们尽全力保护您的个人信息安全。]]></string>
     <string name="btn_refuse">拒绝</string>
     <string name="btn_agree">同意</string>
+
+    <string name="select_unit">选择执法单位</string>
+    <string name="current_unit">当前单位：%s</string>
+    <string name="please_select_unit">请选择执法单位</string>
+    <string name="skip_select">暂不选择，进入主页</string>
+    <string name="unit_name">单位名称</string>
+    <string name="industry_category">行业分类</string>
+    <string name="region">区域</string>
+    <string name="supervision_type">监管类型</string>
+    <string name="search_unit_hint">搜索单位名称</string>
+    <string name="no_unit_selected">请先选择执法单位</string>
 </resources>
