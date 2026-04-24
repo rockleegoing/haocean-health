@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysPhraseItemMapper">
+
+    <resultMap type="SysPhraseItem" id="SysPhraseItemResult">
+        <result property="itemId"         column="item_id"         />
+        <result property="bookId"         column="book_id"         />
+        <result property="itemName"       column="item_name"       />
+        <result property="itemCode"       column="item_code"       />
+        <result property="itemDesc"       column="item_desc"       />
+        <result property="phaseType"      column="phase_type"      />
+        <result property="sceneType"      column="scene_type"      />
+        <result property="industryCode"   column="industry_code"   />
+        <result property="sortOrder"     column="sort_order"      />
+        <result property="status"        column="status"          />
+        <result property="version"        column="version"         />
+        <result property="delFlag"        column="del_flag"        />
+        <result property="createBy"       column="create_by"       />
+        <result property="createTime"     column="create_time"     />
+        <result property="updateBy"       column="update_by"       />
+        <result property="updateTime"     column="update_time"     />
+        <result property="remark"         column="remark"          />
+        <result property="bookName"       column="book_name"       />
+    </resultMap>
+
+    <sql id="selectSysPhraseItemVo">
+        select i.item_id, i.book_id, i.item_name, i.item_code, i.item_desc,
+               i.phase_type, i.scene_type, i.industry_code, i.sort_order,
+               i.status, i.version, i.del_flag, i.create_by, i.create_time,
+               i.update_by, i.update_time, i.remark,
+               b.book_name
+        from sys_phrase_item i
+        left join sys_phrase_book b on i.book_id = b.book_id
+    </sql>
+
+    <select id="selectSysPhraseItemList" parameterType="SysPhraseItem" resultMap="SysPhraseItemResult">
+        <include refid="selectSysPhraseItemVo"/>
+        <where>
+            i.del_flag = '0'
+            <if test="itemName != null and itemName != ''">
+                and i.item_name like concat('%', #{itemName}, '%')
+            </if>
+            <if test="itemCode != null and itemCode != ''">
+                and i.item_code = #{itemCode}
+            </if>
+            <if test="bookId != null">
+                and i.book_id = #{bookId}
+            </if>
+            <if test="phaseType != null and phaseType != ''">
+                and i.phase_type = #{phaseType}
+            </if>
+            <if test="sceneType != null and sceneType != ''">
+                and i.scene_type = #{sceneType}
+            </if>
+            <if test="industryCode != null and industryCode != ''">
+                and i.industry_code = #{industryCode}
+            </if>
+            <if test="status != null and status != ''">
+                and i.status = #{status}
+            </if>
+        </where>
+        order by i.sort_order asc, i.item_id asc
+    </select>
+
+    <select id="selectSysPhraseItemByItemId" parameterType="Long" resultMap="SysPhraseItemResult">
+        <include refid="selectSysPhraseItemVo"/>
+        where i.item_id = #{itemId}
+    </select>
+
+    <select id="selectSysPhraseItemByBookId" parameterType="Long" resultMap="SysPhraseItemResult">
+        <include refid="selectSysPhraseItemVo"/>
+        where i.book_id = #{bookId} and i.del_flag = '0'
+        order by i.sort_order asc, i.item_id asc
+    </select>
+
+    <select id="selectSysPhraseItemByBookIdAndPhase" resultMap="SysPhraseItemResult">
+        <include refid="selectSysPhraseItemVo"/>
+        where i.book_id = #{bookId} and i.phase_type = #{phaseType} and i.del_flag = '0'
+        order by i.sort_order asc, i.item_id asc
+    </select>
+
+    <select id="selectAllSysPhraseItems" resultMap="SysPhraseItemResult">
+        <include refid="selectSysPhraseItemVo"/>
+        where i.del_flag = '0'
+        order by i.sort_order asc, i.item_id asc
+    </select>
+
+    <select id="selectChangedSysPhraseItems" parameterType="Integer" resultMap="SysPhraseItemResult">
+        <include refid="selectSysPhraseItemVo"/>
+        where i.del_flag = '0' and i.version > #{version}
+        order by i.version asc
+    </select>
+
+    <select id="selectMaxVersion" resultType="Integer">
+        select max(version) from sys_phrase_item
+    </select>
+
+    <insert id="insertSysPhraseItem" parameterType="SysPhraseItem" useGeneratedKeys="true" keyProperty="itemId">
+        insert into sys_phrase_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bookId != null">book_id,</if>
+            <if test="itemName != null and itemName != ''">item_name,</if>
+            <if test="itemCode != null and itemCode != ''">item_code,</if>
+            <if test="itemDesc != null">item_desc,</if>
+            <if test="phaseType != null">phase_type,</if>
+            <if test="sceneType != null">scene_type,</if>
+            <if test="industryCode != null">industry_code,</if>
+            <if test="sortOrder != null">sort_order,</if>
+            <if test="status != null">status,</if>
+            <if test="version != null">version,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bookId != null">#{bookId},</if>
+            <if test="itemName != null and itemName != ''">#{itemName},</if>
+            <if test="itemCode != null and itemCode != ''">#{itemCode},</if>
+            <if test="itemDesc != null">#{itemDesc},</if>
+            <if test="phaseType != null">#{phaseType},</if>
+            <if test="sceneType != null">#{sceneType},</if>
+            <if test="industryCode != null">#{industryCode},</if>
+            <if test="sortOrder != null">#{sortOrder},</if>
+            <if test="status != null">#{status},</if>
+            <if test="version != null">#{version},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysPhraseItem" parameterType="SysPhraseItem">
+        update sys_phrase_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="bookId != null">book_id = #{bookId},</if>
+            <if test="itemName != null and itemName != ''">item_name = #{itemName},</if>
+            <if test="itemCode != null and itemCode != ''">item_code = #{itemCode},</if>
+            <if test="itemDesc != null">item_desc = #{itemDesc},</if>
+            <if test="phaseType != null">phase_type = #{phaseType},</if>
+            <if test="sceneType != null">scene_type = #{sceneType},</if>
+            <if test="industryCode != null">industry_code = #{industryCode},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where item_id = #{itemId}
+    </update>
+
+    <delete id="deleteSysPhraseItemByItemId" parameterType="Long">
+        update sys_phrase_item set del_flag = '1' where item_id = #{itemId}
+    </delete>
+
+    <delete id="deleteSysPhraseItemByItemIds" parameterType="String">
+        update sys_phrase_item set del_flag = '1' where item_id in
+        <foreach item="itemId" collection="array" open="(" separator="," close=")">
+            #{itemId}
+        </foreach>
+    </delete>
+
+</mapper>

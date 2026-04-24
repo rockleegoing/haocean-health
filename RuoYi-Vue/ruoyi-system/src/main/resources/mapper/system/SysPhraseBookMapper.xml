@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysPhraseBookMapper">
+
+    <resultMap type="SysPhraseBook" id="SysPhraseBookResult">
+        <result property="bookId"         column="book_id"         />
+        <result property="bookName"       column="book_name"       />
+        <result property="bookCode"       column="book_code"       />
+        <result property="bookDesc"       column="book_desc"       />
+        <result property="industryCode"   column="industry_code"   />
+        <result property="industryName"   column="industry_name"   />
+        <result property="coverUrl"      column="cover_url"       />
+        <result property="sortOrder"     column="sort_order"      />
+        <result property="status"        column="status"          />
+        <result property="version"        column="version"         />
+        <result property="delFlag"        column="del_flag"        />
+        <result property="createBy"       column="create_by"       />
+        <result property="createTime"     column="create_time"     />
+        <result property="updateBy"       column="update_by"       />
+        <result property="updateTime"     column="update_time"     />
+        <result property="remark"         column="remark"          />
+    </resultMap>
+
+    <sql id="selectSysPhraseBookVo">
+        select book_id, book_name, book_code, book_desc, industry_code, industry_name,
+               cover_url, sort_order, status, version, del_flag, create_by, create_time,
+               update_by, update_time, remark
+        from sys_phrase_book
+    </sql>
+
+    <select id="selectSysPhraseBookList" parameterType="SysPhraseBook" resultMap="SysPhraseBookResult">
+        <include refid="selectSysPhraseBookVo"/>
+        <where>
+            del_flag = '0'
+            <if test="bookName != null and bookName != ''">
+                and book_name like concat('%', #{bookName}, '%')
+            </if>
+            <if test="bookCode != null and bookCode != ''">
+                and book_code = #{bookCode}
+            </if>
+            <if test="industryCode != null and industryCode != ''">
+                and industry_code = #{industryCode}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+        </where>
+        order by sort_order asc, book_id asc
+    </select>
+
+    <select id="selectSysPhraseBookByBookId" parameterType="Long" resultMap="SysPhraseBookResult">
+        <include refid="selectSysPhraseBookVo"/>
+        where book_id = #{bookId}
+    </select>
+
+    <select id="selectAllSysPhraseBooks" resultMap="SysPhraseBookResult">
+        <include refid="selectSysPhraseBookVo"/>
+        where del_flag = '0'
+        order by sort_order asc, book_id asc
+    </select>
+
+    <select id="selectChangedSysPhraseBooks" parameterType="Integer" resultMap="SysPhraseBookResult">
+        <include refid="selectSysPhraseBookVo"/>
+        where del_flag = '0' and version > #{version}
+        order by version asc
+    </select>
+
+    <select id="selectMaxVersion" resultType="Integer">
+        select max(version) from sys_phrase_book
+    </select>
+
+    <insert id="insertSysPhraseBook" parameterType="SysPhraseBook" useGeneratedKeys="true" keyProperty="bookId">
+        insert into sys_phrase_book
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bookName != null and bookName != ''">book_name,</if>
+            <if test="bookCode != null and bookCode != ''">book_code,</if>
+            <if test="bookDesc != null">book_desc,</if>
+            <if test="industryCode != null">industry_code,</if>
+            <if test="industryName != null">industry_name,</if>
+            <if test="coverUrl != null">cover_url,</if>
+            <if test="sortOrder != null">sort_order,</if>
+            <if test="status != null">status,</if>
+            <if test="version != null">version,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bookName != null and bookName != ''">#{bookName},</if>
+            <if test="bookCode != null and bookCode != ''">#{bookCode},</if>
+            <if test="bookDesc != null">#{bookDesc},</if>
+            <if test="industryCode != null">#{industryCode},</if>
+            <if test="industryName != null">#{industryName},</if>
+            <if test="coverUrl != null">#{coverUrl},</if>
+            <if test="sortOrder != null">#{sortOrder},</if>
+            <if test="status != null">#{status},</if>
+            <if test="version != null">#{version},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysPhraseBook" parameterType="SysPhraseBook">
+        update sys_phrase_book
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="bookName != null and bookName != ''">book_name = #{bookName},</if>
+            <if test="bookCode != null and bookCode != ''">book_code = #{bookCode},</if>
+            <if test="bookDesc != null">book_desc = #{bookDesc},</if>
+            <if test="industryCode != null">industry_code = #{industryCode},</if>
+            <if test="industryName != null">industry_name = #{industryName},</if>
+            <if test="coverUrl != null">cover_url = #{coverUrl},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where book_id = #{bookId}
+    </update>
+
+    <delete id="deleteSysPhraseBookByBookId" parameterType="Long">
+        update sys_phrase_book set del_flag = '1' where book_id = #{bookId}
+    </delete>
+
+    <delete id="deleteSysPhraseBookByBookIds" parameterType="String">
+        update sys_phrase_book set del_flag = '1' where book_id in
+        <foreach item="bookId" collection="array" open="(" separator="," close=")">
+            #{bookId}
+        </foreach>
+    </delete>
+
+</mapper>
