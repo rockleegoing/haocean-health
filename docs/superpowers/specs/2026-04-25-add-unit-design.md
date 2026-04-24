@@ -375,6 +375,12 @@ class AddUnitActivity : BaseBindingActivity<ActivityAddUnitBinding>() {
 }
 ```
 
+**ConfigApi.kt** 新增接口常量：
+
+```kotlin
+const val appUnitAdd = "/app/unit"  // 新增单位接口
+```
+
 ---
 
 ## 5. 前端设计 (Vue)
@@ -455,18 +461,15 @@ private suspend fun syncUnit(context: Context?): Boolean {
 ```kotlin
 /**
  * 增量同步单位数据
- * 1. 从服务器拉取最新单位列表（完整覆盖）
- * 2. 上传本地新增的单位（syncStatus = 'PENDING'）
+ * 1. 先上传本地待同步单位（避免被服务器数据覆盖）
+ * 2. 再拉取服务器最新数据更新本地
  */
 private suspend fun syncUnit(context: Context?): Boolean {
     if (context == null) return false
     return try {
         val repository = UnitRepository(context)
 
-        // 1. 拉取服务器数据并更新本地
-        val pullSuccess = repository.syncUnitsFromServer().isSuccess
-
-        // 2. 上传本地待同步单位
+        // 1. 先上传本地待同步单位（避免被服务器数据覆盖）
         val pendingUnits = repository.getPendingUnits()
         for (unit in pendingUnits) {
             val uploadSuccess = uploadUnitToServer(unit)
@@ -474,6 +477,9 @@ private suspend fun syncUnit(context: Context?): Boolean {
                 repository.markAsSynced(unit.unitId)
             }
         }
+
+        // 2. 再拉取服务器数据更新本地
+        val pullSuccess = repository.syncUnitsFromServer().isSuccess
 
         pullSuccess
     } catch (e: Exception) {
@@ -517,7 +523,7 @@ suspend fun markAsSynced(unitId: Long) {
 suspend fun uploadUnitToServer(unit: UnitEntity): Result<UnitDTO> {
     return withContext(Dispatchers.IO) {
         try {
-            val result = Post<UnitResult>(ConfigApi.baseUrl + "/app/unit")
+            val result = Post<UnitResult>(ConfigApi.baseUrl + ConfigApi.appUnitAdd)
                 .body(unit.toDTO())
                 .await()
             if (result.code == ConfigApi.SUCCESS) {
