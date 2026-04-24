@@ -1,6 +1,8 @@
 package com.ruoyi.app.sync
 
 import android.content.Context
+import com.ruoyi.app.api.repository.CategoryRepository
+import com.ruoyi.app.api.repository.UnitRepository
 import com.ruoyi.app.sync.model.SyncProgress
 import com.ruoyi.app.sync.model.SyncResult
 import com.ruoyi.app.sync.model.SyncStatus
@@ -155,19 +157,23 @@ class SyncManager private constructor() {
     }
 
     private suspend fun syncIndustryCategory(context: Context?): Boolean {
-        // 行业分类同步
-        // TODO: 调用后端 GET /industry/category/list
-        // 存储到 IndustryCategoryEntity
-        delay(500) // 模拟网络请求
-        return true
+        if (context == null) return false
+        return try {
+            val repository = CategoryRepository(context)
+            repository.syncCategoriesFromServer().isSuccess
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private suspend fun syncUnit(context: Context?): Boolean {
-        // 执法单位同步
-        // TODO: 调用后端 GET /app/unit/list
-        // 存储到 UnitEntity
-        delay(500) // 模拟网络请求
-        return true
+        if (context == null) return false
+        return try {
+            val repository = UnitRepository(context)
+            repository.syncUnitsFromServer().isSuccess
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private suspend fun syncLaw(context: Context?): Boolean {
