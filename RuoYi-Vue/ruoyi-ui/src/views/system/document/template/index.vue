@@ -288,12 +288,16 @@ export default {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
+            }).catch(() => {
+              this.$modal.msgError("修改失败")
             })
           } else {
             addTemplate(this.form).then(response => {
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
+            }).catch(() => {
+              this.$modal.msgError("新增失败")
             })
           }
         }
