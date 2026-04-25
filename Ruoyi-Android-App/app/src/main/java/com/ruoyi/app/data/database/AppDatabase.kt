@@ -18,6 +18,11 @@ import com.ruoyi.app.data.database.dao.RoleDao
 import com.ruoyi.app.data.database.dao.SyncQueueDao
 import com.ruoyi.app.data.database.dao.UnitDao
 import com.ruoyi.app.data.database.dao.UserDao
+import com.ruoyi.app.data.database.dao.SupervisionCategoryDao
+import com.ruoyi.app.data.database.dao.SupervisionItemDao
+import com.ruoyi.app.data.database.dao.DocumentTemplateDao
+import com.ruoyi.app.data.database.dao.DocumentVariableDao
+import com.ruoyi.app.data.database.dao.DocumentGroupDao
 import com.ruoyi.app.data.database.entity.ActivationCodeEntity
 import com.ruoyi.app.data.database.entity.DataVersionEntity
 import com.ruoyi.app.data.database.entity.DeviceEntity
@@ -35,6 +40,11 @@ import com.ruoyi.app.data.database.entity.RoleEntity
 import com.ruoyi.app.data.database.entity.SyncQueueEntity
 import com.ruoyi.app.data.database.entity.UnitEntity
 import com.ruoyi.app.data.database.entity.UserEntity
+import com.ruoyi.app.data.database.entity.SupervisionCategoryEntity
+import com.ruoyi.app.data.database.entity.SupervisionItemEntity
+import com.ruoyi.app.data.database.entity.DocumentTemplateEntity
+import com.ruoyi.app.data.database.entity.DocumentVariableEntity
+import com.ruoyi.app.data.database.entity.DocumentGroupEntity
 import com.ruoyi.app.feature.law.db.dao.ArticleDao
 import com.ruoyi.app.feature.law.db.dao.ChapterDao
 import com.ruoyi.app.feature.law.db.dao.LegalBasisDao
@@ -70,9 +80,14 @@ import com.ruoyi.app.feature.law.db.entity.RegulationEntity
         PhraseItemEntity::class,
         PhraseItemFtsEntity::class,
         PhraseDetailEntity::class,
-        PhraseDetailFtsEntity::class
+        PhraseDetailFtsEntity::class,
+        SupervisionCategoryEntity::class,
+        SupervisionItemEntity::class,
+        DocumentTemplateEntity::class,
+        DocumentVariableEntity::class,
+        DocumentGroupEntity::class
     ],
-    version = 6,
+    version = 8,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -95,6 +110,11 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun phraseBookDao(): PhraseBookDao
     abstract fun phraseItemDao(): PhraseItemDao
     abstract fun phraseDetailDao(): PhraseDetailDao
+    abstract fun supervisionCategoryDao(): SupervisionCategoryDao
+    abstract fun supervisionItemDao(): SupervisionItemDao
+    abstract fun documentTemplateDao(): DocumentTemplateDao
+    abstract fun documentVariableDao(): DocumentVariableDao
+    abstract fun documentGroupDao(): DocumentGroupDao
 
     companion object {
         @Volatile
