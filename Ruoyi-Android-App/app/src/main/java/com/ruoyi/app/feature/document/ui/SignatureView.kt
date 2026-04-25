@@ -22,8 +22,8 @@ class SignatureView @JvmOverloads constructor(
     private val paint = Paint().apply {
         isAntiAlias = true
         style = Paint.Style.STROKE
-        strokeJoin Paint.Join.ROUND
-        strokeCap Paint.Cap.ROUND
+        strokeJoin = Paint.Join.ROUND
+        strokeCap = Paint.Cap.ROUND
         strokeWidth = 8f
         color = Color.BLACK
     }

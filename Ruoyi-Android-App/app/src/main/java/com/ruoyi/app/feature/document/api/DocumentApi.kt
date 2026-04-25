@@ -8,9 +8,47 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
+
+/**
+ * 文书提交请求
+ */
+data class DocumentSubmitRequest(
+    val templateId: Long,
+    val recordId: Long? = null,
+    val unitId: Long? = null,
+    val variables: String,
+    val signatures: String,
+    val status: String = "1"
+)
+
+/**
+ * 文书提交响应
+ */
+data class DocumentSubmitResponse(
+    val code: Int,
+    val msg: String,
+    val data: DocumentRecord?
+)
+
+/**
+ * 文书记录（用于接收提交后的返回数据）
+ */
+data class DocumentRecord(
+    val id: Long,
+    val documentNo: String?,
+    val templateId: Long?,
+    val templateName: String?,
+    val recordId: Long?,
+    val unitId: Long?,
+    val status: String?,
+    val syncStatus: String?,
+    val createTime: String?
+)
 
 /**
  * 文书模板 API 接口
@@ -60,6 +98,28 @@ object DocumentApi {
 
         val response = client.newCall(request).execute()
         parseTemplateDetailResponse(response.body?.string() ?: "")
+    }
+
+    /**
+     * 提交生成的文书
+     */
+    suspend fun submitDocument(request: DocumentSubmitRequest): DocumentSubmitResponse = withContext(Dispatchers.IO) {
+        val json = JSONObject().apply {
+            put("templateId", request.templateId)
+            request.recordId?.let { put("recordId", it) }
+            request.unitId?.let { put("unitId", it) }
+            put("variables", request.variables)
+            put("signatures", request.signatures)
+            put("status", request.status)
+        }
+
+        val req = Request.Builder()
+            .url("${ConfigApi.baseUrl}/api/document/record")
+            .post(json.toString().toRequestBody("application/json".toMediaType()))
+            .build()
+
+        val response = client.newCall(req).execute()
+        parseSubmitResponse(response.body?.string() ?: "")
     }
 
     // ==================== 解析方法 ====================
@@ -151,5 +211,31 @@ object DocumentApi {
             sortOrder = obj.optInt("sortOrder", 0),
             maxLength = if (obj.has("maxLength") && !obj.isNull("maxLength")) obj.optInt("maxLength") else null
         )
+    }
+
+    private fun parseSubmitResponse(json: String): DocumentSubmitResponse {
+        return try {
+            val obj = JSONObject(json)
+            val data = if (obj.has("data") && !obj.isNull("data")) obj.getJSONObject("data") else null
+            DocumentSubmitResponse(
+                code = obj.optInt("code", 500),
+                msg = obj.optString("msg", ""),
+                data = data?.let {
+                    DocumentRecord(
+                        id = it.optLong("id", 0),
+                        documentNo = it.optString("documentNo", null),
+                        templateId = if (it.has("templateId") && !it.isNull("templateId")) it.optLong("templateId") else null,
+                        templateName = it.optString("templateName", null),
+                        recordId = if (it.has("recordId") && !it.isNull("recordId")) it.optLong("recordId") else null,
+                        unitId = if (it.has("unitId") && !it.isNull("unitId")) it.optLong("unitId") else null,
+                        status = it.optString("status", null),
+                        syncStatus = it.optString("syncStatus", null),
+                        createTime = it.optString("createTime", null)
+                    )
+                }
+            )
+        } catch (e: Exception) {
+            DocumentSubmitResponse(code = 500, msg = e.message ?: "解析失败", data = null)
+        }
     }
 }
