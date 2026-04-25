@@ -1,6 +1,7 @@
 package com.ruoyi.app.feature.document.api
 
 import com.ruoyi.app.api.ConfigApi
+import com.ruoyi.app.feature.document.model.DocumentCategory
 import com.ruoyi.app.feature.document.model.DocumentGroup
 import com.ruoyi.app.feature.document.model.DocumentTemplate
 import com.ruoyi.app.feature.document.model.DocumentVariable
@@ -88,6 +89,19 @@ object DocumentApi {
     }
 
     /**
+     * 同步文书分类(下行)
+     */
+    suspend fun syncCategories(): List<DocumentCategory> = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url("${ConfigApi.baseUrl}/api/admin/document/category/sync")
+            .get()
+            .build()
+
+        val response = client.newCall(request).execute()
+        parseCategoryListResponse(response.body?.string() ?: "")
+    }
+
+    /**
      * 获取模板详情(含变量)
      */
     suspend fun getTemplateDetail(id: Long): Pair<DocumentTemplate?, List<DocumentVariable>> = withContext(Dispatchers.IO) {
@@ -123,6 +137,28 @@ object DocumentApi {
     }
 
     // ==================== 解析方法 ====================
+
+    private fun parseCategoryListResponse(json: String): List<DocumentCategory> {
+        return try {
+            val obj = JSONObject(json)
+            val dataArray = obj.optJSONArray("data") ?: JSONArray()
+            val categories = mutableListOf<DocumentCategory>()
+            for (i in 0 until dataArray.length()) {
+                val itemObj = dataArray.getJSONObject(i)
+                categories.add(DocumentCategory(
+                    categoryId = itemObj.optLong("categoryId", 0),
+                    categoryName = itemObj.optString("categoryName", ""),
+                    displayType = itemObj.optString("displayType", "grid"),
+                    sort = itemObj.optInt("sort", 0),
+                    status = itemObj.optString("status", "0"),
+                    createTime = itemObj.optString("createTime", null)
+                ))
+            }
+            categories
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 
     private fun parseTemplateListResponse(json: String): List<DocumentTemplate> {
         return try {
