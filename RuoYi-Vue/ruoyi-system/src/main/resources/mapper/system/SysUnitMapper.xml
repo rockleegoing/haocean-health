@@ -164,7 +164,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                u.region, u.supervision_type, u.credit_code,
                u.legal_person, u.contact_phone, u.business_address,
                u.latitude, u.longitude, u.status, u.del_flag,
-               u.create_by, u.create_time, u.update_by, u.update_time, u.remark
+               u.create_by, u.create_time, u.update_by, u.update_time, u.remark,
+               u.person_name, u.registration_address, u.business_area,
+               u.license_name, u.license_no, u.gender, u.nation, u.post,
+               u.id_card, u.birthday, u.home_address
         FROM sys_unit u
         LEFT JOIN sys_industry_category c ON u.industry_category_id = c.category_id
         WHERE u.del_flag = '0'
