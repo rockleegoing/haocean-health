@@ -41,8 +41,13 @@ CREATE TABLE `sys_document_variable` (
   `options` TEXT COMMENT '选项JSON',
   `sort_order` INT DEFAULT 0 COMMENT '排序',
   `max_length` INT COMMENT '最大长度',
+  `create_by` VARCHAR(64) DEFAULT '' COMMENT '创建者',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` VARCHAR(64) DEFAULT '' COMMENT '更新者',
+  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   INDEX `idx_template_id` (`template_id`),
-  INDEX `idx_variable_name` (`variable_name`)
+  INDEX `idx_variable_name` (`variable_name`),
+  FOREIGN KEY (`template_id`) REFERENCES `sys_document_template`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文书模板变量表';
 
 -- 文书套组表
@@ -72,7 +77,7 @@ CREATE TABLE `sys_document_record` (
   `document_no` VARCHAR(64) COMMENT '文书编号',
   `template_id` BIGINT NOT NULL COMMENT '关联模板ID',
   `template_code` VARCHAR(64) COMMENT '模板编码',
-  `record_id` BIGINT COMMENT '关联执法记录ID',
+  `enforcement_record_id` BIGINT COMMENT '关联执法记录ID',
   `unit_id` BIGINT COMMENT '关联单位ID',
   `variables` TEXT COMMENT '变量值JSON',
   `file_path` VARCHAR(256) COMMENT '生成文件路径',
@@ -88,7 +93,7 @@ CREATE TABLE `sys_document_record` (
   INDEX `idx_document_no` (`document_no`),
   INDEX `idx_template_id` (`template_id`),
   INDEX `idx_template_code` (`template_code`),
-  INDEX `idx_record_id` (`record_id`),
+  INDEX `idx_enforcement_record_id` (`enforcement_record_id`),
   INDEX `idx_unit_id` (`unit_id`),
   INDEX `idx_status` (`status`),
   INDEX `idx_sync_status` (`sync_status`)
