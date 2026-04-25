@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysDocumentRecordMapper">
+
+    <resultMap type="SysDocumentRecord" id="SysDocumentRecordResult">
+        <result property="id"                  column="id"                  />
+        <result property="documentNo"         column="document_no"         />
+        <result property="templateId"         column="template_id"         />
+        <result property="templateCode"       column="template_code"       />
+        <result property="enforcementRecordId" column="enforcement_record_id" />
+        <result property="unitId"             column="unit_id"             />
+        <result property="variables"          column="variables"          />
+        <result property="filePath"           column="file_path"           />
+        <result property="fileUrl"            column="file_url"            />
+        <result property="signatures"         column="signatures"         />
+        <result property="status"             column="status"             />
+        <result property="syncStatus"         column="sync_status"         />
+        <result property="delFlag"            column="del_flag"            />
+        <result property="createBy"           column="create_by"           />
+        <result property="createTime"         column="create_time"         />
+        <result property="updateBy"           column="update_by"           />
+        <result property="updateTime"         column="update_time"         />
+        <result property="remark"             column="remark"              />
+    </resultMap>
+
+    <sql id="selectSysDocumentRecordVo">
+        select id, document_no, template_id, template_code, enforcement_record_id,
+               unit_id, variables, file_path, file_url, signatures, status, sync_status,
+               del_flag, create_by, create_time, update_by, update_time, remark
+        from sys_document_record
+    </sql>
+
+    <select id="selectSysDocumentRecordList" parameterType="SysDocumentRecord" resultMap="SysDocumentRecordResult">
+        <include refid="selectSysDocumentRecordVo"/>
+        <where>
+            del_flag = '0'
+            <if test="documentNo != null and documentNo != ''">
+                and document_no = #{documentNo}
+            </if>
+            <if test="templateId != null">
+                and template_id = #{templateId}
+            </if>
+            <if test="templateCode != null and templateCode != ''">
+                and template_code = #{templateCode}
+            </if>
+            <if test="enforcementRecordId != null">
+                and enforcement_record_id = #{enforcementRecordId}
+            </if>
+            <if test="unitId != null">
+                and unit_id = #{unitId}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="syncStatus != null and syncStatus != ''">
+                and sync_status = #{syncStatus}
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="selectSysDocumentRecordById" parameterType="Long" resultMap="SysDocumentRecordResult">
+        <include refid="selectSysDocumentRecordVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectRecordsByEnforcementRecordId" parameterType="Long" resultMap="SysDocumentRecordResult">
+        <include refid="selectSysDocumentRecordVo"/>
+        where del_flag = '0' and enforcement_record_id = #{enforcementRecordId}
+        order by id desc
+    </select>
+
+    <insert id="insertSysDocumentRecord" parameterType="SysDocumentRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_document_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="documentNo != null and documentNo != ''">document_no,</if>
+            <if test="templateId != null">template_id,</if>
+            <if test="templateCode != null and templateCode != ''">template_code,</if>
+            <if test="enforcementRecordId != null">enforcement_record_id,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="variables != null">variables,</if>
+            <if test="filePath != null">file_path,</if>
+            <if test="fileUrl != null">file_url,</if>
+            <if test="signatures != null">signatures,</if>
+            <if test="status != null">status,</if>
+            <if test="syncStatus != null">sync_status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="documentNo != null and documentNo != ''">#{documentNo},</if>
+            <if test="templateId != null">#{templateId},</if>
+            <if test="templateCode != null and templateCode != ''">#{templateCode},</if>
+            <if test="enforcementRecordId != null">#{enforcementRecordId},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="variables != null">#{variables},</if>
+            <if test="filePath != null">#{filePath},</if>
+            <if test="fileUrl != null">#{fileUrl},</if>
+            <if test="signatures != null">#{signatures},</if>
+            <if test="status != null">#{status},</if>
+            <if test="syncStatus != null">#{syncStatus},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysDocumentRecord" parameterType="SysDocumentRecord">
+        update sys_document_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="documentNo != null and documentNo != ''">document_no = #{documentNo},</if>
+            <if test="templateId != null">template_id = #{templateId},</if>
+            <if test="templateCode != null and templateCode != ''">template_code = #{templateCode},</if>
+            <if test="enforcementRecordId != null">enforcement_record_id = #{enforcementRecordId},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="variables != null">variables = #{variables},</if>
+            <if test="filePath != null">file_path = #{filePath},</if>
+            <if test="fileUrl != null">file_url = #{fileUrl},</if>
+            <if test="signatures != null">signatures = #{signatures},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="syncStatus != null">sync_status = #{syncStatus},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysDocumentRecordById" parameterType="Long">
+        update sys_document_record set del_flag = '1' where id = #{id}
+    </delete>
+
+    <delete id="deleteSysDocumentRecordByIds" parameterType="String">
+        update sys_document_record set del_flag = '1' where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

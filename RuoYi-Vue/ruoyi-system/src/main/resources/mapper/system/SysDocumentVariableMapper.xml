@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysDocumentVariableMapper">
+
+    <resultMap type="SysDocumentVariable" id="SysDocumentVariableResult">
+        <result property="id"             column="id"             />
+        <result property="templateId"     column="template_id"     />
+        <result property="variableName"   column="variable_name"   />
+        <result property="variableLabel"  column="variable_label"  />
+        <result property="variableType"   column="variable_type"   />
+        <result property="required"       column="required"       />
+        <result property="defaultValue"   column="default_value"   />
+        <result property="options"        column="options"        />
+        <result property="sortOrder"      column="sort_order"      />
+        <result property="maxLength"      column="max_length"      />
+    </resultMap>
+
+    <sql id="selectSysDocumentVariableVo">
+        select id, template_id, variable_name, variable_label, variable_type, required,
+               default_value, options, sort_order, max_length
+        from sys_document_variable
+    </sql>
+
+    <select id="selectSysDocumentVariableList" parameterType="SysDocumentVariable" resultMap="SysDocumentVariableResult">
+        <include refid="selectSysDocumentVariableVo"/>
+        <where>
+            <if test="templateId != null">
+                and template_id = #{templateId}
+            </if>
+            <if test="variableName != null and variableName != ''">
+                and variable_name like concat('%', #{variableName}, '%')
+            </if>
+            <if test="variableLabel != null and variableLabel != ''">
+                and variable_label like concat('%', #{variableLabel}, '%')
+            </if>
+            <if test="variableType != null and variableType != ''">
+                and variable_type = #{variableType}
+            </if>
+            <if test="required != null and required != ''">
+                and required = #{required}
+            </if>
+        </where>
+        order by sort_order asc, id asc
+    </select>
+
+    <select id="selectSysDocumentVariableById" parameterType="Long" resultMap="SysDocumentVariableResult">
+        <include refid="selectSysDocumentVariableVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectVariablesByTemplateId" parameterType="Long" resultMap="SysDocumentVariableResult">
+        <include refid="selectSysDocumentVariableVo"/>
+        where template_id = #{templateId}
+        order by sort_order asc, id asc
+    </select>
+
+    <insert id="insertSysDocumentVariable" parameterType="SysDocumentVariable" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_document_variable
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="templateId != null">template_id,</if>
+            <if test="variableName != null and variableName != ''">variable_name,</if>
+            <if test="variableLabel != null and variableLabel != ''">variable_label,</if>
+            <if test="variableType != null and variableType != ''">variable_type,</if>
+            <if test="required != null">required,</if>
+            <if test="defaultValue != null">default_value,</if>
+            <if test="options != null">options,</if>
+            <if test="sortOrder != null">sort_order,</if>
+            <if test="maxLength != null">max_length,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="templateId != null">#{templateId},</if>
+            <if test="variableName != null and variableName != ''">#{variableName},</if>
+            <if test="variableLabel != null and variableLabel != ''">#{variableLabel},</if>
+            <if test="variableType != null and variableType != ''">#{variableType},</if>
+            <if test="required != null">#{required},</if>
+            <if test="defaultValue != null">#{defaultValue},</if>
+            <if test="options != null">#{options},</if>
+            <if test="sortOrder != null">#{sortOrder},</if>
+            <if test="maxLength != null">#{maxLength},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysDocumentVariable" parameterType="SysDocumentVariable">
+        update sys_document_variable
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="templateId != null">template_id = #{templateId},</if>
+            <if test="variableName != null and variableName != ''">variable_name = #{variableName},</if>
+            <if test="variableLabel != null and variableLabel != ''">variable_label = #{variableLabel},</if>
+            <if test="variableType != null and variableType != ''">variable_type = #{variableType},</if>
+            <if test="required != null">required = #{required},</if>
+            <if test="defaultValue != null">default_value = #{defaultValue},</if>
+            <if test="options != null">options = #{options},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="maxLength != null">max_length = #{maxLength},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysDocumentVariableById" parameterType="Long">
+        delete from sys_document_variable where id = #{id}
+    </delete>
+
+    <delete id="deleteSysDocumentVariableByIds" parameterType="String">
+        delete from sys_document_variable where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteVariablesByTemplateId" parameterType="Long">
+        delete from sys_document_variable where template_id = #{templateId}
+    </delete>
+
+</mapper>
