@@ -21,12 +21,20 @@ import com.therouter.TheRouter
 import com.therouter.router.Route
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import android.view.View
+import androidx.lifecycle.lifecycleScope
+import com.ruoyi.app.feature.document.model.DocumentCategory
+import com.ruoyi.app.feature.document.repository.DocumentRepository
+import com.ruoyi.app.feature.document.ui.adapter.CategoryWithTemplates
+import com.ruoyi.app.feature.document.ui.adapter.TemplateItem
+import com.ruoyi.app.feature.document.ui.adapter.DocumentCategoryAdapter
 
 @Route(path = Constant.homeFragment)
 class HomeFragment : BaseBindingFragment<FragmentHomeBinding>() {
@@ -38,6 +46,8 @@ class HomeFragment : BaseBindingFragment<FragmentHomeBinding>() {
     private var currentAudioPath: String? = null
     private var mediaRecorder: MediaRecorder? = null
     private var isRecording = false
+    private lateinit var categoryAdapter: DocumentCategoryAdapter
+    private val documentRepository by lazy { DocumentRepository(requireContext()) }
 
     // 照片拍摄Launcher
     private val takePictureLauncher = registerForActivityResult(
@@ -109,6 +119,7 @@ class HomeFragment : BaseBindingFragment<FragmentHomeBinding>() {
 
         observeViewModel()
         loadSelectedUnit()
+        setupDocumentCategories()
     }
 
     override fun initData() {
@@ -338,6 +349,52 @@ class HomeFragment : BaseBindingFragment<FragmentHomeBinding>() {
             }
 
             NavigationUtils.navigate(requireContext(), latitude, longitude, unitEntity.unitName)
+        }
+    }
+
+    private fun setupDocumentCategories() {
+        categoryAdapter = DocumentCategoryAdapter { templateId, templateName ->
+            // 跳转到文书填写页
+            val unitId = SelectedUnitManager.getSelectedUnitId()
+            if (unitId == null) {
+                ToastUtils.show("请先选择执法单位")
+                return@DocumentCategoryAdapter
+            }
+            TheRouter.build(Constant.documentFillRoute)
+                .with("templateId", templateId)
+                .with("templateName", templateName)
+                .with("unitId", unitId)
+                .navigation()
+        }
+        binding.rvDocumentCategories.adapter = categoryAdapter
+
+        loadDocumentCategories()
+    }
+
+    private fun loadDocumentCategories() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            documentRepository.getCategories().collect { categories ->
+                if (categories.isEmpty()) {
+                    binding.llDocumentCategories.visibility = View.GONE
+                    return@collect
+                }
+
+                val categoryWithTemplatesList = mutableListOf<CategoryWithTemplates>()
+                for (category in categories) {
+                    documentRepository.getTemplatesByCategory(category.categoryId).collect { templates ->
+                        if (templates.isNotEmpty()) {
+                            val items = templates.map { TemplateItem(it.id, it.templateName) }
+                            categoryWithTemplatesList.add(CategoryWithTemplates(
+                                category.categoryId,
+                                category.categoryName,
+                                category.displayType,
+                                items
+                            ))
+                        }
+                    }
+                }
+                categoryAdapter.submitList(categoryWithTemplatesList)
+            }
         }
     }
 }
