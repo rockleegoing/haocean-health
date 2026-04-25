@@ -96,7 +96,29 @@ public class SysRegulationServiceImpl implements ISysRegulationService {
      */
     @Override
     public List<SysRegulationChapter> selectChapterListByRegulationId(Long regulationId) {
-        return sysRegulationMapper.selectChapterListByRegulationId(regulationId);
+        List<SysRegulationChapter> chapters = sysRegulationMapper.selectChapterListByRegulationId(regulationId);
+        // 填充法规标题
+        SysRegulation regulation = sysRegulationMapper.selectSysRegulationById(regulationId);
+        String regulationTitle = regulation != null ? regulation.getTitle() : "";
+        for (SysRegulationChapter chapter : chapters) {
+            chapter.setRegulationTitle(regulationTitle);
+        }
+        return chapters;
+    }
+
+    /**
+     * 查询章节详情
+     */
+    @Override
+    public SysRegulationChapter selectSysRegulationChapterById(Long chapterId) {
+        SysRegulationChapter chapter = sysRegulationMapper.selectSysRegulationChapterById(chapterId);
+        if (chapter != null && chapter.getRegulationId() != null) {
+            SysRegulation regulation = sysRegulationMapper.selectSysRegulationById(chapter.getRegulationId());
+            if (regulation != null) {
+                chapter.setRegulationTitle(regulation.getTitle());
+            }
+        }
+        return chapter;
     }
 
     /**
@@ -104,7 +126,49 @@ public class SysRegulationServiceImpl implements ISysRegulationService {
      */
     @Override
     public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId) {
-        return sysRegulationMapper.selectArticleListByRegulationId(regulationId);
+        List<SysRegulationArticle> articles = sysRegulationMapper.selectArticleListByRegulationId(regulationId);
+        // 填充法规标题
+        SysRegulation regulation = sysRegulationMapper.selectSysRegulationById(regulationId);
+        String regulationTitle = regulation != null ? regulation.getTitle() : "";
+        // 填充章节标题
+        List<SysRegulationChapter> chapters = sysRegulationMapper.selectChapterListByRegulationId(regulationId);
+        for (SysRegulationArticle article : articles) {
+            article.setRegulationTitle(regulationTitle);
+            if (article.getChapterId() != null) {
+                for (SysRegulationChapter chapter : chapters) {
+                    if (chapter.getChapterId().equals(article.getChapterId())) {
+                        article.setChapterTitle(chapter.getChapterTitle());
+                        break;
+                    }
+                }
+            }
+        }
+        return articles;
+    }
+
+    /**
+     * 查询条款详情
+     */
+    @Override
+    public SysRegulationArticle selectSysRegulationArticleById(Long articleId) {
+        SysRegulationArticle article = sysRegulationMapper.selectSysRegulationArticleById(articleId);
+        if (article != null) {
+            // 填充法规标题
+            if (article.getRegulationId() != null) {
+                SysRegulation regulation = sysRegulationMapper.selectSysRegulationById(article.getRegulationId());
+                if (regulation != null) {
+                    article.setRegulationTitle(regulation.getTitle());
+                }
+            }
+            // 填充章节标题
+            if (article.getChapterId() != null) {
+                SysRegulationChapter chapter = sysRegulationMapper.selectSysRegulationChapterById(article.getChapterId());
+                if (chapter != null) {
+                    article.setChapterTitle(chapter.getChapterTitle());
+                }
+            }
+        }
+        return article;
     }
 
     /**

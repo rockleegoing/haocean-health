@@ -31,6 +31,12 @@ public class SysRegulationArticle extends BaseEntity {
     /** 排序 */
     private Integer sortOrder;
 
+    /** 法规标题（用于前端展示，非数据库字段） */
+    private String regulationTitle;
+
+    /** 章节标题（用于前端展示，非数据库字段） */
+    private String chapterTitle;
+
     public void setArticleId(Long articleId) {
         this.articleId = articleId;
     }

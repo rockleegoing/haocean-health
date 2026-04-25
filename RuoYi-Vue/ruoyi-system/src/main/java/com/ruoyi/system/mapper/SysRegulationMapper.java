@@ -69,12 +69,28 @@ public interface SysRegulationMapper {
     public List<SysRegulationChapter> selectChapterListByRegulationId(Long regulationId);
 
     /**
+     * 查询章节详情
+     *
+     * @param chapterId 章节ID
+     * @return 章节
+     */
+    public SysRegulationChapter selectSysRegulationChapterById(Long chapterId);
+
+    /**
      * 查询条款列表
      *
      * @param regulationId 法律法规ID
      * @return 条款列表
      */
     public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId);
+
+    /**
+     * 查询条款详情
+     *
+     * @param articleId 条款ID
+     * @return 条款
+     */
+    public SysRegulationArticle selectSysRegulationArticleById(Long articleId);
 
     /**
      * 新增章节

@@ -80,6 +80,16 @@ public class SysRegulationController extends BaseController {
     }
 
     /**
+     * 获取章节详情
+     */
+    @Anonymous
+    @GetMapping("/chapter/{chapterId}")
+    public AjaxResult getChapterInfo(@PathVariable("chapterId") Long chapterId) {
+        SysRegulationChapter chapter = sysRegulationService.selectSysRegulationChapterById(chapterId);
+        return AjaxResult.success(chapter);
+    }
+
+    /**
      * 获取条款列表
      */
     @Anonymous
@@ -87,6 +97,16 @@ public class SysRegulationController extends BaseController {
     public AjaxResult getArticleList(@PathVariable("regulationId") Long regulationId) {
         List<SysRegulationArticle> list = sysRegulationService.selectArticleListByRegulationId(regulationId);
         return AjaxResult.success(list);
+    }
+
+    /**
+     * 获取条款详情
+     */
+    @Anonymous
+    @GetMapping("/article/{articleId}")
+    public AjaxResult getArticleInfo(@PathVariable("articleId") Long articleId) {
+        SysRegulationArticle article = sysRegulationService.selectSysRegulationArticleById(articleId);
+        return AjaxResult.success(article);
     }
 
     /**

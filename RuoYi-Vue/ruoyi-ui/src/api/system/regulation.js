@@ -51,10 +51,26 @@ export function getChapterList(regulationId) {
   })
 }
 
+// 查询章节详情
+export function getChapter(chapterId) {
+  return request({
+    url: '/system/regulation/chapter/' + chapterId,
+    method: 'get'
+  })
+}
+
 // 获取条款列表
 export function getArticleList(regulationId) {
   return request({
     url: '/system/regulation/articles/' + regulationId,
+    method: 'get'
+  })
+}
+
+// 查询条款详情
+export function getArticle(articleId) {
+  return request({
+    url: '/system/regulation/article/' + articleId,
     method: 'get'
   })
 }

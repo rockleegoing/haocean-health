@@ -28,6 +28,9 @@ public class SysRegulationChapter extends BaseEntity {
     /** 排序 */
     private Integer sortOrder;
 
+    /** 法规标题（用于前端展示，非数据库字段） */
+    private String regulationTitle;
+
     public void setChapterId(Long chapterId) {
         this.chapterId = chapterId;
     }
