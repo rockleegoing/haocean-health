@@ -32,6 +32,27 @@ object Constant {
     const val recordDetailRoute = "/lawenforcement/record/detail"
     const val recordEditRoute = "/lawenforcement/record/edit"
 
+    // 法律法规模块路由
+    const val lawFragmentRoute = "http://com.ruoyi/law/fragment"
+    const val regulationListRoute = "/law/regulation/list"
+    const val regulationDetailRoute = "/law/regulation/detail"
+    const val articleDetailRoute = "/law/regulation/article"
+    const val legalBasisListRoute = "/law/legalBasis/list"
+    const val legalBasisDetailRoute = "/law/legalBasis/detail"
+
+    // 规范用模块路由
+    const val phraseFragmentRoute = "http://com.ruoyi/phrase/fragment"
+    const val phraseBookDetailRoute = "/phrase/book/detail"
+    const val phraseItemDetailRoute = "/phrase/item/detail"
+
+    // 监管事项模块路由
+    const val supervisionDetailRoute = "/supervision/detail"
+
+    // 文书模块路由
+    const val documentListRoute = "/app/document/list"
+    const val documentFillRoute = "/app/document/fill"
+    const val signatureRoute = "/app/signature"
+
     // 首页动态设置
     const val mainStyleDefault = "1" // 1 首页图片+文字
     const val mainStyleAlipay = "2" //  2 首页图片
