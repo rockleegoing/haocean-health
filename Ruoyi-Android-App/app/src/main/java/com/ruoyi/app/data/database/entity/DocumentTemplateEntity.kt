@@ -14,6 +14,8 @@ data class DocumentTemplateEntity(
     val templateName: String,
     val templateType: String?,
     val category: String?,
+    val categoryId: Long = 0,
+    val sort: Int = 0,
     val filePath: String?,
     val fileUrl: String?,
     val version: Int = 1,
