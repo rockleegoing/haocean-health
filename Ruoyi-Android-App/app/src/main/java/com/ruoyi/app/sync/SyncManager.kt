@@ -2,8 +2,10 @@ package com.ruoyi.app.sync
 
 import android.content.Context
 import com.ruoyi.app.api.repository.CategoryRepository
+import com.ruoyi.app.api.repository.PhraseRepository
 import com.ruoyi.app.api.repository.UnitRepository
 import com.ruoyi.app.data.database.entity.UnitEntity
+import com.ruoyi.app.feature.law.repository.LawRepository
 import com.ruoyi.app.sync.model.SyncProgress
 import com.ruoyi.app.sync.model.SyncResult
 import com.ruoyi.app.sync.model.SyncStatus
@@ -203,18 +205,32 @@ class SyncManager private constructor() {
 
     private suspend fun syncLaw(context: Context?): Boolean {
         // 法律法规同步
-        // TODO: 调用后端 GET /law/regulation/list
-        // 存储到 law_regulation 表
-        delay(800) // 模拟网络请求
-        return true
+        if (context == null) return false
+        return try {
+            val repository = LawRepository(context)
+            // 同步法律法规主表
+            val regulationResult = repository.syncRegulationsFromServer()
+            if (regulationResult.isFailure) return false
+
+            // 同步定性依据
+            val basisResult = repository.syncLegalBasisesFromServer()
+            if (basisResult.isFailure) return false
+
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private suspend fun syncPhrase(context: Context?): Boolean {
         // 规范用语同步
-        // TODO: 调用后端 GET /phrase/library/list
-        // 存储到 phrase_library 表
-        delay(300) // 模拟网络请求
-        return true
+        if (context == null) return false
+        return try {
+            val repository = PhraseRepository(context)
+            repository.syncFullFromServer().isSuccess
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private suspend fun syncSupervision(context: Context?): Boolean {

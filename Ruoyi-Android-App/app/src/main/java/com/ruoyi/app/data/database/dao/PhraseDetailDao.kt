@@ -60,6 +60,12 @@ interface PhraseDetailDao {
     suspend fun deleteDetailsByItem(itemId: Long)
 
     /**
+     * 按ID删除明细
+     */
+    @Query("DELETE FROM t_phrase_detail WHERE detailId = :detailId")
+    suspend fun deleteDetail(detailId: Long)
+
+    /**
      * 删除所有明细
      */
     @Query("DELETE FROM t_phrase_detail")

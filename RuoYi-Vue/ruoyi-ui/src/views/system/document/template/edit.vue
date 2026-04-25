@@ -80,7 +80,7 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        templateId: null,
+        id: null,
         templateCode: null,
         templateName: null,
         templateType: null,
@@ -102,24 +102,18 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.templateId != null) {
-            // TODO: 调用实际的API接口
-            // updateTemplate(this.form).then(response => {
-            //   this.$modal.msgSuccess("修改成功")
-            //   this.open = false
-            //   this.getList()
-            // })
-            this.$modal.msgSuccess("修改成功")
-            this.cancel()
+          if (this.form.id != null) {
+            updateTemplate(this.form).then(response => {
+              this.$modal.msgSuccess("修改成功")
+              this.open = false
+              this.getList()
+            })
           } else {
-            // TODO: 调用实际的API接口
-            // addTemplate(this.form).then(response => {
-            //   this.$modal.msgSuccess("新增成功")
-            //   this.open = false
-            //   this.getList()
-            // })
-            this.$modal.msgSuccess("新增成功")
-            this.cancel()
+            addTemplate(this.form).then(response => {
+              this.$modal.msgSuccess("新增成功")
+              this.open = false
+              this.getList()
+            })
           }
         }
       })

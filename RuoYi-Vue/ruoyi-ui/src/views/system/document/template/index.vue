@@ -171,18 +171,11 @@ export default {
     /** 查询模板列表 */
     getList() {
       this.loading = true
-      // TODO: 调用实际的API接口
-      // listTemplate(this.queryParams).then(response => {
-      //   this.templateList = response.rows
-      //   this.total = response.total
-      //   this.loading = false
-      // })
-      // 临时模拟数据
-      setTimeout(() => {
-        this.templateList = []
-        this.total = 0
+      listTemplate(this.queryParams).then(response => {
+        this.templateList = response.rows
+        this.total = response.total
         this.loading = false
-      }, 500)
+      })
     },
     // 取消按钮
     cancel() {
@@ -217,7 +210,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.templateId)
+      this.ids = selection.map(item => item.id)
       this.single = selection.length !== 1
       this.multiple = !selection.length
     },

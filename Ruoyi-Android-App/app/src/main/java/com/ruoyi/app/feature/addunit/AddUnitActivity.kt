@@ -165,22 +165,6 @@ class AddUnitActivity : BaseBindingActivity<ActivityAddUnitBinding>() {
             return false
         }
 
-        // 当事人必填
-        val personName = binding.etPersonName.text.toString().trim()
-        if (TextUtils.isEmpty(personName)) {
-            binding.etPersonName.requestFocus()
-            ToastUtils.show("请输入当事人姓名")
-            return false
-        }
-
-        // 联系方式必填
-        val contactPhone = binding.etContactPhone.text.toString().trim()
-        if (TextUtils.isEmpty(contactPhone)) {
-            binding.etContactPhone.requestFocus()
-            ToastUtils.show("请输入联系方式")
-            return false
-        }
-
         return true
     }
 
@@ -214,11 +198,11 @@ class AddUnitActivity : BaseBindingActivity<ActivityAddUnitBinding>() {
             unitName = binding.etUnitName.text.toString().trim(),
             industryCategoryId = selectedCategoryId,
             industryCategoryName = selectedCategoryName,
-            region = null,
-            supervisionType = null,
+            region = binding.etRegion.text.toString().trim().ifEmpty { null },
+            supervisionType = binding.etSupervisionType.text.toString().trim().ifEmpty { null },
             creditCode = binding.etCreditCode.text.toString().trim().ifEmpty { null },
             legalPerson = binding.etLegalPerson.text.toString().trim().ifEmpty { null },
-            contactPhone = binding.etContactPhone.text.toString().trim(),
+            contactPhone = binding.etContactPhone.text.toString().trim().ifEmpty { null },
             businessAddress = binding.etBusinessAddress.text.toString().trim().ifEmpty { null },
             latitude = null,
             longitude = null,
@@ -227,7 +211,7 @@ class AddUnitActivity : BaseBindingActivity<ActivityAddUnitBinding>() {
             createTime = System.currentTimeMillis(),
             updateTime = null,
             remark = null,
-            personName = binding.etPersonName.text.toString().trim(),
+            personName = binding.etPersonName.text.toString().trim().ifEmpty { null },
             registrationAddress = binding.etRegistrationAddress.text.toString().trim().ifEmpty { null },
             businessArea = businessArea,
             licenseName = binding.etLicenseName.text.toString().trim().ifEmpty { null },

@@ -15,7 +15,10 @@ import com.ruoyi.app.api.ConfigApi
 import com.ruoyi.app.api.repository.DeviceRepository
 import com.ruoyi.app.databinding.ActivityMainBinding
 import com.ruoyi.app.fragment.HomeFragment
+import com.ruoyi.app.fragment.LawFragment
 import com.ruoyi.app.fragment.MineFragment
+import com.ruoyi.app.fragment.PhraseFragment
+import com.ruoyi.app.fragment.SupervisionFragment
 import com.ruoyi.app.fragment.WorkFragment
 import com.ruoyi.app.model.Constant
 import com.ruoyi.app.model.UserViewModel
@@ -101,10 +104,40 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
             ButtomItemEntity(
                 Constant.theme_default_color,
                 Constant.theme_select_color,
+                Frame.getString(R.string.law_nav_index),
+                "",
+                "",
+                Frame.getDrawable(R.drawable.law_selector)
+            )
+        )
+        add(
+            ButtomItemEntity(
+                Constant.theme_default_color,
+                Constant.theme_select_color,
+                Frame.getString(R.string.supervision_nav_index),
+                "",
+                "",
+                Frame.getDrawable(R.drawable.supervision_selector)
+            )
+        )
+        add(
+            ButtomItemEntity(
+                Constant.theme_default_color,
+                Constant.theme_select_color,
                 Frame.getString(R.string.mine_nav_index),
                 "",
                 "",
                 Frame.getDrawable(R.drawable.mine_selector)
+            )
+        )
+        add(
+            ButtomItemEntity(
+                Constant.theme_default_color,
+                Constant.theme_select_color,
+                Frame.getString(R.string.phrase_nav_index),
+                "",
+                "",
+                Frame.getDrawable(R.drawable.phrase_selector)
             )
         )
     }
@@ -118,12 +151,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
             binding.rvHomeNavigation.adapter = this
         }
 
-        pagerAdapter = FragmentPagerAdapter<Fragment>(this).apply {
-            addFragment(HomeFragment.newInstance())
-            addFragment(WorkFragment.newInstance())
-            addFragment(MineFragment.newInstance())
-            binding.vpHomePager.adapter = this
-        }
+        setupPagerAdapter()
 
         if (Constant.isPersonalization) {
             // 获取底部菜单
@@ -136,6 +164,22 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
         }
 
         onNewIntent(intent)
+    }
+
+    private fun setupPagerAdapter() {
+        // 避免重复设置adapter，导致fragment重复创建
+        if (binding.vpHomePager.adapter != null) {
+            return
+        }
+        pagerAdapter = FragmentPagerAdapter<Fragment>(this).apply {
+            addFragment(HomeFragment.newInstance())
+            addFragment(WorkFragment.newInstance())
+            addFragment(LawFragment.newInstance())
+            addFragment(SupervisionFragment.newInstance())
+            addFragment(MineFragment.newInstance())
+            addFragment(PhraseFragment.newInstance())
+            binding.vpHomePager.adapter = this
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -194,7 +238,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
             return
         }
         when (fragmentIndex) {
-            0, 1, 2 -> {
+            0, 1, 2, 3, 4, 5 -> {
                 binding.vpHomePager.currentItem = fragmentIndex
                 navigationAdapter?.setSelectedPosition(fragmentIndex)
             }
@@ -203,7 +247,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
 
     override fun onNavigationItemSelected(position: Int): Boolean {
         return when (position) {
-            0, 1, 2 -> {
+            0, 1, 2, 3, 4, 5 -> {
                 binding.vpHomePager.currentItem = position
                 true
             }

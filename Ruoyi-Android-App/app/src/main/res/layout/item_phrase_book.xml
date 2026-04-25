@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 顶部：行业标签和时间 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- 行业标签 -->
+            <TextView
+                android:id="@+id/tv_industry_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:text="医疗卫生"
+                android:textSize="11sp"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_tag_primary"
+                android:backgroundTint="@color/primary" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <!-- 更新时间 -->
+            <TextView
+                android:id="@+id/tv_update_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2024-01-01"
+                android:textSize="12sp"
+                android:textColor="@color/text_hint" />
+
+        </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="12dp" />
+
+        <!-- 书本名称 -->
+        <TextView
+            android:id="@+id/tv_book_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="医疗卫生机构依法执业规范用语"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:maxLines="2"
+            android:ellipsize="end" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="8dp" />
+
+        <!-- 书本编号 -->
+        <TextView
+            android:id="@+id/tv_book_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PHRASE_BOOK_001"
+            android:textSize="12sp"
+            android:textColor="@color/text_secondary" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="8dp" />
+
+        <!-- 书本描述 -->
+        <TextView
+            android:id="@+id/tv_book_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="本规范用于指导医疗卫生机构依法执业检查的标准用语..."
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:maxLines="2"
+            android:ellipsize="end" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -123,6 +123,7 @@ open class FragmentPagerAdapter<F : Fragment> constructor(manager: FragmentManag
             return
         }
         // 设置成懒加载模式（也就是不限制 Fragment 展示的数量）
-        viewPager?.offscreenPageLimit = if (lazyMode) count else 1
+        // count 至少为 1，避免 offscreenPageLimit 为 0 导致崩溃
+        viewPager?.offscreenPageLimit = if (lazyMode) maxOf(1, count) else 1
     }
 }

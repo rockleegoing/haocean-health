@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <!-- 基本信息区域 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@color/white">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                android:id="@+id/tv_legal_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/white"
+                android:background="@drawable/bg_tag_blue"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"/>
+
+            <TextView
+                android:id="@+id/tv_publish_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:textSize="12sp"
+                android:textColor="@color/color_9"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_issuing_authority"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="13sp"
+            android:textColor="@color/color_6"/>
+
+        <TextView
+            android:id="@+id/tv_effective_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="13sp"
+            android:textColor="@color/color_6"/>
+
+        <TextView
+            android:id="@+id/tv_supervision_types"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="12sp"
+            android:textColor="@color/color_9"/>
+
+        <!-- 内容摘要 -->
+        <TextView
+            android:id="@+id/tv_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textSize="13sp"
+            android:textColor="@color/color_6"
+            android:maxLines="4"
+            android:ellipsize="end"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_marginTop="12dp"
+            android:background="@color/background_gray"/>
+
+        <!-- 章节标签 -->
+        <TextView
+            android:id="@+id/tv_chapters_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="章节目录"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/tv_chapters"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="12sp"
+            android:textColor="@color/color_6"
+            android:visibility="gone"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="#EEEEEE"/>
+
+        <!-- 条款列表标题 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="条款列表"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
+
+    <!-- 条款列表 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"
+        android:background="@color/background_gray"
+        android:clipToPadding="false"/>
+
+</LinearLayout>

@@ -127,9 +127,8 @@
 
     <el-table v-loading="loading" :data="unitList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="单位ID" align="center" prop="unitId" />
       <el-table-column label="单位名称" align="center" prop="unitName" />
-      <el-table-column label="行业分类ID" align="center" prop="industryCategoryId" />
+      <el-table-column label="行业分类" align="center" prop="industryCategoryName" />
       <el-table-column label="区域" align="center" prop="region" />
       <el-table-column label="监管类型" align="center" prop="supervisionType" />
       <el-table-column label="统一社会信用代码" align="center" prop="creditCode" />

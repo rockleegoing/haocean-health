@@ -72,7 +72,7 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        groupId: null,
+        id: null,
         groupCode: null,
         groupName: null,
         groupType: null,
@@ -91,24 +91,18 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.groupId != null) {
-            // TODO: 调用实际的API接口
-            // updateDocumentGroup(this.form).then(response => {
-            //   this.$modal.msgSuccess("修改成功")
-            //   this.open = false
-            //   this.getList()
-            // })
-            this.$modal.msgSuccess("修改成功")
-            this.cancel()
+          if (this.form.id != null) {
+            updateDocumentGroup(this.form).then(response => {
+              this.$modal.msgSuccess("修改成功")
+              this.open = false
+              this.getList()
+            })
           } else {
-            // TODO: 调用实际的API接口
-            // addDocumentGroup(this.form).then(response => {
-            //   this.$modal.msgSuccess("新增成功")
-            //   this.open = false
-            //   this.getList()
-            // })
-            this.$modal.msgSuccess("新增成功")
-            this.cancel()
+            addDocumentGroup(this.form).then(response => {
+              this.$modal.msgSuccess("新增成功")
+              this.open = false
+              this.getList()
+            })
           }
         }
       })

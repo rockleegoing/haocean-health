@@ -150,18 +150,11 @@ export default {
     /** 查询套组列表 */
     getList() {
       this.loading = true
-      // TODO: 调用实际的API接口
-      // listDocumentGroup(this.queryParams).then(response => {
-      //   this.groupList = response.rows
-      //   this.total = response.total
-      //   this.loading = false
-      // })
-      // 临时模拟数据
-      setTimeout(() => {
-        this.groupList = []
-        this.total = 0
+      listDocumentGroup(this.queryParams).then(response => {
+        this.groupList = response.rows
+        this.total = response.total
         this.loading = false
-      }, 500)
+      })
     },
     // 取消按钮
     cancel() {
@@ -193,7 +186,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.groupId)
+      this.ids = selection.map(item => item.id)
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */

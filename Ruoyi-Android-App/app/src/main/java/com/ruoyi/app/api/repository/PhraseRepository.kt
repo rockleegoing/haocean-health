@@ -95,7 +95,7 @@ class PhraseRepository(private val context: Context) {
         // 处理新增/更新的项
         syncData.items?.forEach { item ->
             if (item.delFlag == "1") {
-                itemDao.deleteItemsByBook(item.itemId)
+                itemDao.deleteItem(item.itemId)
             } else {
                 itemDao.insertItem(item.toEntity())
             }
@@ -104,7 +104,7 @@ class PhraseRepository(private val context: Context) {
         // 处理新增/更新的明细
         syncData.details?.forEach { detail ->
             if (detail.delFlag == "1") {
-                detailDao.deleteDetailsByItem(detail.detailId)
+                detailDao.deleteDetail(detail.detailId)
             } else {
                 detailDao.insertDetail(detail.toEntity())
             }

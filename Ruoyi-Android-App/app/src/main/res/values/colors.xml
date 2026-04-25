@@ -18,6 +18,7 @@
 
     <!-- UI 状态颜色 -->
     <color name="success_green">#FF4CAF50</color>
+    <color name="success">@color/success_green</color>
     <color name="error_red">#FFF44336</color>
     <color name="error">@color/error_red</color>
 
@@ -28,5 +29,9 @@
 
     <!-- 背景颜色 -->
     <color name="background">#FFFAFAFA</color>
+    <color name="background_gray">#FFF5F5F5</color>
+    <color name="color_6">#FF666666</color>
+    <color name="bg_color">#FFF8F8F8</color>
+    <color name="divider">#FFE0E0E0</color>
 
 </resources>

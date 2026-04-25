@@ -2,15 +2,100 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     android:orientation="vertical"
-    android:background="@color/white">
+    android:background="@color/background_gray">
 
+    <!-- 标题栏 -->
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/menu_law"
-        android:textColor="#333333"
-        android:textSize="18sp" />
+        android:text="法律法规"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:padding="16dp"
+        android:background="@color/white"/>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#EEEEEE"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <!-- 搜索栏 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_search_bar"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:layout_marginBottom="16dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_search"
+                    android:tint="@color/color_9"/>
+
+                <EditText
+                    android:id="@+id/et_search"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:background="@null"
+                    android:hint="搜索法律法规"
+                    android:textSize="14sp"
+                    android:textColorHint="@color/color_9"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"/>
+
+            </LinearLayout>
+
+            <!-- 法律类型标题 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="法律类型"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- 法律类型网格 -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_legal_types"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- 监管类型标题 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="监管类型"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- 监管类型网格 -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_supervision_types"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

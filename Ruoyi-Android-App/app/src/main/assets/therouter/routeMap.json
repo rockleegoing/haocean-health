@@ -7,10 +7,24 @@
     "params": {}
   },
   {
+    "path": "http://com.ruoyi/phrase/fragment",
+    "className": "com.ruoyi.app.fragment.PhraseFragment",
+    "action": "action://scheme.com",
+    "description": "规范用语模块",
+    "params": {}
+  },
+  {
     "path": "http://com.ruoyi/mine/fragment",
     "className": "com.ruoyi.app.fragment.MineFragment",
     "action": "action://scheme.com",
     "description": "minie",
+    "params": {}
+  },
+  {
+    "path": "http://com.ruoyi/law/fragment",
+    "className": "com.ruoyi.app.fragment.LawFragment",
+    "action": "action://scheme.com",
+    "description": "法律法规模块",
     "params": {}
   },
   {
@@ -28,6 +42,20 @@
     "params": {}
   },
   {
+    "path": "/phrase/item/detail",
+    "className": "com.ruoyi.app.feature.phrase.ui.PhraseItemDetailActivity",
+    "action": "",
+    "description": "规范用语明细列表",
+    "params": {}
+  },
+  {
+    "path": "/phrase/book/detail",
+    "className": "com.ruoyi.app.feature.phrase.ui.PhraseBookDetailActivity",
+    "action": "",
+    "description": "规范用语句项列表",
+    "params": {}
+  },
+  {
     "path": "/lawenforcement/record/list",
     "className": "com.ruoyi.app.feature.lawenforcement.ui.RecordListActivity",
     "action": "",
@@ -39,6 +67,41 @@
     "className": "com.ruoyi.app.feature.lawenforcement.ui.RecordDetailActivity",
     "action": "",
     "description": "执法记录详情",
+    "params": {}
+  },
+  {
+    "path": "/law/regulation/list",
+    "className": "com.ruoyi.app.feature.law.ui.regulation.RegulationListActivity",
+    "action": "",
+    "description": "法律法规列表",
+    "params": {}
+  },
+  {
+    "path": "/law/regulation/detail",
+    "className": "com.ruoyi.app.feature.law.ui.regulation.RegulationDetailActivity",
+    "action": "",
+    "description": "法律法规详情",
+    "params": {}
+  },
+  {
+    "path": "/law/regulation/article",
+    "className": "com.ruoyi.app.feature.law.ui.regulation.ArticleDetailActivity",
+    "action": "",
+    "description": "条款详情",
+    "params": {}
+  },
+  {
+    "path": "/law/legalBasis/list",
+    "className": "com.ruoyi.app.feature.law.ui.basis.LegalBasisListActivity",
+    "action": "",
+    "description": "定性依据列表",
+    "params": {}
+  },
+  {
+    "path": "/law/legalBasis/detail",
+    "className": "com.ruoyi.app.feature.law.ui.basis.LegalBasisDetailActivity",
+    "action": "",
+    "description": "定性依据详情",
     "params": {}
   },
   {

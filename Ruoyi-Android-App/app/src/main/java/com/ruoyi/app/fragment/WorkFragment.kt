@@ -18,6 +18,10 @@ class WorkFragment : BaseBindingFragment<FragmentWorkBinding>() {
         binding.cardAddUnit.setOnClickListener {
             TheRouter.build(Constant.addUnitRoute).navigation()
         }
+
+        binding.cardPhrase.setOnClickListener {
+            TheRouter.build(Constant.phraseFragmentRoute).navigation()
+        }
     }
 
     override fun initData() {

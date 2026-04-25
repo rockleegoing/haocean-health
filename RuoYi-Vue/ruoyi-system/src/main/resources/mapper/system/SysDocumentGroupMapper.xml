@@ -52,7 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectAllSysDocumentGroups" resultMap="SysDocumentGroupResult">
         <include refid="selectSysDocumentGroupVo"/>
-        where del_flag = '0' and is_active = '0'
+        where del_flag = '0' and is_active = '1'
         order by id asc
     </select>
 

@@ -66,6 +66,12 @@ interface PhraseItemDao {
     suspend fun deleteItemsByBook(bookId: Long)
 
     /**
+     * 按ID删除项
+     */
+    @Query("DELETE FROM t_phrase_item WHERE itemId = :itemId")
+    suspend fun deleteItem(itemId: Long)
+
+    /**
      * 删除所有项
      */
     @Query("DELETE FROM t_phrase_item")

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysSupervisionLinkMapper">
+
+    <resultMap type="SysSupervisionLanguageLink" id="SysSupervisionLanguageLinkResult">
+        <result property="linkId" column="link_id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="languageId" column="language_id"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="languageName" column="language_name"/>
+        <result property="languageContent" column="content"/>
+    </resultMap>
+
+    <resultMap type="SysSupervisionRegulationLink" id="SysSupervisionRegulationLinkResult">
+        <result property="linkId" column="link_id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="regulationId" column="regulation_id"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="regulationName" column="regulation_name"/>
+        <result property="lawCode" column="law_code"/>
+    </resultMap>
+
+    <!-- 规范用语关联查询 -->
+    <select id="selectLanguageLinksByItemId" parameterType="Long" resultMap="SysSupervisionLanguageLinkResult">
+        SELECT l.link_id, l.item_id, l.language_id, l.sort_order,
+               s.name AS language_name, s.content
+        FROM sys_supervision_language_link l
+        LEFT JOIN sys_standard_language s ON l.language_id = s.id
+        WHERE l.item_id = #{itemId}
+        ORDER BY l.sort_order, l.create_time ASC
+    </select>
+
+    <!-- 法律法规关联查询 -->
+    <select id="selectRegulationLinksByItemId" parameterType="Long" resultMap="SysSupervisionRegulationLinkResult">
+        SELECT l.link_id, l.item_id, l.regulation_id, l.sort_order,
+               r.name AS regulation_name, r.law_code
+        FROM sys_supervision_regulation_link l
+        LEFT JOIN sys_regulation r ON l.regulation_id = r.id
+        WHERE l.item_id = #{itemId}
+        ORDER BY l.sort_order, l.create_time ASC
+    </select>
+
+    <!-- 添加规范用语关联 -->
+    <insert id="insertLanguageLink" parameterType="SysSupervisionLanguageLink" useGeneratedKeys="true" keyProperty="linkId">
+        INSERT INTO sys_supervision_language_link (item_id, language_id, sort_order, create_by)
+        VALUES (#{itemId}, #{languageId}, #{sortOrder}, #{createBy})
+    </insert>
+
+    <!-- 添加法律法规关联 -->
+    <insert id="insertRegulationLink" parameterType="SysSupervisionRegulationLink" useGeneratedKeys="true" keyProperty="linkId">
+        INSERT INTO sys_supervision_regulation_link (item_id, regulation_id, sort_order, create_by)
+        VALUES (#{itemId}, #{regulationId}, #{sortOrder}, #{createBy})
+    </insert>
+
+    <!-- 删除规范用语关联 -->
+    <delete id="deleteLanguageLinkById" parameterType="Long">
+        DELETE FROM sys_supervision_language_link WHERE link_id = #{linkId}
+    </delete>
+
+    <!-- 删除法律法规关联 -->
+    <delete id="deleteRegulationLinkById" parameterType="Long">
+        DELETE FROM sys_supervision_regulation_link WHERE link_id = #{linkId}
+    </delete>
+
+    <!-- 删除事项的所有关联 -->
+    <delete id="deleteLinksByItemId" parameterType="Long">
+        DELETE FROM sys_supervision_language_link WHERE item_id = #{itemId};
+        DELETE FROM sys_supervision_regulation_link WHERE item_id = #{itemId};
+    </delete>
+
+</mapper>

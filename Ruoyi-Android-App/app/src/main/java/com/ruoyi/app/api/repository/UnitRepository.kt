@@ -179,7 +179,18 @@ data class UnitDTO(
     val delFlag: String?,
     val createTime: String?,
     val updateTime: String?,
-    val remark: String?
+    val remark: String?,
+    val personName: String? = null,
+    val registrationAddress: String? = null,
+    val businessArea: Double? = null,
+    val licenseName: String? = null,
+    val licenseNo: String? = null,
+    val gender: String? = null,
+    val nation: String? = null,
+    val post: String? = null,
+    val idCard: String? = null,
+    val birthday: Long? = null,
+    val homeAddress: String? = null
 ) {
     fun toEntity(): UnitEntity {
         return UnitEntity(
@@ -200,17 +211,17 @@ data class UnitDTO(
             createTime = createTime?.toLongOrNull() ?: System.currentTimeMillis(),
             updateTime = updateTime?.toLongOrNull(),
             remark = remark,
-            personName = null,
-            registrationAddress = null,
-            businessArea = null,
-            licenseName = null,
-            licenseNo = null,
-            gender = null,
-            nation = null,
-            post = null,
-            idCard = null,
-            birthday = null,
-            homeAddress = null
+            personName = personName,
+            registrationAddress = registrationAddress,
+            businessArea = businessArea,
+            licenseName = licenseName,
+            licenseNo = licenseNo,
+            gender = gender,
+            nation = nation,
+            post = post,
+            idCard = idCard,
+            birthday = birthday,
+            homeAddress = homeAddress
         )
     }
 }

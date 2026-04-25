@@ -93,9 +93,9 @@
             android:launchMode="singleTop" />
         <activity
             android:name=".activity.MainActivity"
-            android:configChanges="locale|layoutDirection"
+            android:configChanges="locale|layoutDirection|orientation|screenSize"
             android:exported="false"
-            android:launchMode="singleTask" />
+            android:launchMode="singleTop" />
         <activity
             android:name=".activity.work.LogsActivity"
             android:exported="false"
@@ -134,6 +134,14 @@
             android:launchMode="singleTop" />
         <activity
             android:name=".feature.addunit.AddUnitActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".feature.phrase.ui.PhraseBookDetailActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".feature.phrase.ui.PhraseItemDetailActivity"
             android:exported="false"
             android:launchMode="singleTop" />
         <service
