@@ -33,7 +33,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['system:document:add']"
+          v-hasPermi="['system:document:template:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -44,7 +44,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['system:document:edit']"
+          v-hasPermi="['system:document:template:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -55,7 +55,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['system:document:remove']"
+          v-hasPermi="['system:document:template:remove']"
         >删除</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
@@ -86,21 +86,21 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:document:edit']"
+            v-hasPermi="['system:document:template:edit']"
           >编辑</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-setting"
             @click="handleConfig(scope.row)"
-            v-hasPermi="['system:document:edit']"
+            v-hasPermi="['system:document:template:edit']"
           >变量配置</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['system:document:remove']"
+            v-hasPermi="['system:document:template:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -225,16 +225,12 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      const templateId = row.templateId || this.ids
-      // TODO: 调用实际的API接口
-      // getTemplate(templateId).then(response => {
-      //   this.form = response.data
-      //   this.open = true
-      //   this.title = "修改文书模板"
-      // })
-      this.form = { ...row }
-      this.open = true
-      this.title = "修改文书模板"
+      const templateId = row.id || this.ids
+      getTemplate(templateId).then(response => {
+        this.form = response.data
+        this.open = true
+        this.title = "修改文书模板"
+      })
     },
     /** 变量配置按钮操作 */
     handleConfig(row) {
@@ -245,37 +241,27 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.templateId != null) {
-            // TODO: 调用实际的API接口
-            // updateTemplate(this.form).then(response => {
-            //   this.$modal.msgSuccess("修改成功")
-            //   this.open = false
-            //   this.getList()
-            // })
-            this.$modal.msgSuccess("修改成功")
-            this.open = false
-            this.getList()
+          if (this.form.id != null) {
+            updateTemplate(this.form).then(response => {
+              this.$modal.msgSuccess("修改成功")
+              this.open = false
+              this.getList()
+            })
           } else {
-            // TODO: 调用实际的API接口
-            // addTemplate(this.form).then(response => {
-            //   this.$modal.msgSuccess("新增成功")
-            //   this.open = false
-            //   this.getList()
-            // })
-            this.$modal.msgSuccess("新增成功")
-            this.open = false
-            this.getList()
+            addTemplate(this.form).then(response => {
+              this.$modal.msgSuccess("新增成功")
+              this.open = false
+              this.getList()
+            })
           }
         }
       })
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const templateIds = row.templateId || this.ids
-      this.$modal.confirm('是否确认删除模板编号为"' + templateIds + '"的数据项？').then(() => {
-        // TODO: 调用实际的API接口
-        // return delTemplate(templateIds)
-        return Promise.resolve()
+      const ids = row.id || this.ids
+      this.$modal.confirm('是否确认删除模板编号为"' + ids + '"的数据项？').then(() => {
+        return delTemplate(ids)
       }).then(() => {
         this.getList()
         this.$modal.msgSuccess("删除成功")
