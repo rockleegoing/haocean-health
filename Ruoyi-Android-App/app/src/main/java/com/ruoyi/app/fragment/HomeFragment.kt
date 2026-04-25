@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.os.Build
+import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -360,10 +361,13 @@ class HomeFragment : BaseBindingFragment<FragmentHomeBinding>() {
                 ToastUtils.show("请先选择执法单位")
                 return@DocumentCategoryAdapter
             }
+            val bundle = Bundle().apply {
+                putLong("templateId", templateId)
+                putString("templateName", templateName)
+                putLong("unitId", unitId)
+            }
             TheRouter.build(Constant.documentFillRoute)
-                .with("templateId", templateId)
-                .with("templateName", templateName)
-                .with("unitId", unitId)
+                .with(bundle)
                 .navigation()
         }
         binding.rvDocumentCategories.adapter = categoryAdapter

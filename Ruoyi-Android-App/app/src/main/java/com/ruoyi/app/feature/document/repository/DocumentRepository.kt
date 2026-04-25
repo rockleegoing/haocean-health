@@ -71,6 +71,13 @@ class DocumentRepository(private val context: Context) {
     }
 
     /**
+     * 根据分类ID获取模板
+     */
+    fun getTemplatesByCategory(categoryId: Long): Flow<List<DocumentTemplateEntity>> {
+        return templateDao.getTemplatesByCategory(categoryId)
+    }
+
+    /**
      * 获取本地分类 Flow
      */
     fun getCategories(): Flow<List<DocumentCategoryEntity>> {
@@ -99,6 +106,8 @@ class DocumentRepository(private val context: Context) {
         templateName = templateName,
         templateType = templateType,
         category = category,
+        categoryId = 0,  // API返回的模板暂无categoryId，本地使用时通过关联获取
+        sort = 0,
         filePath = filePath,
         fileUrl = fileUrl,
         version = version,

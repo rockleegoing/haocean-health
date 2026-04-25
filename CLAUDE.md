@@ -70,7 +70,8 @@ npm run build:prod
 - 代理配置：`vue.config.js`
 
 ### 前端 API 结构
-- `src/api/system/` - 系统管理 API（regulation.js、supervision.js 等）
+- `src/api/system/` - 系统管理 API（regulation.js、supervision.js、document.js 等）
+- API 调用前必须先阅读后端 Controller 实现确认参数细节
 
 ## Ruoyi-Android-App
 
@@ -172,5 +173,10 @@ cd Ruoyi-Android-App
 3. 提交变更并使用 `chore(rules): 修正 xxx 规则` 的 commit message
 4. 在 `rules/CHANGELOG.md` 中记录修正方案
 
-# currentDate
-Today's date is 2026-04-25.
+## 其他重要目录
+
+- `PRD.md` - 产品需求文档
+- `docs/` - 技术文档
+- `原型图/` - UI 原型设计
+- `skills/` - Claude Code 技能配置
+- `scripts/` - 辅助脚本
