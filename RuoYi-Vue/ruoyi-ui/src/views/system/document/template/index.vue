@@ -187,7 +187,7 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        templateId: null,
+        id: null,
         templateCode: null,
         templateName: null,
         templateType: null,
