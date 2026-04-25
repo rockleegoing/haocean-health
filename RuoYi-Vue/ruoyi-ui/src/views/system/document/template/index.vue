@@ -106,6 +106,47 @@
       </el-table-column>
     </el-table>
 
+    <!-- 添加或修改模板对话框 -->
+    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+        <el-form-item label="模板编码" prop="templateCode">
+          <el-input v-model="form.templateCode" placeholder="请输入模板编码" />
+        </el-form-item>
+        <el-form-item label="模板名称" prop="templateName">
+          <el-input v-model="form.templateName" placeholder="请输入模板名称" />
+        </el-form-item>
+        <el-form-item label="模板类型" prop="templateType">
+          <el-select v-model="form.templateType" placeholder="请选择模板类型" style="width: 100%">
+            <el-option
+              v-for="item in templateTypeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="文件URL" prop="fileUrl">
+          <el-input v-model="form.fileUrl" placeholder="请输入模板文件URL" />
+        </el-form-item>
+        <el-form-item label="版本" prop="version">
+          <el-input v-model="form.version" placeholder="请输入版本号" />
+        </el-form-item>
+        <el-form-item label="是否启用" prop="isActive">
+          <el-radio-group v-model="form.isActive">
+            <el-radio label="1">启用</el-radio>
+            <el-radio label="0">禁用</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入备注" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -163,6 +204,9 @@ export default {
         templateName: [
           { required: true, message: "模板名称不能为空", trigger: "blur" }
         ],
+        templateCode: [
+          { required: true, message: "模板编码不能为空", trigger: "blur" }
+        ]
       }
     }
   },
@@ -191,8 +235,6 @@ export default {
         templateCode: null,
         templateName: null,
         templateType: null,
-        category: null,
-        filePath: null,
         fileUrl: null,
         version: '1.0',
         isActive: '1',
