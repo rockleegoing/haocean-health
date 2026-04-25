@@ -86,6 +86,41 @@
       </el-table-column>
     </el-table>
 
+    <!-- 添加或修改套组对话框 -->
+    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+        <el-form-item label="套组编码" prop="groupCode">
+          <el-input v-model="form.groupCode" placeholder="请输入套组编码" />
+        </el-form-item>
+        <el-form-item label="套组名称" prop="groupName">
+          <el-input v-model="form.groupName" placeholder="请输入套组名称" />
+        </el-form-item>
+        <el-form-item label="套组类型" prop="groupType">
+          <el-select v-model="form.groupType" placeholder="请选择套组类型" style="width: 100%">
+            <el-option
+              v-for="item in groupTypeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="是否启用" prop="isActive">
+          <el-radio-group v-model="form.isActive">
+            <el-radio label="1">启用</el-radio>
+            <el-radio label="0">禁用</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入备注" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -142,6 +177,9 @@ export default {
         groupName: [
           { required: true, message: "套组名称不能为空", trigger: "blur" }
         ],
+        groupCode: [
+          { required: true, message: "套组编码不能为空", trigger: "blur" }
+        ]
       }
     }
   },
