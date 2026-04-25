@@ -25,6 +25,12 @@ public class SysDocumentTemplate extends BaseEntity {
     @Excel(name = "模板名称")
     private String templateName;
 
+    /** 分类ID，0表示其他模板 */
+    private Long categoryId;
+
+    /** 排序 */
+    private Integer sort;
+
     /** 模板类型 */
     @Excel(name = "模板类型")
     private String templateType;
@@ -71,6 +77,22 @@ public class SysDocumentTemplate extends BaseEntity {
 
     public String getTemplateName() {
         return templateName;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public Integer getSort() {
+        return sort;
+    }
+
+    public void setSort(Integer sort) {
+        this.sort = sort;
     }
 
     public void setTemplateType(String templateType) {
@@ -135,6 +157,8 @@ public class SysDocumentTemplate extends BaseEntity {
             .append("id", getId())
             .append("templateCode", getTemplateCode())
             .append("templateName", getTemplateName())
+            .append("categoryId", getCategoryId())
+            .append("sort", getSort())
             .append("templateType", getTemplateType())
             .append("category", getCategory())
             .append("filePath", getFilePath())
