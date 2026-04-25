@@ -22,6 +22,7 @@ import com.ruoyi.app.data.database.dao.SupervisionCategoryDao
 import com.ruoyi.app.data.database.dao.SupervisionItemDao
 import com.ruoyi.app.data.database.dao.DocumentTemplateDao
 import com.ruoyi.app.data.database.dao.DocumentVariableDao
+import com.ruoyi.app.data.database.dao.DocumentCategoryDao
 import com.ruoyi.app.data.database.dao.DocumentGroupDao
 import com.ruoyi.app.data.database.entity.ActivationCodeEntity
 import com.ruoyi.app.data.database.entity.DataVersionEntity
@@ -44,6 +45,7 @@ import com.ruoyi.app.data.database.entity.SupervisionCategoryEntity
 import com.ruoyi.app.data.database.entity.SupervisionItemEntity
 import com.ruoyi.app.data.database.entity.DocumentTemplateEntity
 import com.ruoyi.app.data.database.entity.DocumentVariableEntity
+import com.ruoyi.app.data.database.entity.DocumentCategoryEntity
 import com.ruoyi.app.data.database.entity.DocumentGroupEntity
 import com.ruoyi.app.feature.law.db.dao.ArticleDao
 import com.ruoyi.app.feature.law.db.dao.ChapterDao
@@ -85,9 +87,10 @@ import com.ruoyi.app.feature.law.db.entity.RegulationEntity
         SupervisionItemEntity::class,
         DocumentTemplateEntity::class,
         DocumentVariableEntity::class,
+        DocumentCategoryEntity::class,
         DocumentGroupEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -114,6 +117,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun supervisionItemDao(): SupervisionItemDao
     abstract fun documentTemplateDao(): DocumentTemplateDao
     abstract fun documentVariableDao(): DocumentVariableDao
+    abstract fun documentCategoryDao(): DocumentCategoryDao
     abstract fun documentGroupDao(): DocumentGroupDao
 
     companion object {
