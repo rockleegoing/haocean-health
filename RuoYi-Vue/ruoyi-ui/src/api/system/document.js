@@ -84,6 +84,9 @@ export function listGroup(query) {
   })
 }
 
+// 兼容别名
+export const listDocumentGroup = listGroup
+
 // 查询文书套组详细
 export function getGroup(id) {
   return request({
@@ -91,6 +94,9 @@ export function getGroup(id) {
     method: 'get'
   })
 }
+
+// 兼容别名
+export const getDocumentGroup = getGroup
 
 // 新增文书套组
 export function addGroup(data) {

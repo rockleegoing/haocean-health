@@ -151,7 +151,6 @@ cd Ruoyi-Android-App
 2. **阅读接口实现** - 确认接口路径、请求方法、参数名称、参数类型
 3. **验证参数细节** - 特别注意 `@RequestBody` / `@PathVariable` / `@RequestParam` 的使用
 4. **编写调用代码** - 确保参数名称、类型、位置与后端完全一致
-5. Conversation compacted 完成后续主动重新阅读规则文件
 
 ### 常见错误预防
 
@@ -172,3 +171,6 @@ cd Ruoyi-Android-App
 2. 找到正确方法后立即更新对应规则文件
 3. 提交变更并使用 `chore(rules): 修正 xxx 规则` 的 commit message
 4. 在 `rules/CHANGELOG.md` 中记录修正方案
+
+# currentDate
+Today's date is 2026-04-25.

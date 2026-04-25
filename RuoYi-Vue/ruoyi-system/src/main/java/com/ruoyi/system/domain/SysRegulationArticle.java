@@ -85,6 +85,22 @@ public class SysRegulationArticle extends BaseEntity {
         return sortOrder;
     }
 
+    public String getRegulationTitle() {
+        return regulationTitle;
+    }
+
+    public void setRegulationTitle(String regulationTitle) {
+        this.regulationTitle = regulationTitle;
+    }
+
+    public String getChapterTitle() {
+        return chapterTitle;
+    }
+
+    public void setChapterTitle(String chapterTitle) {
+        this.chapterTitle = chapterTitle;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
@@ -94,6 +110,8 @@ public class SysRegulationArticle extends BaseEntity {
                 .append("articleNo", getArticleNo())
                 .append("content", getContent())
                 .append("sortOrder", getSortOrder())
+                .append("regulationTitle", getRegulationTitle())
+                .append("chapterTitle", getChapterTitle())
                 .append("createBy", getCreateBy())
                 .append("createTime", getCreateTime())
                 .append("updateBy", getUpdateBy())
