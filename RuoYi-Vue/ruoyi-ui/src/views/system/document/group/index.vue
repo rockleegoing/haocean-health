@@ -97,6 +97,8 @@
 </template>
 
 <script>
+import { listGroup, getGroup, addGroup, updateGroup, delGroup } from "@/api/system/document"
+
 export default {
   name: "DocumentGroup",
   data() {

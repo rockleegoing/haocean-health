@@ -117,6 +117,8 @@
 </template>
 
 <script>
+import { listTemplate, getTemplate, addTemplate, updateTemplate, delTemplate } from "@/api/system/document"
+
 export default {
   name: "DocumentTemplate",
   data() {
