@@ -2,10 +2,12 @@ package com.ruoyi.app.feature.document.repository
 
 import android.content.Context
 import com.ruoyi.app.data.database.AppDatabase
+import com.ruoyi.app.data.database.entity.DocumentCategoryEntity
 import com.ruoyi.app.data.database.entity.DocumentGroupEntity
 import com.ruoyi.app.data.database.entity.DocumentTemplateEntity
 import com.ruoyi.app.data.database.entity.DocumentVariableEntity
 import com.ruoyi.app.feature.document.api.DocumentApi
+import com.ruoyi.app.feature.document.model.DocumentCategory
 import com.ruoyi.app.feature.document.model.DocumentGroup
 import com.ruoyi.app.feature.document.model.DocumentTemplate
 import com.ruoyi.app.feature.document.model.DocumentVariable
@@ -19,6 +21,7 @@ import kotlinx.coroutines.withContext
 class DocumentRepository(private val context: Context) {
 
     private val templateDao = AppDatabase.getInstance(context).documentTemplateDao()
+    private val categoryDao = AppDatabase.getInstance(context).documentCategoryDao()
     private val groupDao = AppDatabase.getInstance(context).documentGroupDao()
     private val variableDao = AppDatabase.getInstance(context).documentVariableDao()
 
@@ -31,6 +34,15 @@ class DocumentRepository(private val context: Context) {
         val templates = DocumentApi.syncTemplates()
         val entities = templates.map { it.toEntity() }
         templateDao.insertAll(entities)
+    }
+
+    /**
+     * 同步分类到本地
+     */
+    suspend fun syncCategories() = withContext(Dispatchers.IO) {
+        val categories = DocumentApi.syncCategories()
+        val entities = categories.map { it.toEntity() }
+        categoryDao.insertAll(entities)
     }
 
     /**
@@ -56,6 +68,13 @@ class DocumentRepository(private val context: Context) {
      */
     fun getTemplates(): Flow<List<DocumentTemplateEntity>> {
         return templateDao.getActiveTemplates()
+    }
+
+    /**
+     * 获取本地分类 Flow
+     */
+    fun getCategories(): Flow<List<DocumentCategoryEntity>> {
+        return categoryDao.getAllCategories()
     }
 
     /**
@@ -108,5 +127,12 @@ class DocumentRepository(private val context: Context) {
         templates = templates,
         isActive = isActive,
         syncTime = System.currentTimeMillis()
+    )
+
+    private fun DocumentCategory.toEntity() = DocumentCategoryEntity(
+        categoryId = categoryId,
+        categoryName = categoryName,
+        displayType = displayType,
+        sort = sort
     )
 }
