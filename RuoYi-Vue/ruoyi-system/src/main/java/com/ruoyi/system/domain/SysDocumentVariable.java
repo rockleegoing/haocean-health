@@ -3,6 +3,7 @@ package com.ruoyi.system.domain;
 import java.io.Serializable;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 文书模板变量对象 sys_document_variable
@@ -10,7 +11,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author ruoyi
  * @date 2026-04-25
  */
-public class SysDocumentVariable implements Serializable {
+public class SysDocumentVariable extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /** 主键 */

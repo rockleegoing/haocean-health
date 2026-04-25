@@ -5,6 +5,7 @@ import java.util.List;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.system.domain.SysUnit;
 import com.ruoyi.system.service.ISysUnitService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +26,10 @@ public class SysUnitController extends BaseController {
      */
     @Anonymous
     @GetMapping("/list")
-    public AjaxResult list(SysUnit sysUnit) {
+    public TableDataInfo list(SysUnit sysUnit) {
+        startPage();
         List<SysUnit> list = sysUnitService.selectUnitListWithCategory(sysUnit);
-        return AjaxResult.success(list);
+        return getDataTable(list);
     }
 
     /**

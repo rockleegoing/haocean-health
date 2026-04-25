@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.system;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.system.domain.SysIndustryCategory;
 import com.ruoyi.system.service.ISysIndustryCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +26,10 @@ public class SysCategoryController extends BaseController {
      */
     @Anonymous
     @GetMapping("/list")
-    public AjaxResult list() {
+    public TableDataInfo list() {
+        startPage();
         List<SysIndustryCategory> list = categoryService.selectSysIndustryCategoryList(new SysIndustryCategory());
-        return AjaxResult.success(list);
+        return getDataTable(list);
     }
 
     /**
