@@ -14,7 +14,6 @@
 - 前端菜单 SQL 配置
 - 分类管理 Vue 页面开发
 - 分类管理 API 前端对接
-- 模板列表页添加分类筛选
 
 ---
 
@@ -25,207 +24,27 @@
 在 `sys_menu` 表中插入文书分类管理菜单位置：
 
 ```sql
--- 文书管理菜单（假设已有父菜单 menu_id = XXX）
--- 在"系统管理"下找"文书管理"菜单或创建
-
--- 查找现有菜单
-SELECT menu_id, menu_name, parent_id, order_num FROM sys_menu WHERE menu_name IN ('文书管理', '文书模板', 'system');
+-- 文书分类管理菜单 SQL
+-- 文书管理父菜单 menu_id = 1086
 
 -- 在文书管理下添加"分类管理"子菜单
 INSERT INTO sys_menu (
-    parent_id,
-    menu_name,
-    order_num,
-    path,
-    component,
-    is_frame,
-    is_cache,
-    menu_type,
-    visible,
-    status,
-    perms,
-    icon,
-    create_by,
-    create_time,
-    update_by,
-    update_time,
-    remark
+    parent_id, menu_name, order_num, path, component, is_frame, is_cache,
+    menu_type, visible, status, perms, icon, create_by, create_time
 ) VALUES (
-    (SELECT menu_id FROM (SELECT menu_id FROM sys_menu WHERE menu_name = '文书管理') AS t),
-    '分类管理',
-    1,
-    'category',
-    'system/document/index',
-    1,
-    0,
-    'C',
-    '0',
-    '0',
-    'system:document:category:list',
-    'tree',
-    'admin',
-    SYSDATE(),
-    '',
-    SYSDATE(),
-    '文书分类管理菜单'
+    1086, '分类管理', 1, 'category', 'system/document/index',
+    1, 0, 'C', '0', '0', 'system:document:category:list', 'tree', 'admin', SYSDATE()
 );
 
--- 添加菜单权限
-INSERT INTO sys_menu (
-    parent_id,
-    menu_name,
-    order_num,
-    path,
-    component,
-    is_frame,
-    is_cache,
-    menu_type,
-    visible,
-    status,
-    perms,
-    icon,
-    create_by,
-    create_time,
-    update_by,
-    update_time,
-    remark
-) VALUES (
-    (SELECT menu_id FROM (SELECT menu_id FROM sys_menu WHERE menu_name = '分类管理') AS t),
-    '查询分类',
-    1,
-    '',
-    NULL,
-    1,
-    0,
-    'F',
-    '0',
-    '0',
-    'system:document:category:query',
-    '#',
-    'admin',
-    SYSDATE(),
-    '',
-    SYSDATE(),
-    ''
-);
+-- 获取刚插入的分类管理菜单ID
+SET @parent_id = LAST_INSERT_ID();
 
-INSERT INTO sys_menu (
-    parent_id,
-    menu_name,
-    order_num,
-    path,
-    component,
-    is_frame,
-    is_cache,
-    menu_type,
-    visible,
-    status,
-    perms,
-    icon,
-    create_by,
-    create_time,
-    update_by,
-    update_time,
-    remark
-) VALUES (
-    (SELECT menu_id FROM (SELECT menu_id FROM sys_menu WHERE menu_name = '分类管理') AS t),
-    '新增分类',
-    2,
-    '',
-    NULL,
-    1,
-    0,
-    'F',
-    '0',
-    '0',
-    'system:document:category:add',
-    '#',
-    'admin',
-    SYSDATE(),
-    '',
-    SYSDATE(),
-    ''
-);
-
-INSERT INTO sys_menu (
-    parent_id,
-    menu_name,
-    order_num,
-    path,
-    component,
-    is_frame,
-    is_cache,
-    menu_type,
-    visible,
-    status,
-    perms,
-    icon,
-    create_by,
-    create_time,
-    update_by,
-    update_time,
-    remark
-) VALUES (
-    (SELECT menu_id FROM (SELECT menu_id FROM sys_menu WHERE menu_name = '分类管理') AS t),
-    '修改分类',
-    3,
-    '',
-    NULL,
-    1,
-    0,
-    'F',
-    '0',
-    '0',
-    'system:document:category:edit',
-    '#',
-    'admin',
-    SYSDATE(),
-    '',
-    SYSDATE(),
-    ''
-);
-
-INSERT INTO sys_menu (
-    parent_id,
-    menu_name,
-    order_num,
-    path,
-    component,
-    is_frame,
-    is_cache,
-    menu_type,
-    visible,
-    status,
-    perms,
-    icon,
-    create_by,
-    create_time,
-    update_by,
-    update_time,
-    remark
-) VALUES (
-    (SELECT menu_id FROM (SELECT menu_id FROM sys_menu WHERE menu_name = '分类管理') AS t),
-    '删除分类',
-    4,
-    '',
-    NULL,
-    1,
-    0,
-    'F',
-    '0',
-    '0',
-    'system:document:category:remove',
-    '#',
-    'admin',
-    SYSDATE(),
-    '',
-    SYSDATE(),
-    ''
-);
-
--- 角色分配权限时使用
-INSERT INTO sys_role_menu (role_id, menu_id) VALUES
-(1, (SELECT menu_id FROM sys_menu WHERE perms = 'system:document:category:list'));
+-- 添加菜单权限按钮
+INSERT INTO sys_menu (parent_id, menu_name, order_num, menu_type, perms, icon, create_by, create_time) VALUES
+(@parent_id, '查询分类', 1, 'F', 'system:document:category:query', '#', 'admin', SYSDATE()),
+(@parent_id, '新增分类', 2, 'F', 'system:document:category:add', '#', 'admin', SYSDATE()),
+(@parent_id, '修改分类', 3, 'F', 'system:document:category:edit', '#', 'admin', SYSDATE()),
+(@parent_id, '删除分类', 4, 'F', 'system:document:category:remove', '#', 'admin', SYSDATE());
 ```
 
 ### 2.2 菜单字段说明
@@ -288,7 +107,7 @@ import request from '@/utils/request'
 // 查询分类列表
 export function listCategory(query) {
   return request({
-    url: '/admin/document/category/list',
+    url: '/api/admin/document/category/list',
     method: 'get',
     params: query
   })
@@ -297,7 +116,7 @@ export function listCategory(query) {
 // 查询分类详细
 export function getCategory(categoryId) {
   return request({
-    url: '/admin/document/category/' + categoryId,
+    url: '/api/admin/document/category/' + categoryId,
     method: 'get'
   })
 }
@@ -305,7 +124,7 @@ export function getCategory(categoryId) {
 // 新增分类
 export function addCategory(data) {
   return request({
-    url: '/admin/document/category',
+    url: '/api/admin/document/category',
     method: 'post',
     data: data
   })
@@ -314,7 +133,7 @@ export function addCategory(data) {
 // 修改分类
 export function updateCategory(data) {
   return request({
-    url: '/admin/document/category',
+    url: '/api/admin/document/category',
     method: 'put',
     data: data
   })
@@ -323,7 +142,7 @@ export function updateCategory(data) {
 // 删除分类
 export function delCategory(categoryId) {
   return request({
-    url: '/admin/document/category/' + categoryId,
+    url: '/api/admin/document/category/' + categoryId,
     method: 'delete'
   })
 }
