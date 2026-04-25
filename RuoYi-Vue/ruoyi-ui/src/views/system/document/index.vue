@@ -11,6 +11,11 @@
           <group-list />
         </template>
       </el-tab-pane>
+      <el-tab-pane label="分类管理" name="category">
+        <template v-if="activeName === 'category'">
+          <category-list />
+        </template>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -18,10 +23,11 @@
 <script>
 import TemplateList from './template/index.vue'
 import GroupList from './group/index.vue'
+import CategoryList from './category/index.vue'
 
 export default {
   name: 'Document',
-  components: { TemplateList, GroupList },
+  components: { TemplateList, GroupList, CategoryList },
   data() {
     return {
       activeName: 'template'
