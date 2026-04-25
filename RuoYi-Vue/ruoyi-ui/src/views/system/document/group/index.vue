@@ -33,7 +33,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['system:documentGroup:add']"
+          v-hasPermi="['system:document:group:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -44,7 +44,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['system:documentGroup:remove']"
+          v-hasPermi="['system:document:group:remove']"
         >删除</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
@@ -73,14 +73,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:documentGroup:edit']"
+            v-hasPermi="['system:document:group:edit']"
           >编辑</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['system:documentGroup:remove']"
+            v-hasPermi="['system:document:group:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import { listGroup, getGroup, addGroup, updateGroup, delGroup } from "@/api/system/document"
+import { listGroup, listDocumentGroup, getGroup, getDocumentGroup, addGroup, updateGroup, delGroup } from "@/api/system/document"
 
 export default {
   name: "DocumentGroup",
@@ -200,52 +200,42 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      const groupId = row.groupId || this.ids
-      // TODO: 调用实际的API接口
-      // getDocumentGroup(groupId).then(response => {
-      //   this.form = response.data
-      //   this.open = true
-      //   this.title = "修改文书套组"
-      // })
-      this.form = { ...row }
-      this.open = true
-      this.title = "修改文书套组"
+      const groupId = row.id || this.ids
+      getGroup(groupId).then(response => {
+        this.form = response.data
+        this.open = true
+        this.title = "修改文书套组"
+      })
     },
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.groupId != null) {
-            // TODO: 调用实际的API接口
-            // updateDocumentGroup(this.form).then(response => {
-            //   this.$modal.msgSuccess("修改成功")
-            //   this.open = false
-            //   this.getList()
-            // })
-            this.$modal.msgSuccess("修改成功")
-            this.open = false
-            this.getList()
+          if (this.form.id != null) {
+            updateGroup(this.form).then(response => {
+              this.$modal.msgSuccess("修改成功")
+              this.open = false
+              this.getList()
+            }).catch(() => {
+              this.$modal.msgError("修改失败")
+            })
           } else {
-            // TODO: 调用实际的API接口
-            // addDocumentGroup(this.form).then(response => {
-            //   this.$modal.msgSuccess("新增成功")
-            //   this.open = false
-            //   this.getList()
-            // })
-            this.$modal.msgSuccess("新增成功")
-            this.open = false
-            this.getList()
+            addGroup(this.form).then(response => {
+              this.$modal.msgSuccess("新增成功")
+              this.open = false
+              this.getList()
+            }).catch(() => {
+              this.$modal.msgError("新增失败")
+            })
           }
         }
       })
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const groupIds = row.groupId || this.ids
-      this.$modal.confirm('是否确认删除套组编号为"' + groupIds + '"的数据项？').then(() => {
-        // TODO: 调用实际的API接口
-        // return delDocumentGroup(groupIds)
-        return Promise.resolve()
+      const ids = row.id || this.ids
+      this.$modal.confirm('是否确认删除套组编号为"' + ids + '"的数据项？').then(() => {
+        return delGroup(ids)
       }).then(() => {
         this.getList()
         this.$modal.msgSuccess("删除成功")
