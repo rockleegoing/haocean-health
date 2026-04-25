@@ -2,7 +2,6 @@ package com.ruoyi.app.feature.document.ui
 
 import android.app.DatePickerDialog
 import android.os.Bundle
-import android.text.InputType
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
@@ -10,13 +9,13 @@ import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.hjq.bar.OnTitleBarListener
 import com.hjq.bar.TitleBar
 import com.ruoyi.app.R
 import com.ruoyi.app.databinding.ActivityDocumentFillBinding
 import com.ruoyi.app.feature.document.api.DocumentApi
+import com.ruoyi.app.feature.document.api.DocumentSubmitRequest
 import com.ruoyi.app.feature.document.model.DocumentVariable
 import com.ruoyi.app.feature.document.model.VariableType
 import com.ruoyi.app.model.Constant
@@ -24,6 +23,7 @@ import com.ruoyi.code.base.BaseBindingActivity
 import com.therouter.TheRouter
 import com.therouter.router.Route
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -41,19 +41,6 @@ class DocumentFillActivity : BaseBindingActivity<ActivityDocumentFillBinding>() 
     private val variableValues = mutableMapOf<String, String>()
     private val editTexts = mutableMapOf<String, EditText>()
     private val signatureVars = mutableListOf<DocumentVariable>()
-
-    private val signatureLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val signaturePath = result.data?.getStringExtra(SignatureActivity.EXTRA_SIGNATURE_PATH)
-            val varName = result.data?.getStringExtra(SignatureActivity.EXTRA_VARIABLE_NAME)
-            if (signaturePath != null && varName != null) {
-                variableValues[varName] = signaturePath
-                editTexts[varName]?.setText("已签名")
-            }
-        }
-    }
 
     override fun initView() {
         setupTitleBar()
@@ -270,9 +257,7 @@ class DocumentFillActivity : BaseBindingActivity<ActivityDocumentFillBinding>() 
         val bundle = Bundle().apply {
             putString(SignatureActivity.EXTRA_VARIABLE_NAME, variable.variableName)
         }
-        signatureLauncher.launch(
-            TheRouter.build(Constant.signatureRoute).with(bundle).navigation(this@DocumentFillActivity)
-        )
+        TheRouter.build(Constant.signatureRoute).with(bundle).navigation(this@DocumentFillActivity)
     }
 
     private fun parseOptions(optionsJson: String?): List<String> {
@@ -322,10 +307,54 @@ class DocumentFillActivity : BaseBindingActivity<ActivityDocumentFillBinding>() 
             variableValues[variable.variableName] = value
         }
 
-        // TODO: 调用 API 提交文书
-        Toast.makeText(this, "文书生成成功", Toast.LENGTH_SHORT).show()
-        setResult(RESULT_OK)
-        finish()
+        val variablesJson = buildVariablesJson()
+        val signaturesJson = buildSignaturesJson()
+
+        val request = DocumentSubmitRequest(
+            templateId = templateId,
+            recordId = if (recordId != 0L) recordId else null,
+            variables = variablesJson,
+            signatures = signaturesJson,
+            status = "1"
+        )
+
+        binding.progressBar.visibility = View.VISIBLE
+
+        lifecycleScope.launch {
+            try {
+                val response = DocumentApi.submitDocument(request)
+                binding.progressBar.visibility = View.GONE
+                if (response.code == 200) {
+                    Toast.makeText(this@DocumentFillActivity, "提交成功", Toast.LENGTH_SHORT).show()
+                    setResult(RESULT_OK)
+                    finish()
+                } else {
+                    Toast.makeText(this@DocumentFillActivity, "提交失败: ${response.msg}", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                binding.progressBar.visibility = View.GONE
+                Toast.makeText(this@DocumentFillActivity, "提交异常: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun buildVariablesJson(): String {
+        val map = JSONObject()
+        variableValues.forEach { (name, value) ->
+            map.put(name, value)
+        }
+        return map.toString()
+    }
+
+    private fun buildSignaturesJson(): String {
+        val map = JSONObject()
+        signatureVars.forEach { variable ->
+            val path = variableValues[variable.variableName]
+            if (path != null) {
+                map.put(variable.variableName, path)
+            }
+        }
+        return map.toString()
     }
 
     companion object {
