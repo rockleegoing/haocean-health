@@ -166,7 +166,7 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        groupId: null,
+        id: null,
         groupCode: null,
         groupName: null,
         groupType: null,
