@@ -28,7 +28,7 @@ public interface SysDocumentTemplateMapper
     public List<SysDocumentTemplate> selectSysDocumentTemplateList(SysDocumentTemplate sysDocumentTemplate);
 
     /**
-     * 查询所有启用的模板（用于App同步）
+     * 查询所有启用的模板（用于App同步，含categoryId和sort）
      *
      * @return 启用的模板列表
      */
