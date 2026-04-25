@@ -1,6 +1,8 @@
 package com.ruoyi.system.domain;
 
 import java.io.Serializable;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * 文书模板变量对象 sys_document_variable
@@ -119,5 +121,21 @@ public class SysDocumentVariable implements Serializable {
 
     public Integer getMaxLength() {
         return maxLength;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+            .append("id", getId())
+            .append("templateId", getTemplateId())
+            .append("variableName", getVariableName())
+            .append("variableLabel", getVariableLabel())
+            .append("variableType", getVariableType())
+            .append("required", getRequired())
+            .append("defaultValue", getDefaultValue())
+            .append("options", getOptions())
+            .append("sortOrder", getSortOrder())
+            .append("maxLength", getMaxLength())
+            .toString();
     }
 }

@@ -37,7 +37,6 @@ public class SysDocumentTemplate extends BaseEntity {
     private String filePath;
 
     /** 文件URL */
-    @Excel(name = "文件URL")
     private String fileUrl;
 
     /** 版本号 */

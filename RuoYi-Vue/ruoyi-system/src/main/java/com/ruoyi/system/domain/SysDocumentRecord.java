@@ -41,18 +41,15 @@ public class SysDocumentRecord extends BaseEntity {
     private String filePath;
 
     /** 文件URL */
-    @Excel(name = "文件URL")
     private String fileUrl;
 
     /** 签名信息(JSON格式) */
     private String signatures;
 
     /** 状态:0草稿,1已完成,2已签发 */
-    @Excel(name = "状态:0草稿,1已完成,2已签发")
     private String status;
 
     /** 同步状态:0未同步,1已同步,2同步失败 */
-    @Excel(name = "同步状态:0未同步,1已同步,2同步失败")
     private String syncStatus;
 
     /** 删除标志:0存在,1删除 */
