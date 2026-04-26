@@ -289,3 +289,69 @@ fun LegalBasisEntity.toModel(): com.ruoyi.app.feature.law.model.LegalBasis {
         updateTime = updateTime?.toString()
     )
 }
+
+// ==================== toEntity 扩展函数 ====================
+
+fun com.ruoyi.app.feature.law.model.Regulation.toEntity(): RegulationEntity {
+    return RegulationEntity(
+        regulationId = regulationId,
+        title = title,
+        legalType = legalType,
+        supervisionTypes = JSONArray(supervisionTypes).toString(),
+        publishDate = publishDate,
+        effectiveDate = effectiveDate,
+        issuingAuthority = issuingAuthority,
+        content = content,
+        version = version,
+        status = status,
+        delFlag = delFlag,
+        createBy = createBy,
+        createTime = createTime?.toLongOrNull(),
+        updateBy = updateBy,
+        updateTime = updateTime?.toLongOrNull(),
+        remark = remark
+    )
+}
+
+fun com.ruoyi.app.feature.law.model.RegulationChapter.toEntity(): RegulationChapterEntity {
+    return RegulationChapterEntity(
+        chapterId = chapterId,
+        regulationId = regulationId,
+        chapterNo = chapterNo,
+        chapterTitle = chapterTitle,
+        sortOrder = sortOrder
+    )
+}
+
+fun com.ruoyi.app.feature.law.model.RegulationArticle.toEntity(): RegulationArticleEntity {
+    return RegulationArticleEntity(
+        articleId = articleId,
+        chapterId = chapterId,
+        regulationId = regulationId,
+        articleNo = articleNo,
+        content = content,
+        sortOrder = sortOrder
+    )
+}
+
+fun com.ruoyi.app.feature.law.model.LegalBasis.toEntity(): LegalBasisEntity {
+    return LegalBasisEntity(
+        basisId = basisId,
+        basisNo = basisNo,
+        title = title,
+        violationType = violationType,
+        issuingAuthority = issuingAuthority,
+        effectiveDate = effectiveDate,
+        legalLevel = legalLevel,
+        clauses = clauses,
+        legalLiability = legalLiability,
+        discretionStandard = discretionStandard,
+        regulationId = regulationId,
+        status = status,
+        delFlag = delFlag,
+        createBy = createBy,
+        createTime = createTime?.toLongOrNull(),
+        updateBy = updateBy,
+        updateTime = updateTime?.toLongOrNull()
+    )
+}
