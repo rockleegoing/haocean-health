@@ -1,6 +1,10 @@
 package com.ruoyi.app.feature.law.ui.basis
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.ruoyi.app.databinding.ActivityLegalBasisDetailBinding
@@ -24,6 +28,21 @@ class LegalBasisDetailActivity : AppCompatActivity() {
         if (basisId > 0) {
             loadDetail()
         }
+        setupCopyButton()
+    }
+
+    private fun setupCopyButton() {
+        binding.btnCopyClauses.setOnClickListener {
+            val clauses = binding.tvClauses.text.toString()
+            copyToClipboard(clauses)
+            Toast.makeText(this, "条款内容已复制", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun copyToClipboard(text: String) {
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("条款内容", text)
+        clipboard.setPrimaryClip(clip)
     }
 
     private fun loadDetail() {

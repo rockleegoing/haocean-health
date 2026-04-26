@@ -87,14 +87,30 @@
                 android:textColor="@color/black"
                 android:textStyle="bold"/>
 
-            <TextView
-                android:id="@+id/tv_clauses"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textSize="14sp"
-                android:textColor="@color/color_6"
-                android:lineSpacingExtra="4dp"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/tv_clauses"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_6"
+                    android:lineSpacingExtra="4dp"/>
+
+                <ImageButton
+                    android:id="@+id/btn_copy_clauses"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@android:drawable/ic_menu_share"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="复制条款内容"/>
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
