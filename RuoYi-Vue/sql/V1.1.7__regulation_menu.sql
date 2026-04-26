@@ -11,7 +11,7 @@ INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, is_frame
 VALUES ('批量操作', (SELECT menu_id FROM sys_menu WHERE menu_name = '法律法规管理'), 6, '/system/regulation/batch', 'system/regulation/batch/index', 1, 0, 'F', '0', '0', '', 'btn', 'admin', NOW(), '批量操作菜单');
 
 -- 获取刚插入的批量操作菜单ID
-SET @parent_id = (SELECT menu_id FROM sys_menu WHERE menu_name = '批量操作' AND parent_id = (SELECT menu_id FROM sys_menu WHERE menu_name = '法律法规管理'));
+SET @parent_id = (SELECT menu_id FROM sys_menu WHERE menu_name = '批量操作' AND parent_id = (SELECT menu_id FROM sys_menu WHERE menu_name = '法律法规管理') LIMIT 1);
 
 -- 导入Excel
 INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)

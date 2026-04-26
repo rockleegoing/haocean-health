@@ -176,6 +176,7 @@ class LawRepository(private val context: Context) {
     // ==================== 数据转换 ====================
 
     private fun com.ruoyi.app.feature.law.model.Regulation.toEntity(): RegulationEntity {
+        val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.CHINA)
         return RegulationEntity(
             regulationId = regulationId,
             title = title,
@@ -189,9 +190,9 @@ class LawRepository(private val context: Context) {
             status = status,
             delFlag = delFlag,
             createBy = createBy,
-            createTime = createTime?.toLongOrNull(),
+            createTime = createTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
             updateBy = updateBy,
-            updateTime = updateTime?.toLongOrNull(),
+            updateTime = updateTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
             remark = remark
         )
     }
@@ -218,6 +219,7 @@ class LawRepository(private val context: Context) {
     }
 
     private fun com.ruoyi.app.feature.law.model.LegalBasis.toEntity(): LegalBasisEntity {
+        val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.CHINA)
         return LegalBasisEntity(
             basisId = basisId,
             basisNo = basisNo,
@@ -233,9 +235,9 @@ class LawRepository(private val context: Context) {
             status = status,
             delFlag = delFlag,
             createBy = createBy,
-            createTime = createTime?.toLongOrNull(),
+            createTime = createTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
             updateBy = updateBy,
-            updateTime = updateTime?.toLongOrNull()
+            updateTime = updateTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } }
         )
     }
 }
@@ -293,6 +295,7 @@ fun LegalBasisEntity.toModel(): com.ruoyi.app.feature.law.model.LegalBasis {
 // ==================== toEntity 扩展函数 ====================
 
 fun com.ruoyi.app.feature.law.model.Regulation.toEntity(): RegulationEntity {
+    val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.CHINA)
     return RegulationEntity(
         regulationId = regulationId,
         title = title,
@@ -306,9 +309,9 @@ fun com.ruoyi.app.feature.law.model.Regulation.toEntity(): RegulationEntity {
         status = status,
         delFlag = delFlag,
         createBy = createBy,
-        createTime = createTime?.toLongOrNull(),
+        createTime = createTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
         updateBy = updateBy,
-        updateTime = updateTime?.toLongOrNull(),
+        updateTime = updateTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
         remark = remark
     )
 }
@@ -335,6 +338,7 @@ fun com.ruoyi.app.feature.law.model.RegulationArticle.toEntity(): RegulationArti
 }
 
 fun com.ruoyi.app.feature.law.model.LegalBasis.toEntity(): LegalBasisEntity {
+    val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.CHINA)
     return LegalBasisEntity(
         basisId = basisId,
         basisNo = basisNo,
@@ -350,8 +354,8 @@ fun com.ruoyi.app.feature.law.model.LegalBasis.toEntity(): LegalBasisEntity {
         status = status,
         delFlag = delFlag,
         createBy = createBy,
-        createTime = createTime?.toLongOrNull(),
+        createTime = createTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
         updateBy = updateBy,
-        updateTime = updateTime?.toLongOrNull()
+        updateTime = updateTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } }
     )
 }

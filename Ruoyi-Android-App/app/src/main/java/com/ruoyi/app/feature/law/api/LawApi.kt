@@ -73,9 +73,19 @@ object LawApi {
     /**
      * 获取章节列表
      */
-    suspend fun getChapterList(regulationId: Long): ChapterListResponse = withContext(Dispatchers.IO) {
+    suspend fun getChapterList(
+        regulationId: Long,
+        pageNum: Int = 1,
+        pageSize: Int = 1000,
+        updateTimeFrom: String? = null
+    ): ChapterListResponse = withContext(Dispatchers.IO) {
+        val urlBuilder = StringBuilder("${ConfigApi.baseUrl}/system/regulation/chapters/$regulationId?")
+            .append("pageNum=$pageNum")
+            .append("&pageSize=$pageSize")
+        updateTimeFrom?.let { urlBuilder.append("&updateTimeFrom=$it") }
+
         val request = Request.Builder()
-            .url("${ConfigApi.baseUrl}/system/regulation/chapters/$regulationId")
+            .url(urlBuilder.toString())
             .get()
             .build()
 
@@ -86,9 +96,21 @@ object LawApi {
     /**
      * 获取条款列表
      */
-    suspend fun getArticleList(regulationId: Long): ArticleListResponse = withContext(Dispatchers.IO) {
+    suspend fun getArticleList(
+        regulationId: Long,
+        chapterId: Long? = null,
+        pageNum: Int = 1,
+        pageSize: Int = 1000,
+        updateTimeFrom: String? = null
+    ): ArticleListResponse = withContext(Dispatchers.IO) {
+        val urlBuilder = StringBuilder("${ConfigApi.baseUrl}/system/regulation/articles/$regulationId?")
+            .append("pageNum=$pageNum")
+            .append("&pageSize=$pageSize")
+        chapterId?.let { urlBuilder.append("&chapterId=$it") }
+        updateTimeFrom?.let { urlBuilder.append("&updateTimeFrom=$it") }
+
         val request = Request.Builder()
-            .url("${ConfigApi.baseUrl}/system/regulation/articles/$regulationId")
+            .url(urlBuilder.toString())
             .get()
             .build()
 
