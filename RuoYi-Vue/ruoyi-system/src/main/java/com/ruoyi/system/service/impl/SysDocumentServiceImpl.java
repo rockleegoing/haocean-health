@@ -1,6 +1,8 @@
 package com.ruoyi.system.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +12,12 @@ import com.ruoyi.system.mapper.SysDocumentTemplateMapper;
 import com.ruoyi.system.mapper.SysDocumentVariableMapper;
 import com.ruoyi.system.mapper.SysDocumentGroupMapper;
 import com.ruoyi.system.mapper.SysDocumentRecordMapper;
+import com.ruoyi.system.mapper.SysDocumentTemplateIndustryMapper;
 import com.ruoyi.system.domain.SysDocumentTemplate;
 import com.ruoyi.system.domain.SysDocumentVariable;
 import com.ruoyi.system.domain.SysDocumentGroup;
 import com.ruoyi.system.domain.SysDocumentRecord;
+import com.ruoyi.system.domain.SysDocumentTemplateIndustry;
 import com.ruoyi.system.service.ISysDocumentService;
 
 /**
@@ -35,6 +39,9 @@ public class SysDocumentServiceImpl implements ISysDocumentService {
 
     @Autowired
     private SysDocumentRecordMapper sysDocumentRecordMapper;
+
+    @Autowired
+    private SysDocumentTemplateIndustryMapper sysDocumentTemplateIndustryMapper;
 
     // ==================== 文书模板 ====================
 
@@ -66,20 +73,67 @@ public class SysDocumentServiceImpl implements ISysDocumentService {
      * 新增文书模板
      */
     @Override
+    @Transactional
     public int insertSysDocumentTemplate(SysDocumentTemplate template) {
         template.setCreateTime(DateUtils.getNowDate());
         template.setCreateBy(SecurityUtils.getUsername());
-        return sysDocumentTemplateMapper.insertSysDocumentTemplate(template);
+        int rows = sysDocumentTemplateMapper.insertSysDocumentTemplate(template);
+        // 保存行业分类关联
+        if (template.getIndustryCategoryIds() != null && !template.getIndustryCategoryIds().isEmpty()) {
+            saveIndustryRelations(template.getId(), template.getIndustryCategoryIds());
+        }
+        return rows;
     }
 
     /**
      * 修改文书模板
      */
     @Override
+    @Transactional
     public int updateSysDocumentTemplate(SysDocumentTemplate template) {
         template.setUpdateTime(DateUtils.getNowDate());
         template.setUpdateBy(SecurityUtils.getUsername());
+        // 先删除旧的行业关联
+        sysDocumentTemplateIndustryMapper.deleteByTemplateId(template.getId());
+        // 再插入新的行业关联
+        if (template.getIndustryCategoryIds() != null && !template.getIndustryCategoryIds().isEmpty()) {
+            saveIndustryRelations(template.getId(), template.getIndustryCategoryIds());
+        }
         return sysDocumentTemplateMapper.updateSysDocumentTemplate(template);
+    }
+
+    /**
+     * 保存行业分类关联
+     */
+    private void saveIndustryRelations(Long templateId, List<Long> industryCategoryIds) {
+        List<SysDocumentTemplateIndustry> relations = industryCategoryIds.stream()
+            .map(industryId -> {
+                SysDocumentTemplateIndustry relation = new SysDocumentTemplateIndustry();
+                relation.setTemplateId(templateId);
+                relation.setIndustryCategoryId(industryId);
+                return relation;
+            })
+            .collect(Collectors.toList());
+        sysDocumentTemplateIndustryMapper.insertBatch(relations);
+    }
+
+    /**
+     * 根据行业分类ID查询模板列表
+     */
+    @Override
+    public List<SysDocumentTemplate> selectByIndustryCategoryId(Long industryCategoryId) {
+        return sysDocumentTemplateMapper.selectByIndustryCategoryId(industryCategoryId);
+    }
+
+    /**
+     * 根据模板ID列表查询模板
+     */
+    @Override
+    public List<SysDocumentTemplate> selectByTemplateIds(List<Long> templateIds) {
+        if (templateIds == null || templateIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return sysDocumentTemplateMapper.selectByTemplateIds(templateIds);
     }
 
     /**
