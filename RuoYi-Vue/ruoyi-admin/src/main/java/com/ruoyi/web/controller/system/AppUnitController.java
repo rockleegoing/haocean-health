@@ -50,7 +50,12 @@ public class AppUnitController extends BaseController {
         // 设置默认值
         unit.setStatus("0");
         unit.setDelFlag("0");
-        unit.setCreateBy(getUsername());
+        // 移动端匿名访问时使用默认创建者
+        try {
+            unit.setCreateBy(getUsername());
+        } catch (Exception e) {
+            unit.setCreateBy("android");
+        }
         unit.setCreateTime(new Date());
 
         int rows = unitService.insertSysUnit(unit);
