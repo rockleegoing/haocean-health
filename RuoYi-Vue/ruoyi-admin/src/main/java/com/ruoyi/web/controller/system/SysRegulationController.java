@@ -191,7 +191,8 @@ public class SysRegulationController extends BaseController {
     @GetMapping("/export")
     public void export(HttpServletResponse response, SysRegulation sysRegulation) {
         List<SysRegulation> list = sysRegulationService.selectSysRegulationList(sysRegulation);
-        ExcelUtil.exportExcel(response, list, "法律法规数据", SysRegulation.class);
+        ExcelUtil<SysRegulation> util = new ExcelUtil<SysRegulation>(SysRegulation.class);
+        util.exportExcel(response, list, "法律法规数据");
     }
 
     /**
@@ -200,7 +201,8 @@ public class SysRegulationController extends BaseController {
     @Anonymous
     @PostMapping("/import")
     public AjaxResult importExcel(MultipartFile file, boolean updateSupport) throws Exception {
-        List<RegulationImportVo> voList = ExcelUtil.importExcel(file.getInputStream(), RegulationImportVo.class);
+        ExcelUtil<RegulationImportVo> util = new ExcelUtil<RegulationImportVo>(RegulationImportVo.class);
+        List<RegulationImportVo> voList = util.importExcel(file.getInputStream());
         String operName = getUsername();
         Map<String, Object> result = sysRegulationService.importRegulation(voList, updateSupport, operName);
         return AjaxResult.success("导入成功，成功" + result.get("success") + "条，失败" + result.get("fail") + "条", result.get("errors"));

@@ -102,7 +102,7 @@ sealed class ChapterTreeItem {
 
     data class Article(
         val articleId: Long,
-        val chapterId: Long,
+        val chapterId: Long?,
         val articleNo: String?,
         val content: String?
     ) : ChapterTreeItem()

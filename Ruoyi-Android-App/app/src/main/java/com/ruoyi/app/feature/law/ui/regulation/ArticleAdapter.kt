@@ -44,8 +44,8 @@ class ArticleAdapter(
 
         fun bind(article: RegulationArticleEntity) {
             binding.tvArticleNo.text = article.articleNo ?: "条款"
-            binding.tvContent.text = article.content?.take(150) ?: "暂无内容"
-            binding.tvContent.visibility = if (article.content.isNullOrEmpty()) ViewGroup.GONE else ViewGroup.VISIBLE
+            binding.tvArticleContent.text = article.content?.take(150) ?: "暂无内容"
+            binding.tvArticleContent.visibility = if (article.content.isNullOrEmpty()) ViewGroup.GONE else ViewGroup.VISIBLE
         }
     }
 

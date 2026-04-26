@@ -2,8 +2,8 @@ package com.ruoyi.app.sync
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.ruoyi.app.data.database.AppDatabase
 import com.ruoyi.app.feature.law.api.LawApi
-import com.ruoyi.app.feature.law.db.AppDatabase
 import com.ruoyi.app.feature.law.repository.toEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
