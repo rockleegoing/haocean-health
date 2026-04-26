@@ -1,9 +1,11 @@
 package com.ruoyi.system.service;
 
 import java.util.List;
+import java.util.Map;
 import com.ruoyi.system.domain.SysRegulation;
 import com.ruoyi.system.domain.SysRegulationChapter;
 import com.ruoyi.system.domain.SysRegulationArticle;
+import com.ruoyi.system.domain.vo.RegulationImportVo;
 
 /**
  * 法律法规Service接口
@@ -164,4 +166,14 @@ public interface ISysRegulationService {
      * @return 结果
      */
     public int deleteSysRegulationArticleByIds(Long[] articleIds);
+
+    /**
+     * 批量导入法律法规（支持章节和条款）
+     *
+     * @param regulations 法规列表
+     * @param updateSupport 是否支持更新
+     * @param operName 操作人
+     * @return 导入结果
+     */
+    public Map<String, Object> importRegulation(List<RegulationImportVo> regulations, boolean updateSupport, String operName);
 }

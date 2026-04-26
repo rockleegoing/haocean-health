@@ -1,7 +1,12 @@
 package com.ruoyi.system.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +14,9 @@ import com.ruoyi.system.mapper.SysRegulationMapper;
 import com.ruoyi.system.domain.SysRegulation;
 import com.ruoyi.system.domain.SysRegulationChapter;
 import com.ruoyi.system.domain.SysRegulationArticle;
+import com.ruoyi.system.domain.vo.RegulationImportVo;
+import com.ruoyi.system.domain.vo.ChapterImportVo;
+import com.ruoyi.system.domain.vo.ArticleImportVo;
 import com.ruoyi.system.service.ISysRegulationService;
 
 /**
@@ -251,5 +259,121 @@ public class SysRegulationServiceImpl implements ISysRegulationService {
     @Override
     public int deleteSysRegulationArticleByIds(Long[] articleIds) {
         return sysRegulationMapper.deleteSysRegulationArticleByIds(articleIds);
+    }
+
+    /**
+     * 批量导入法律法规（支持章节和条款）
+     *
+     * @param regulations 法规列表
+     * @param updateSupport 是否支持更新
+     * @param operName 操作人
+     * @return 导入结果
+     */
+    @Override
+    @Transactional
+    public Map<String, Object> importRegulation(List<RegulationImportVo> regulations, boolean updateSupport, String operName) {
+        int successNum = 0;
+        int failNum = 0;
+        List<String> errors = new ArrayList<>();
+
+        for (RegulationImportVo regulationVo : regulations) {
+            if (StringUtils.isEmpty(regulationVo.getTitle())) {
+                failNum++;
+                errors.add("法规名称不能为空");
+                continue;
+            }
+
+            try {
+                // 检查法规是否已存在（按标题查询）
+                SysRegulation existRegulation = new SysRegulation();
+                existRegulation.setTitle(regulationVo.getTitle());
+                List<SysRegulation> existList = sysRegulationMapper.selectSysRegulationList(existRegulation);
+
+                SysRegulation regulation = new SysRegulation();
+                regulation.setTitle(regulationVo.getTitle());
+                regulation.setLegalType(regulationVo.getLegalType());
+                regulation.setSupervisionTypes(regulationVo.getSupervisionTypes());
+                regulation.setPublishDate(regulationVo.getPublishDate());
+                regulation.setEffectiveDate(regulationVo.getEffectiveDate());
+                regulation.setIssuingAuthority(regulationVo.getIssuingAuthority());
+                regulation.setContent(regulationVo.getContent());
+                regulation.setStatus("0");
+                regulation.setDelFlag("0");
+
+                Long regulationId = null;
+
+                if (!existList.isEmpty()) {
+                    // 法规已存在
+                    if (updateSupport) {
+                        // 支持更新模式，更新法规信息
+                        SysRegulation existing = existList.get(0);
+                        regulationId = existing.getRegulationId();
+                        regulation.setRegulationId(regulationId);
+                        regulation.setUpdateTime(DateUtils.getNowDate());
+                        regulation.setUpdateBy(operName);
+                        sysRegulationMapper.updateSysRegulation(regulation);
+
+                        // 删除原有的章节和条款（重新导入）
+                        List<SysRegulationChapter> existingChapters = sysRegulationMapper.selectChapterListByRegulationId(regulationId);
+                        for (SysRegulationChapter chapter : existingChapters) {
+                            sysRegulationMapper.deleteSysRegulationChapterById(chapter.getChapterId());
+                        }
+                    } else {
+                        // 不支持更新，跳过
+                        failNum++;
+                        errors.add("法规【" + regulationVo.getTitle() + "】已存在，跳过导入");
+                        continue;
+                    }
+                } else {
+                    // 新增法规
+                    regulation.setCreateTime(DateUtils.getNowDate());
+                    regulation.setCreateBy(operName);
+                    sysRegulationMapper.insertSysRegulation(regulation);
+                    regulationId = regulation.getRegulationId();
+                }
+
+                // 导入章节和条款
+                if (regulationId != null && regulationVo.getChapters() != null) {
+                    for (ChapterImportVo chapterVo : regulationVo.getChapters()) {
+                        SysRegulationChapter chapter = new SysRegulationChapter();
+                        chapter.setRegulationId(regulationId);
+                        chapter.setChapterNo(chapterVo.getChapterNo());
+                        chapter.setChapterTitle(chapterVo.getChapterTitle());
+                        chapter.setSortOrder(chapterVo.getSortOrder() != null ? chapterVo.getSortOrder() : 0);
+                        chapter.setCreateTime(DateUtils.getNowDate());
+                        chapter.setCreateBy(operName);
+                        sysRegulationMapper.insertSysRegulationChapter(chapter);
+
+                        Long chapterId = chapter.getChapterId();
+
+                        // 导入条款
+                        if (chapterVo.getArticles() != null) {
+                            for (ArticleImportVo articleVo : chapterVo.getArticles()) {
+                                SysRegulationArticle article = new SysRegulationArticle();
+                                article.setRegulationId(regulationId);
+                                article.setChapterId(chapterId);
+                                article.setArticleNo(articleVo.getArticleNo());
+                                article.setContent(articleVo.getContent());
+                                article.setSortOrder(articleVo.getSortOrder() != null ? articleVo.getSortOrder() : 0);
+                                article.setCreateTime(DateUtils.getNowDate());
+                                article.setCreateBy(operName);
+                                sysRegulationMapper.insertSysRegulationArticle(article);
+                            }
+                        }
+                    }
+                }
+
+                successNum++;
+            } catch (Exception e) {
+                failNum++;
+                errors.add("导入法规【" + regulationVo.getTitle() + "】失败：" + e.getMessage());
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", successNum);
+        result.put("fail", failNum);
+        result.put("errors", errors);
+        return result;
     }
 }
