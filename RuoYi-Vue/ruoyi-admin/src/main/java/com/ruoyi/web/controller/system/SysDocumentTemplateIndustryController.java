@@ -4,7 +4,7 @@ import java.util.List;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.system.domain.SysDocumentTemplateIndustry;
+import com.ruoyi.system.domain.SysDocumentTemplate;
 import com.ruoyi.system.service.ISysDocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,14 +24,26 @@ public class SysDocumentTemplateIndustryController extends BaseController {
 
     /**
      * 同步模板行业关联数据
+     * 返回格式：[{templateId: 1, industryCategoryId: 1}, ...]
      */
     @Anonymous
     @GetMapping("/sync")
     public AjaxResult syncTemplateIndustry() {
-        // 查询所有模板的行业关联关系
-        // 通过查询所有模板，然后获取每个模板关联的行业分类
-        // 这里直接返回空列表，因为关联数据通过模板本身携带
-        // 实际业务中可以通过中间表查询
-        return AjaxResult.success();
+        // 获取所有启用的模板
+        List<SysDocumentTemplate> templates = sysDocumentService.selectAllSysDocumentTemplates();
+
+        // 返回模板的行业分类信息（通过模板的 industryCategoryId 字段）
+        // 如果模板设置了行业分类，则返回关联
+        List<Object> relations = templates.stream()
+            .filter(t -> t.getIndustryCategoryId() != null && t.getIndustryCategoryId() > 0)
+            .map(t -> {
+                return new java.util.HashMap<String, Object>() {{
+                    put("templateId", t.getId());
+                    put("industryCategoryId", t.getIndustryCategoryId());
+                }};
+            })
+            .collect(java.util.stream.Collectors.toList());
+
+        return AjaxResult.success(relations);
     }
 }
