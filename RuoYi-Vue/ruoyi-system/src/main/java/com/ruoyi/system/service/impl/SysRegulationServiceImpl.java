@@ -316,6 +316,11 @@ public class SysRegulationServiceImpl implements ISysRegulationService {
                         // 删除原有的章节和条款（重新导入）
                         List<SysRegulationChapter> existingChapters = sysRegulationMapper.selectChapterListByRegulationId(regulationId);
                         for (SysRegulationChapter chapter : existingChapters) {
+                            // 先删除该章节关联的条款
+                            List<SysRegulationArticle> articles = sysRegulationMapper.selectArticleListByRegulationId(regulationId, chapter.getChapterId());
+                            for (SysRegulationArticle article : articles) {
+                                sysRegulationMapper.deleteSysRegulationArticleById(article.getArticleId());
+                            }
                             sysRegulationMapper.deleteSysRegulationChapterById(chapter.getChapterId());
                         }
                     } else {
