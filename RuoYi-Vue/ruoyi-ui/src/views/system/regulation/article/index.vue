@@ -180,7 +180,7 @@
 </template>
 
 <script>
-import { listRegulation, getChapterList, addArticle, updateArticle, delArticle } from "@/api/system/regulation"
+import { listRegulation, getChapterList, getArticleList, addArticle, updateArticle, delArticle } from "@/api/system/regulation"
 
 export default {
   name: "RegulationArticle",
