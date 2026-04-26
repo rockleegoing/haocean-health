@@ -607,8 +607,15 @@ git commit -m "refactor(android): 移除收藏功能相关代码"
 
 **Files:**
 - Modify: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/SysRegulation.java`
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/SysRegulationChapter.java`
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/SysRegulationArticle.java`
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/SysLegalBasis.java`
 - Modify: `RuoYi-Vue/ruoyi-system/src/main/resources/mapper/system/SysRegulationMapper.xml`
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/resources/mapper/system/SysRegulationChapterMapper.xml`
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/resources/mapper/system/SysRegulationArticleMapper.xml`
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/resources/mapper/system/SysLegalBasisMapper.xml`
 - Modify: `RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysRegulationController.java`
+- Modify: `RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysLegalBasisController.java`
 
 - [ ] **Step 1: 修改 SysRegulation.java - 添加 updateTimeFrom 字段**
 
@@ -622,7 +629,27 @@ public String getUpdateTimeFrom() { return updateTimeFrom; }
 public void setUpdateTimeFrom(String updateTimeFrom) { this.updateTimeFrom = updateTimeFrom; }
 ```
 
-同样为 SysLegalBasis 添加 updateTimeFrom 字段。
+- [ ] **Step 1.5: 修改 SysRegulationChapter.java - 添加 updateTimeFrom 字段**
+
+```java
+/** 增量同步起始时间（前端传入，非数据库字段） */
+private String updateTimeFrom;
+
+public String getUpdateTimeFrom() { return updateTimeFrom; }
+public void setUpdateTimeFrom(String updateTimeFrom) { this.updateTimeFrom = updateTimeFrom; }
+```
+
+- [ ] **Step 1.6: 修改 SysRegulationArticle.java - 添加 updateTimeFrom 字段**
+
+```java
+/** 增量同步起始时间（前端传入，非数据库字段） */
+private String updateTimeFrom;
+
+public String getUpdateTimeFrom() { return updateTimeFrom; }
+public void setUpdateTimeFrom(String updateTimeFrom) { this.updateTimeFrom = updateTimeFrom; }
+```
+
+同样为 SysLegalBasis 添加 updateTimeFrom 字段（Step 1 中已说明）。
 
 - [ ] **Step 2: 修改 SysRegulationMapper.xml - 添加 updateTimeFrom 查询条件**
 
@@ -641,6 +668,14 @@ public void setUpdateTimeFrom(String updateTimeFrom) { this.updateTimeFrom = upd
     order by create_time desc
 </select>
 ```
+
+- [ ] **Step 2.5: 修改 SysRegulationChapterMapper.xml - 添加 updateTimeFrom 查询条件**
+
+在章节列表查询 SQL 中添加 updateTimeFrom 条件（如果有的话）。
+
+- [ ] **Step 2.6: 修改 SysRegulationArticleMapper.xml - 添加 updateTimeFrom 查询条件**
+
+在条款列表查询 SQL 中添加 updateTimeFrom 条件（如果有的话）。
 
 - [ ] **Step 3: 修改 SysRegulationController.java - 添加 updateTimeFrom 参数支持**
 
@@ -661,12 +696,18 @@ public TableDataInfo list(SysRegulation sysRegulation) {
 
 修改定性依据列表接口（同样添加 updateTimeFrom 参数）。
 
+同时修改章节列表和条款列表接口，添加 updateTimeFrom 参数支持（如果需要增量同步章节和条款的话）。
+
 - [ ] **Step 4: 提交**
 
 ```bash
 git add RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/SysRegulation.java
+git add RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/SysRegulationChapter.java
+git add RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/SysRegulationArticle.java
 git add RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/SysLegalBasis.java
 git add RuoYi-Vue/ruoyi-system/src/main/resources/mapper/system/SysRegulationMapper.xml
+git add RuoYi-Vue/ruoyi-system/src/main/resources/mapper/system/SysRegulationChapterMapper.xml
+git add RuoYi-Vue/ruoyi-system/src/main/resources/mapper/system/SysRegulationArticleMapper.xml
 git add RuoYi-Vue/ruoyi-system/src/main/resources/mapper/system/SysLegalBasisMapper.xml
 git add RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysRegulationController.java
 git add RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysLegalBasisController.java
@@ -889,10 +930,11 @@ class LawSyncManager(private val context: Context) {
 
 - [ ] **Step 2: 修改 Regulation.toEntity() 扩展方法**
 
-在 LawRepository.kt 中添加：
+在 LawRepository.kt 中添加（注意：createTime/updateTime 是 String 格式 "yyyy-MM-dd HH:mm:ss"，需转换为 Long）：
 
 ```kotlin
 private fun com.ruoyi.app.feature.law.model.Regulation.toEntity(): RegulationEntity {
+    val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.CHINA)
     return RegulationEntity(
         regulationId = regulationId,
         title = title,
@@ -906,9 +948,9 @@ private fun com.ruoyi.app.feature.law.model.Regulation.toEntity(): RegulationEnt
         status = status,
         delFlag = delFlag,
         createBy = createBy,
-        createTime = createTime?.toLongOrNull(),
+        createTime = createTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
         updateBy = updateBy,
-        updateTime = updateTime?.toLongOrNull(),
+        updateTime = updateTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
         remark = remark
     )
 }
