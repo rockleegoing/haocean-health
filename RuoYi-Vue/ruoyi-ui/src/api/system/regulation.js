@@ -179,3 +179,34 @@ export function getLegalBasisByRegulation(regulationId) {
     method: 'get'
   })
 }
+
+// 导入法律法规（Excel）
+export function importRegulation(data) {
+  return request({
+    url: '/system/regulation/import',
+    method: 'post',
+    data: data,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+
+// 导入法律法规（JSON）
+export function importRegulationJson(data) {
+  return request({
+    url: '/system/regulation/import/json',
+    method: 'post',
+    data: data
+  })
+}
+
+// 导出法律法规（JSON）
+export function exportRegulationJson(query) {
+  return request({
+    url: '/system/regulation/export/json',
+    method: 'get',
+    params: query,
+    responseType: 'blob'
+  })
+}
