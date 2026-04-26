@@ -14,6 +14,23 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
+// 字典类型响应
+data class LegalTypeResponse(
+    val typeId: Long,
+    val typeCode: String,
+    val typeName: String,
+    val sortOrder: Int,
+    val status: String
+)
+
+data class SupervisionTypeResponse(
+    val typeId: Long,
+    val typeCode: String,
+    val typeName: String,
+    val sortOrder: Int,
+    val status: String
+)
+
 /**
  * 法律API接口
  */
@@ -172,6 +189,34 @@ object LawApi {
 
         val response = client.newCall(request).execute()
         parseLegalBasisListResponse(response.body?.string() ?: "")
+    }
+
+    // ==================== 字典API ====================
+
+    /**
+     * 获取法律类型列表
+     */
+    suspend fun getLegalTypeList(): List<LegalTypeResponse> = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url("${ConfigApi.baseUrl}/system/legal/type/list")
+            .get()
+            .build()
+
+        val response = client.newCall(request).execute()
+        parseLegalTypeListResponse(response.body?.string() ?: "")
+    }
+
+    /**
+     * 获取监管类型列表
+     */
+    suspend fun getSupervisionTypeList(): List<SupervisionTypeResponse> = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url("${ConfigApi.baseUrl}/system/supervision/type/list")
+            .get()
+            .build()
+
+        val response = client.newCall(request).execute()
+        parseSupervisionTypeListResponse(response.body?.string() ?: "")
     }
 
     // ==================== 解析方法 ====================
@@ -353,5 +398,51 @@ object LawApi {
             updateBy = obj.optString("updateBy", null),
             updateTime = obj.optString("updateTime", null)
         )
+    }
+
+    private fun parseLegalTypeListResponse(json: String): List<LegalTypeResponse> {
+        return try {
+            val obj = JSONObject(json)
+            val rowsArray = obj.optJSONArray("rows") ?: JSONArray()
+            val list = mutableListOf<LegalTypeResponse>()
+            for (i in 0 until rowsArray.length()) {
+                val item = rowsArray.getJSONObject(i)
+                list.add(
+                    LegalTypeResponse(
+                        typeId = item.optLong("typeId", 0),
+                        typeCode = item.optString("typeCode", ""),
+                        typeName = item.optString("typeName", ""),
+                        sortOrder = item.optInt("sortOrder", 0),
+                        status = item.optString("status", "0")
+                    )
+                )
+            }
+            list
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun parseSupervisionTypeListResponse(json: String): List<SupervisionTypeResponse> {
+        return try {
+            val obj = JSONObject(json)
+            val rowsArray = obj.optJSONArray("rows") ?: JSONArray()
+            val list = mutableListOf<SupervisionTypeResponse>()
+            for (i in 0 until rowsArray.length()) {
+                val item = rowsArray.getJSONObject(i)
+                list.add(
+                    SupervisionTypeResponse(
+                        typeId = item.optLong("typeId", 0),
+                        typeCode = item.optString("typeCode", ""),
+                        typeName = item.optString("typeName", ""),
+                        sortOrder = item.optInt("sortOrder", 0),
+                        status = item.optString("status", "0")
+                    )
+                )
+            }
+            list
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 }
