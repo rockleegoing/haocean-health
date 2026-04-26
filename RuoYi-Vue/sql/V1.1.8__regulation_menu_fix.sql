@@ -2,46 +2,47 @@
 -- 脚本：V1.1.8__regulation_menu_fix.sql
 -- 版本：1.1.8
 -- 日期：2026-04-26
--- 描述：修复法律法规模块菜单结构
+-- 描述：修复法律法规模块菜单结构（法律法规作为顶级菜单）
 -- ============================================
 
--- Step 1: 删除现有的法律相关菜单（从叶子节点到根节点）
+-- Step 1: 删除现有的法律相关菜单
 -- 删除 V1.1.7 批量操作菜单下的按钮
 DELETE FROM sys_menu WHERE menu_name IN ('导入Excel', '导出Excel', '导入JSON', '导出JSON') AND parent_id IN (SELECT menu_id FROM sys_menu WHERE menu_name = '批量操作');
 
 -- 删除 V1.1.7 批量操作菜单
-DELETE FROM sys_menu WHERE menu_name = '批量操作' AND parent_id IN (SELECT menu_id FROM sys_menu WHERE menu_name = '法律法规');
+DELETE FROM sys_menu WHERE menu_name = '批量操作';
 
 -- 删除 V1.1.4 条款管理按钮
-DELETE FROM sys_menu WHERE menu_name IN ('条款查询', '条款新增', '条款修改', '条款删除', '条款导出') AND parent_id IN (SELECT menu_id FROM sys_menu WHERE menu_name = '条款管理');
+DELETE FROM sys_menu WHERE menu_name IN ('条款查询', '条款新增', '条款修改', '条款删除', '条款导出');
 
 -- 删除 V1.1.4 条款管理菜单
-DELETE FROM sys_menu WHERE menu_name = '条款管理' AND parent_id IN (SELECT menu_id FROM sys_menu WHERE menu_name = '章节管理');
+DELETE FROM sys_menu WHERE menu_name = '条款管理';
 
 -- 删除 V1.1.4 章节管理按钮
-DELETE FROM sys_menu WHERE menu_name IN ('章节查询', '章节新增', '章节修改', '章节删除', '章节导出') AND parent_id IN (SELECT menu_id FROM sys_menu WHERE menu_name = '章节管理');
+DELETE FROM sys_menu WHERE menu_name IN ('章节查询', '章节新增', '章节修改', '章节删除', '章节导出');
 
 -- 删除 V1.1.4 章节管理菜单
-DELETE FROM sys_menu WHERE menu_name = '章节管理' AND parent_id IN (SELECT menu_id FROM sys_menu WHERE menu_name = '法律法规');
+DELETE FROM sys_menu WHERE menu_name = '章节管理';
 
 -- 删除 V1.1.1 法律法规按钮
-DELETE FROM sys_menu WHERE menu_name IN ('法律法规查询', '法律法规新增', '法律法规修改', '法律法规删除', '法律法规导出', '法律法规导入') AND parent_id IN (SELECT menu_id FROM sys_menu WHERE menu_name = '法律法规');
+DELETE FROM sys_menu WHERE menu_name IN ('法律法规查询', '法律法规新增', '法律法规修改', '法律法规删除', '法律法规导出', '法律法规导入');
 
 -- 删除 V1.1.1 法律法规菜单
 DELETE FROM sys_menu WHERE menu_name = '法律法规';
 
 -- 删除 V1.1.1 定性依据按钮
-DELETE FROM sys_menu WHERE menu_name IN ('定性依据查询', '定性依据新增', '定性依据修改', '定性依据删除', '定性依据导出') AND parent_id IN (SELECT menu_id FROM sys_menu WHERE menu_name = '定性依据');
+DELETE FROM sys_menu WHERE menu_name IN ('定性依据查询', '定性依据新增', '定性依据修改', '定性依据删除', '定性依据导出');
 
 -- 删除 V1.1.1 定性依据菜单
 DELETE FROM sys_menu WHERE menu_name = '定性依据';
 
--- Step 2: 创建正确的菜单结构（在"系统管理" parent_id=1 下）
--- 法律法规目录菜单
-INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-VALUES ('法律法规', '1', '1', 'regulation', NULL, 1, 0, 'M', '0', '0', '', 'book', 'admin', NOW(), '法律法规目录');
+-- Step 2: 创建顶级菜单（parent_id = 0）
 
--- 获取法律法规目录ID
+-- 法律法规顶级菜单
+INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
+VALUES ('法律法规', '0', '5', 'regulation', NULL, 1, 0, 'M', '0', '0', '', 'book', 'admin', NOW(), '法律法规顶级菜单');
+
+-- 获取法律法规顶级目录ID
 SET @regulationParentId = LAST_INSERT_ID();
 
 -- 法律法规管理菜单
@@ -136,11 +137,11 @@ VALUES ('导入JSON', @batchBtnParentId, '3', '#', '', 1, 0, 'F', '0', '0', 'sys
 INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
 VALUES ('导出JSON', @batchBtnParentId, '4', '#', '', 1, 0, 'F', '0', '0', 'system:regulation:exportJson', '#', 'admin', NOW(), '');
 
--- 定性依据菜单（在"系统管理"下，order_num=2）
+-- 定性依据顶级菜单
 INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-VALUES ('定性依据', '1', '2', 'legalBasis', NULL, 1, 0, 'M', '0', '0', '', 'document', 'admin', NOW(), '定性依据目录');
+VALUES ('定性依据', '0', '6', 'legalBasis', NULL, 1, 0, 'M', '0', '0', '', 'document', 'admin', NOW(), '定性依据顶级菜单');
 
--- 获取定性依据目录ID
+-- 获取定性依据顶级目录ID
 SET @legalBasisParentId = LAST_INSERT_ID();
 
 -- 定性依据管理菜单
@@ -167,4 +168,4 @@ INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, is_frame
 VALUES ('定性依据导出', @legalBasisBtnParentId, '5', '#', '', 1, 0, 'F', '0', '0', 'system:legalBasis:export', '#', 'admin', NOW(), '');
 
 -- 完成
-SELECT '法律法规模块菜单修复完成' AS result;
+SELECT '法律法规模块菜单修复完成（顶级菜单）' AS result;
