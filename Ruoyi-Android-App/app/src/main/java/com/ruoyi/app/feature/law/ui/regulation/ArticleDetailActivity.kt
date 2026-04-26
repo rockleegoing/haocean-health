@@ -6,8 +6,11 @@ import androidx.lifecycle.lifecycleScope
 import com.ruoyi.app.databinding.ActivityArticleDetailBinding
 import com.ruoyi.app.feature.law.db.entity.RegulationArticleEntity
 import com.ruoyi.app.feature.law.repository.LawRepository
+import com.ruoyi.app.model.Constant
+import com.therouter.router.Route
 import kotlinx.coroutines.launch
 
+@Route(path = Constant.articleDetailRoute)
 class ArticleDetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityArticleDetailBinding
