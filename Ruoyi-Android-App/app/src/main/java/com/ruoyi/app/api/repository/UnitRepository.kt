@@ -189,7 +189,7 @@ data class UnitDTO(
     val nation: String? = null,
     val post: String? = null,
     val idCard: String? = null,
-    val birthday: Long? = null,
+    val birthday: String? = null,
     val homeAddress: String? = null
 ) {
     fun toEntity(): UnitEntity {
@@ -220,8 +220,17 @@ data class UnitDTO(
             nation = nation,
             post = post,
             idCard = idCard,
-            birthday = birthday,
+            birthday = birthday?.let { parseDateToEpoch(it) },
             homeAddress = homeAddress
         )
+    }
+
+    private fun parseDateToEpoch(dateStr: String): Long? {
+        return try {
+            val format = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+            format.parse(dateStr)?.time
+        } catch (e: Exception) {
+            null
+        }
     }
 }

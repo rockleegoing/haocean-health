@@ -153,15 +153,16 @@ object LawApi {
     private fun parseRegulationListResponse(json: String): RegulationListResponse {
         return try {
             val obj = JSONObject(json)
-            val rowsArray = obj.optJSONArray("rows") ?: JSONArray()
+            // 后端返回 data 字段而非 rows
+            val dataArray = obj.optJSONArray("data") ?: JSONArray()
             val rows = mutableListOf<Regulation>()
-            for (i in 0 until rowsArray.length()) {
-                val item = rowsArray.getJSONObject(i)
+            for (i in 0 until dataArray.length()) {
+                val item = dataArray.getJSONObject(i)
                 rows.add(parseRegulation(item))
             }
             RegulationListResponse(
                 rows = rows,
-                total = obj.optInt("total", 0),
+                total = rows.size,
                 code = obj.optInt("code", 0),
                 msg = obj.optString("msg", null)
             )
@@ -215,10 +216,11 @@ object LawApi {
     private fun parseChapterListResponse(json: String): ChapterListResponse {
         return try {
             val obj = JSONObject(json)
-            val rowsArray = obj.optJSONArray("rows") ?: JSONArray()
+            // 后端返回 data 字段而非 rows
+            val dataArray = obj.optJSONArray("data") ?: JSONArray()
             val rows = mutableListOf<RegulationChapter>()
-            for (i in 0 until rowsArray.length()) {
-                val item = rowsArray.getJSONObject(i)
+            for (i in 0 until dataArray.length()) {
+                val item = dataArray.getJSONObject(i)
                 rows.add(
                     RegulationChapter(
                         chapterId = item.optLong("chapterId", 0),
@@ -231,7 +233,7 @@ object LawApi {
             }
             ChapterListResponse(
                 rows = rows,
-                total = obj.optInt("total", 0),
+                total = rows.size,
                 code = obj.optInt("code", 0),
                 msg = obj.optString("msg", null)
             )
@@ -243,10 +245,11 @@ object LawApi {
     private fun parseArticleListResponse(json: String): ArticleListResponse {
         return try {
             val obj = JSONObject(json)
-            val rowsArray = obj.optJSONArray("rows") ?: JSONArray()
+            // 后端返回 data 字段而非 rows
+            val dataArray = obj.optJSONArray("data") ?: JSONArray()
             val rows = mutableListOf<RegulationArticle>()
-            for (i in 0 until rowsArray.length()) {
-                val item = rowsArray.getJSONObject(i)
+            for (i in 0 until dataArray.length()) {
+                val item = dataArray.getJSONObject(i)
                 rows.add(
                     RegulationArticle(
                         articleId = item.optLong("articleId", 0),
@@ -260,7 +263,7 @@ object LawApi {
             }
             ArticleListResponse(
                 rows = rows,
-                total = obj.optInt("total", 0),
+                total = rows.size,
                 code = obj.optInt("code", 0),
                 msg = obj.optString("msg", null)
             )
@@ -272,15 +275,16 @@ object LawApi {
     private fun parseLegalBasisListResponse(json: String): LegalBasisListResponse {
         return try {
             val obj = JSONObject(json)
-            val rowsArray = obj.optJSONArray("rows") ?: JSONArray()
+            // 后端返回 data 字段而非 rows
+            val dataArray = obj.optJSONArray("data") ?: JSONArray()
             val rows = mutableListOf<LegalBasis>()
-            for (i in 0 until rowsArray.length()) {
-                val item = rowsArray.getJSONObject(i)
+            for (i in 0 until dataArray.length()) {
+                val item = dataArray.getJSONObject(i)
                 rows.add(parseLegalBasis(item))
             }
             LegalBasisListResponse(
                 rows = rows,
-                total = obj.optInt("total", 0),
+                total = rows.size,
                 code = obj.optInt("code", 0),
                 msg = obj.optString("msg", null)
             )
