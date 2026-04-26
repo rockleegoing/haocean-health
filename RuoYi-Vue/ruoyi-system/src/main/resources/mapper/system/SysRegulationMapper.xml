@@ -61,6 +61,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="legalType != null and legalType != ''">and legal_type = #{legalType}</if>
             <if test="status != null and status != ''">and status = #{status}</if>
             <if test="delFlag != null and delFlag != ''">and del_flag = #{delFlag}</if>
+            <if test="updateTimeFrom != null and updateTimeFrom != ''">and update_time &gt;= #{updateTimeFrom}</if>
         </where>
         order by create_time desc
     </select>
@@ -141,6 +142,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                create_by, create_time, update_by, update_time
         from sys_regulation_chapter
         where regulation_id = #{regulationId}
+        <if test="updateTimeFrom != null and updateTimeFrom != ''">
+            and update_time &gt;= #{updateTimeFrom}
+        </if>
         order by sort_order asc
     </select>
 
@@ -200,6 +204,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                create_by, create_time, update_by, update_time
         from sys_regulation_article
         where regulation_id = #{regulationId}
+        <if test="updateTimeFrom != null and updateTimeFrom != ''">
+            and update_time &gt;= #{updateTimeFrom}
+        </if>
         order by sort_order asc
     </select>
 

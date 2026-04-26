@@ -1,6 +1,7 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+import java.util.Map;
 import com.ruoyi.system.domain.SysRegulation;
 import com.ruoyi.system.domain.SysRegulationChapter;
 import com.ruoyi.system.domain.SysRegulationArticle;
@@ -63,10 +64,10 @@ public interface SysRegulationMapper {
     /**
      * 查询章节列表
      *
-     * @param regulationId 法律法规ID
+     * @param params 包含regulationId和updateTimeFrom的Map
      * @return 章节列表
      */
-    public List<SysRegulationChapter> selectChapterListByRegulationId(Long regulationId);
+    public List<SysRegulationChapter> selectChapterListByRegulationId(Map<String, Object> params);
 
     /**
      * 查询章节详情
@@ -79,10 +80,10 @@ public interface SysRegulationMapper {
     /**
      * 查询条款列表
      *
-     * @param regulationId 法律法规ID
+     * @param params 包含regulationId和updateTimeFrom的Map
      * @return 条款列表
      */
-    public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId);
+    public List<SysRegulationArticle> selectArticleListByRegulationId(Map<String, Object> params);
 
     /**
      * 查询条款详情

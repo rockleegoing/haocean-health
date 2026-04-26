@@ -103,8 +103,11 @@ public class SysRegulationServiceImpl implements ISysRegulationService {
      * 查询章节列表
      */
     @Override
-    public List<SysRegulationChapter> selectChapterListByRegulationId(Long regulationId) {
-        List<SysRegulationChapter> chapters = sysRegulationMapper.selectChapterListByRegulationId(regulationId);
+    public List<SysRegulationChapter> selectChapterListByRegulationId(Long regulationId, String updateTimeFrom) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("regulationId", regulationId);
+        params.put("updateTimeFrom", updateTimeFrom);
+        List<SysRegulationChapter> chapters = sysRegulationMapper.selectChapterListByRegulationId(params);
         // 填充法规标题
         SysRegulation regulation = sysRegulationMapper.selectSysRegulationById(regulationId);
         String regulationTitle = regulation != null ? regulation.getTitle() : "";
@@ -133,21 +136,27 @@ public class SysRegulationServiceImpl implements ISysRegulationService {
      * 查询条款列表
      */
     @Override
-    public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId) {
-        return selectArticleListByRegulationId(regulationId, null);
+    public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId, String updateTimeFrom) {
+        return selectArticleListByRegulationId(regulationId, null, updateTimeFrom);
     }
 
     /**
      * 查询条款列表（可选按章节筛选）
      */
     @Override
-    public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId, Long chapterId) {
-        List<SysRegulationArticle> articles = sysRegulationMapper.selectArticleListByRegulationId(regulationId);
+    public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId, Long chapterId, String updateTimeFrom) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("regulationId", regulationId);
+        params.put("updateTimeFrom", updateTimeFrom);
+        List<SysRegulationArticle> articles = sysRegulationMapper.selectArticleListByRegulationId(params);
         // 填充法规标题
         SysRegulation regulation = sysRegulationMapper.selectSysRegulationById(regulationId);
         String regulationTitle = regulation != null ? regulation.getTitle() : "";
         // 填充章节标题
-        List<SysRegulationChapter> chapters = sysRegulationMapper.selectChapterListByRegulationId(regulationId);
+        Map<String, Object> chapterParams = new HashMap<>();
+        chapterParams.put("regulationId", regulationId);
+        chapterParams.put("updateTimeFrom", updateTimeFrom);
+        List<SysRegulationChapter> chapters = sysRegulationMapper.selectChapterListByRegulationId(chapterParams);
         for (SysRegulationArticle article : articles) {
             article.setRegulationTitle(regulationTitle);
             if (article.getChapterId() != null) {
@@ -314,10 +323,16 @@ public class SysRegulationServiceImpl implements ISysRegulationService {
                         sysRegulationMapper.updateSysRegulation(regulation);
 
                         // 删除原有的章节和条款（重新导入）
-                        List<SysRegulationChapter> existingChapters = sysRegulationMapper.selectChapterListByRegulationId(regulationId);
+                        Map<String, Object> chapterParams = new HashMap<>();
+                        chapterParams.put("regulationId", regulationId);
+                        chapterParams.put("updateTimeFrom", null);
+                        List<SysRegulationChapter> existingChapters = sysRegulationMapper.selectChapterListByRegulationId(chapterParams);
                         for (SysRegulationChapter chapter : existingChapters) {
                             // 先删除该章节关联的条款
-                            List<SysRegulationArticle> articles = sysRegulationMapper.selectArticleListByRegulationId(regulationId, chapter.getChapterId());
+                            Map<String, Object> articleParams = new HashMap<>();
+                            articleParams.put("regulationId", regulationId);
+                            articleParams.put("updateTimeFrom", null);
+                            List<SysRegulationArticle> articles = sysRegulationMapper.selectArticleListByRegulationId(articleParams);
                             for (SysRegulationArticle article : articles) {
                                 sysRegulationMapper.deleteSysRegulationArticleById(article.getArticleId());
                             }

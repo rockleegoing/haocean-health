@@ -54,6 +54,9 @@ public class SysRegulation extends BaseEntity {
     /** 删除标志：0存在 1删除 */
     private String delFlag;
 
+    /** 增量同步起始时间（前端传入，非数据库字段） */
+    private String updateTimeFrom;
+
     public void setRegulationId(Long regulationId) {
         this.regulationId = regulationId;
     }
@@ -140,6 +143,14 @@ public class SysRegulation extends BaseEntity {
 
     public String getDelFlag() {
         return delFlag;
+    }
+
+    public String getUpdateTimeFrom() {
+        return updateTimeFrom;
+    }
+
+    public void setUpdateTimeFrom(String updateTimeFrom) {
+        this.updateTimeFrom = updateTimeFrom;
     }
 
     @Override

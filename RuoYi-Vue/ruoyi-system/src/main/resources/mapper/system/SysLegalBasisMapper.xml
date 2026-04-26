@@ -41,6 +41,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="regulationId != null">and regulation_id = #{regulationId}</if>
             <if test="status != null and status != ''">and status = #{status}</if>
             <if test="delFlag != null and delFlag != ''">and del_flag = #{delFlag}</if>
+            <if test="updateTimeFrom != null and updateTimeFrom != ''">and update_time &gt;= #{updateTimeFrom}</if>
         </where>
         order by create_time desc
     </select>

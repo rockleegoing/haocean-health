@@ -14,6 +14,8 @@ import com.ruoyi.system.domain.SysRegulation;
 import com.ruoyi.system.domain.SysRegulationChapter;
 import com.ruoyi.system.domain.SysRegulationArticle;
 import com.ruoyi.system.domain.vo.RegulationImportVo;
+import com.ruoyi.system.domain.vo.ChapterImportVo;
+import com.ruoyi.system.domain.vo.ArticleImportVo;
 import com.ruoyi.system.service.ISysRegulationService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,10 +86,11 @@ public class SysRegulationController extends BaseController {
     @GetMapping("/chapters/{regulationId}")
     public TableDataInfo getChapterList(
         @PathVariable("regulationId") Long regulationId,
+        @RequestParam(required = false) String updateTimeFrom,
         @RequestParam(defaultValue = "1") Integer pageNum,
         @RequestParam(defaultValue = "10") Integer pageSize) {
         startPage();
-        List<SysRegulationChapter> list = sysRegulationService.selectChapterListByRegulationId(regulationId);
+        List<SysRegulationChapter> list = sysRegulationService.selectChapterListByRegulationId(regulationId, updateTimeFrom);
         return getDataTable(list);
     }
 
@@ -109,10 +112,11 @@ public class SysRegulationController extends BaseController {
     public TableDataInfo getArticleList(
         @PathVariable("regulationId") Long regulationId,
         @RequestParam(required = false) Long chapterId,
+        @RequestParam(required = false) String updateTimeFrom,
         @RequestParam(defaultValue = "1") Integer pageNum,
         @RequestParam(defaultValue = "10") Integer pageSize) {
         startPage();
-        List<SysRegulationArticle> list = sysRegulationService.selectArticleListByRegulationId(regulationId, chapterId);
+        List<SysRegulationArticle> list = sysRegulationService.selectArticleListByRegulationId(regulationId, chapterId, updateTimeFrom);
         return getDataTable(list);
     }
 
@@ -221,7 +225,7 @@ public class SysRegulationController extends BaseController {
             vo.setContent(regulation.getContent());
 
             // 查询章节
-            List<SysRegulationChapter> chapters = sysRegulationService.selectChapterListByRegulationId(regulation.getRegulationId());
+            List<SysRegulationChapter> chapters = sysRegulationService.selectChapterListByRegulationId(regulation.getRegulationId(), null);
             if (chapters != null && !chapters.isEmpty()) {
                 List<ChapterImportVo> chapterVoList = chapters.stream().map(chapter -> {
                     ChapterImportVo chapterVo = new ChapterImportVo();
@@ -230,7 +234,7 @@ public class SysRegulationController extends BaseController {
                     chapterVo.setSortOrder(chapter.getSortOrder());
 
                     // 查询条款
-                    List<SysRegulationArticle> articles = sysRegulationService.selectArticleListByRegulationId(regulation.getRegulationId(), chapter.getChapterId());
+                    List<SysRegulationArticle> articles = sysRegulationService.selectArticleListByRegulationId(regulation.getRegulationId(), chapter.getChapterId(), null);
                     if (articles != null && !articles.isEmpty()) {
                         List<ArticleImportVo> articleVoList = articles.stream().map(article -> {
                             ArticleImportVo articleVo = new ArticleImportVo();

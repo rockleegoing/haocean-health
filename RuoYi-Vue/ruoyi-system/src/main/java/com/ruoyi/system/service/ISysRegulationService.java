@@ -66,9 +66,10 @@ public interface ISysRegulationService {
      * 查询章节列表
      *
      * @param regulationId 法律法规ID
+     * @param updateTimeFrom 增量同步起始时间
      * @return 章节列表
      */
-    public List<SysRegulationChapter> selectChapterListByRegulationId(Long regulationId);
+    public List<SysRegulationChapter> selectChapterListByRegulationId(Long regulationId, String updateTimeFrom);
 
     /**
      * 查询章节详情
@@ -83,17 +84,19 @@ public interface ISysRegulationService {
      *
      * @param regulationId 法律法规ID
      * @param chapterId 章节ID（可选）
+     * @param updateTimeFrom 增量同步起始时间
      * @return 条款列表
      */
-    public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId, Long chapterId);
+    public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId, Long chapterId, String updateTimeFrom);
 
     /**
      * 查询条款列表
      *
      * @param regulationId 法律法规ID
+     * @param updateTimeFrom 增量同步起始时间
      * @return 条款列表
      */
-    public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId);
+    public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId, String updateTimeFrom);
 
     /**
      * 查询条款详情

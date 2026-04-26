@@ -37,6 +37,9 @@ public class SysRegulationArticle extends BaseEntity {
     /** 章节标题（用于前端展示，非数据库字段） */
     private String chapterTitle;
 
+    /** 增量同步起始时间（前端传入，非数据库字段） */
+    private String updateTimeFrom;
+
     public void setArticleId(Long articleId) {
         this.articleId = articleId;
     }
@@ -99,6 +102,14 @@ public class SysRegulationArticle extends BaseEntity {
 
     public void setChapterTitle(String chapterTitle) {
         this.chapterTitle = chapterTitle;
+    }
+
+    public String getUpdateTimeFrom() {
+        return updateTimeFrom;
+    }
+
+    public void setUpdateTimeFrom(String updateTimeFrom) {
+        this.updateTimeFrom = updateTimeFrom;
     }
 
     @Override
