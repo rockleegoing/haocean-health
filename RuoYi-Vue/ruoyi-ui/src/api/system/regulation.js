@@ -61,10 +61,11 @@ export function getChapter(chapterId) {
 }
 
 // 获取条款列表
-export function getArticleList(regulationId) {
+export function getArticleList(regulationId, query) {
   return request({
     url: '/system/regulation/articles/' + regulationId,
-    method: 'get'
+    method: 'get',
+    params: query
   })
 }
 

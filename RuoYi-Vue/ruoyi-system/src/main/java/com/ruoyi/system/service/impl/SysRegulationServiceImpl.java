@@ -126,6 +126,14 @@ public class SysRegulationServiceImpl implements ISysRegulationService {
      */
     @Override
     public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId) {
+        return selectArticleListByRegulationId(regulationId, null);
+    }
+
+    /**
+     * 查询条款列表（可选按章节筛选）
+     */
+    @Override
+    public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId, Long chapterId) {
         List<SysRegulationArticle> articles = sysRegulationMapper.selectArticleListByRegulationId(regulationId);
         // 填充法规标题
         SysRegulation regulation = sysRegulationMapper.selectSysRegulationById(regulationId);
@@ -142,6 +150,12 @@ public class SysRegulationServiceImpl implements ISysRegulationService {
                     }
                 }
             }
+        }
+        // 如果指定了chapterId，进行过滤
+        if (chapterId != null) {
+            articles = articles.stream()
+                .filter(a -> chapterId.equals(a.getChapterId()))
+                .collect(java.util.stream.Collectors.toList());
         }
         return articles;
     }

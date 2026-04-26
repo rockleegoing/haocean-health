@@ -259,19 +259,14 @@ export default {
     /** 查询条款列表 */
     getList() {
       this.loading = true
-      // 使用条款列表接口，按 regulationId 筛选
-      getArticleList(this.queryParams.regulationId).then(response => {
-        let list = response.data || []
-        // 前端筛选
-        if (this.queryParams.chapterId) {
-          list = list.filter(item => item.chapterId === this.queryParams.chapterId)
-        }
-        if (this.queryParams.content) {
-          const keyword = this.queryParams.content.toLowerCase()
-          list = list.filter(item => item.content && item.content.toLowerCase().includes(keyword))
-        }
-        this.articleList = list
-        this.total = list.length
+      // 使用条款列表接口，按 regulationId 筛选，支持后端分页
+      getArticleList(this.queryParams.regulationId, {
+        pageNum: this.queryParams.pageNum,
+        pageSize: this.queryParams.pageSize,
+        chapterId: this.queryParams.chapterId
+      }).then(response => {
+        this.articleList = response.rows || []
+        this.total = response.total || 0
         this.loading = false
       })
     },

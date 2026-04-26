@@ -80,6 +80,15 @@ public interface ISysRegulationService {
      * 查询条款列表
      *
      * @param regulationId 法律法规ID
+     * @param chapterId 章节ID（可选）
+     * @return 条款列表
+     */
+    public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId, Long chapterId);
+
+    /**
+     * 查询条款列表
+     *
+     * @param regulationId 法律法规ID
      * @return 条款列表
      */
     public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId);

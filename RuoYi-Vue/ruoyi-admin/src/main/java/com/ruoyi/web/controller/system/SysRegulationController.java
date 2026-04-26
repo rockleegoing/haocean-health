@@ -99,9 +99,14 @@ public class SysRegulationController extends BaseController {
      */
     @Anonymous
     @GetMapping("/articles/{regulationId}")
-    public AjaxResult getArticleList(@PathVariable("regulationId") Long regulationId) {
-        List<SysRegulationArticle> list = sysRegulationService.selectArticleListByRegulationId(regulationId);
-        return AjaxResult.success(list);
+    public TableDataInfo getArticleList(
+        @PathVariable("regulationId") Long regulationId,
+        @RequestParam(required = false) Long chapterId,
+        @RequestParam(defaultValue = "1") Integer pageNum,
+        @RequestParam(defaultValue = "10") Integer pageSize) {
+        startPage();
+        List<SysRegulationArticle> list = sysRegulationService.selectArticleListByRegulationId(regulationId, chapterId);
+        return getDataTable(list);
     }
 
     /**
