@@ -24,6 +24,7 @@ import com.ruoyi.app.data.database.dao.DocumentTemplateDao
 import com.ruoyi.app.data.database.dao.DocumentVariableDao
 import com.ruoyi.app.data.database.dao.DocumentCategoryDao
 import com.ruoyi.app.data.database.dao.DocumentGroupDao
+import com.ruoyi.app.data.database.dao.DocumentTemplateIndustryDao
 import com.ruoyi.app.data.database.entity.ActivationCodeEntity
 import com.ruoyi.app.data.database.entity.DataVersionEntity
 import com.ruoyi.app.data.database.entity.DeviceEntity
@@ -47,6 +48,7 @@ import com.ruoyi.app.data.database.entity.DocumentTemplateEntity
 import com.ruoyi.app.data.database.entity.DocumentVariableEntity
 import com.ruoyi.app.data.database.entity.DocumentCategoryEntity
 import com.ruoyi.app.data.database.entity.DocumentGroupEntity
+import com.ruoyi.app.data.database.entity.DocumentTemplateIndustryEntity
 import com.ruoyi.app.feature.law.db.dao.ArticleDao
 import com.ruoyi.app.feature.law.db.dao.ChapterDao
 import com.ruoyi.app.feature.law.db.dao.LegalBasisDao
@@ -88,9 +90,10 @@ import com.ruoyi.app.feature.law.db.entity.RegulationEntity
         DocumentTemplateEntity::class,
         DocumentVariableEntity::class,
         DocumentCategoryEntity::class,
-        DocumentGroupEntity::class
+        DocumentGroupEntity::class,
+        DocumentTemplateIndustryEntity::class
     ],
-    version = 9,
+    version = 10,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -119,6 +122,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun documentVariableDao(): DocumentVariableDao
     abstract fun documentCategoryDao(): DocumentCategoryDao
     abstract fun documentGroupDao(): DocumentGroupDao
+    abstract fun documentTemplateIndustryDao(): DocumentTemplateIndustryDao
 
     companion object {
         @Volatile

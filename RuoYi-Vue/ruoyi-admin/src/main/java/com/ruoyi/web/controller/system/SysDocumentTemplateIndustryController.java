@@ -1,11 +1,12 @@
 package com.ruoyi.web.controller.system;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.system.domain.SysDocumentTemplate;
-import com.ruoyi.system.service.ISysDocumentService;
+import com.ruoyi.system.domain.SysDocumentTemplateIndustry;
+import com.ruoyi.system.mapper.SysDocumentTemplateIndustryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class SysDocumentTemplateIndustryController extends BaseController {
 
     @Autowired
-    private ISysDocumentService sysDocumentService;
+    private SysDocumentTemplateIndustryMapper templateIndustryMapper;
 
     /**
      * 同步模板行业关联数据
@@ -29,21 +30,19 @@ public class SysDocumentTemplateIndustryController extends BaseController {
     @Anonymous
     @GetMapping("/sync")
     public AjaxResult syncTemplateIndustry() {
-        // 获取所有启用的模板
-        List<SysDocumentTemplate> templates = sysDocumentService.selectAllSysDocumentTemplates();
+        // 从中间表获取所有关联数据
+        List<SysDocumentTemplateIndustry> relations = templateIndustryMapper.selectAll();
 
-        // 返回模板的行业分类信息（通过模板的 industryCategoryId 字段）
-        // 如果模板设置了行业分类，则返回关联
-        List<Object> relations = templates.stream()
-            .filter(t -> t.getIndustryCategoryId() != null && t.getIndustryCategoryId() > 0)
-            .map(t -> {
+        // 转换为API响应格式
+        List<Object> result = relations.stream()
+            .map(r -> {
                 return new java.util.HashMap<String, Object>() {{
-                    put("templateId", t.getId());
-                    put("industryCategoryId", t.getIndustryCategoryId());
+                    put("templateId", r.getTemplateId());
+                    put("industryCategoryId", r.getIndustryCategoryId());
                 }};
             })
-            .collect(java.util.stream.Collectors.toList());
+            .collect(Collectors.toList());
 
-        return AjaxResult.success(relations);
+        return AjaxResult.success(result);
     }
 }

@@ -14,6 +14,7 @@ public class SysDocumentTemplateIndustry {
     private Long id;
     private Long templateId;
     private Long industryCategoryId;
+    private java.util.Date createTime;
 
     public void setId(Long id) {
         this.id = id;
@@ -39,12 +40,21 @@ public class SysDocumentTemplateIndustry {
         return industryCategoryId;
     }
 
+    public void setCreateTime(java.util.Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public java.util.Date getCreateTime() {
+        return createTime;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("templateId", getTemplateId())
             .append("industryCategoryId", getIndustryCategoryId())
+            .append("createTime", getCreateTime())
             .toString();
     }
 }

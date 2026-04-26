@@ -9,8 +9,11 @@ data class DocumentTemplate(
     val templateName: String,
     val templateType: String?,
     val category: String?,
+    val categoryId: Long = 0,
     val filePath: String?,
     val fileUrl: String?,
     val version: Int = 1,
-    val isActive: String = "1"
+    val isActive: String = "1",
+    val industryCategoryId: Long? = null,
+    val industryCategoryName: String? = null
 )

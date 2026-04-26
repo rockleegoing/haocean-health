@@ -23,6 +23,7 @@ import com.therouter.router.Route
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -30,6 +31,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import android.view.View
+import android.view.ViewTreeObserver
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.lifecycle.lifecycleScope
 import com.ruoyi.app.feature.document.model.DocumentCategory
 import com.ruoyi.app.feature.document.repository.DocumentRepository
@@ -370,34 +373,89 @@ class HomeFragment : BaseBindingFragment<FragmentHomeBinding>() {
                 .with(bundle)
                 .navigation()
         }
+        // 重要：先设置 layoutManager，再设置 adapter
+        binding.rvDocumentCategories.layoutManager = LinearLayoutManager(requireContext())
         binding.rvDocumentCategories.adapter = categoryAdapter
+        binding.rvDocumentCategories.setHasFixedSize(false)
 
-        loadDocumentCategories()
+        // 调试：检查RecyclerView状态
+        android.util.Log.d("HomeFragment", "rv_document_categories visibility=${binding.rvDocumentCategories.visibility}")
+        android.util.Log.d("HomeFragment", "rv_document_categories measuredHeight=${binding.rvDocumentCategories.measuredHeight}")
+        android.util.Log.d("HomeFragment", "ll_document_categories visibility=${binding.llDocumentCategories.visibility}")
+
+        // 延迟加载，等view布局完成后再加载数据
+        binding.root.post {
+            android.util.Log.d("HomeFragment", "post: rv_document_categories measuredHeight=${binding.rvDocumentCategories.measuredHeight}")
+            loadDocumentCategories()
+        }
     }
 
     private fun loadDocumentCategories() {
         viewLifecycleOwner.lifecycleScope.launch {
+            android.util.Log.d("HomeFragment", "=== 开始观察 categories Flow ===")
+            // 获取选中单位的行业分类ID
+            val industryCategoryId = SelectedUnitManager.getSelectedCategoryId()
+            android.util.Log.d("HomeFragment", "选中单位的行业分类ID: $industryCategoryId")
+
+            // 从中间表获取该行业分类关联的模板ID列表
+            val templateIdsForIndustry = if (industryCategoryId != null && industryCategoryId > 0) {
+                documentRepository.getTemplateIdsByIndustryCategory(industryCategoryId).toSet()
+            } else {
+                emptySet()
+            }
+            android.util.Log.d("HomeFragment", "从中间表查询到的模板ID数量: ${templateIdsForIndustry.size}")
+
             documentRepository.getCategories().collect { categories ->
+                android.util.Log.d("HomeFragment", "=== categories Flow 触发 ===")
+                android.util.Log.d("HomeFragment", "分类数量: ${categories.size}")
                 if (categories.isEmpty()) {
                     binding.llDocumentCategories.visibility = View.GONE
+                    android.util.Log.d("HomeFragment", "分类为空，隐藏区域")
                     return@collect
+                }
+
+                binding.llDocumentCategories.visibility = View.VISIBLE
+
+                categories.forEach { c ->
+                    android.util.Log.d("HomeFragment", "  分类: id=${c.categoryId}, name=${c.categoryName}, displayType=${c.displayType}")
                 }
 
                 val categoryWithTemplatesList = mutableListOf<CategoryWithTemplates>()
                 for (category in categories) {
-                    documentRepository.getTemplatesByCategory(category.categoryId).collect { templates ->
-                        if (templates.isNotEmpty()) {
-                            val items = templates.map { TemplateItem(it.id, it.templateName) }
-                            categoryWithTemplatesList.add(CategoryWithTemplates(
-                                category.categoryId,
-                                category.categoryName,
-                                category.displayType,
-                                items
-                            ))
-                        }
+                    // 使用 first() 同步获取 Flow 的第一个值
+                    android.util.Log.d("HomeFragment", "查询分类[${category.categoryId}]的模板...")
+                    var templates = documentRepository.getTemplatesByCategory(category.categoryId).first()
+                    // 按行业分类过滤：如果选择了行业分类，从中间表获取模板ID进行过滤
+                    if (industryCategoryId != null && industryCategoryId > 0) {
+                        // 使用中间表关联进行过滤
+                        templates = templates.filter { it.id in templateIdsForIndustry }
+                        android.util.Log.d("HomeFragment", "按行业分类[$industryCategoryId]从中间表过滤后，分类[${category.categoryName}]的模板数量: ${templates.size}")
+                    } else {
+                        // 未选择行业分类时，只显示没有设置行业分类的模板（不在中间表中的）
+                        templates = templates.filter { it.id !in templateIdsForIndustry && (it.industryCategoryId == null || it.industryCategoryId == 0L) }
+                        android.util.Log.d("HomeFragment", "无行业分类过滤，分类[${category.categoryName}]的模板数量: ${templates.size}")
+                    }
+                    templates.takeIf { it.isNotEmpty() }?.forEach { t ->
+                        android.util.Log.d("HomeFragment", "  模板[id=${t.id}, name=${t.templateName}, categoryId=${t.categoryId}, industryCategoryId=${t.industryCategoryId}]")
+                    }
+                    if (templates.isNotEmpty()) {
+                        val items = templates.map { TemplateItem(it.id, it.templateName) }
+                        categoryWithTemplatesList.add(CategoryWithTemplates(
+                            category.categoryId,
+                            category.categoryName,
+                            category.displayType,
+                            items
+                        ))
                     }
                 }
+                android.util.Log.d("HomeFragment", "最终显示的分类数量: ${categoryWithTemplatesList.size}")
+
+                // 确保容器可见（即使列表为空也要显示标题区域）
+                binding.llDocumentCategories.visibility = View.VISIBLE
+
+                // 设置数据
                 categoryAdapter.submitList(categoryWithTemplatesList)
+                android.util.Log.d("HomeFragment", "after submitList, itemCount=${categoryAdapter.itemCount}")
             }
         }
     }

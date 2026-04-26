@@ -8,6 +8,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="id" column="id"/>
         <result property="templateId" column="template_id"/>
         <result property="industryCategoryId" column="industry_category_id"/>
+        <result property="createTime" column="create_time"/>
     </resultMap>
 
     <insert id="insertBatch" parameterType="java.util.List">
@@ -24,6 +25,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectByIndustryCategoryId" parameterType="Long" resultType="Long">
         SELECT template_id FROM sys_document_template_industry WHERE industry_category_id = #{industryCategoryId}
+    </select>
+
+    <select id="selectIndustryCategoryIdsByTemplateId" parameterType="Long" resultType="Long">
+        SELECT industry_category_id FROM sys_document_template_industry WHERE template_id = #{templateId}
     </select>
 
     <select id="selectAll" resultMap="BaseResultMap">

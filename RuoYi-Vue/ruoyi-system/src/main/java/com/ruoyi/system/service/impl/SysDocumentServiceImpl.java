@@ -137,6 +137,14 @@ public class SysDocumentServiceImpl implements ISysDocumentService {
     }
 
     /**
+     * 根据模板ID查询关联的行业分类ID列表
+     */
+    @Override
+    public List<Long> selectIndustryCategoryIdsByTemplateId(Long templateId) {
+        return sysDocumentTemplateIndustryMapper.selectIndustryCategoryIdsByTemplateId(templateId);
+    }
+
+    /**
      * 删除文书模板
      */
     @Override

@@ -2,6 +2,7 @@ package com.ruoyi.system.mapper;
 
 import java.util.List;
 import com.ruoyi.system.domain.SysDocumentTemplate;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 文书模板Mapper接口

@@ -1,11 +1,13 @@
 package com.ruoyi.app.sync
 
 import android.content.Context
+import android.util.Log
 import com.ruoyi.app.api.repository.CategoryRepository
 import com.ruoyi.app.api.repository.PhraseRepository
 import com.ruoyi.app.api.repository.UnitRepository
 import com.ruoyi.app.data.database.entity.UnitEntity
 import com.ruoyi.app.feature.law.repository.LawRepository
+import com.ruoyi.app.feature.document.repository.DocumentRepository
 import com.ruoyi.app.sync.model.SyncProgress
 import com.ruoyi.app.sync.model.SyncResult
 import com.ruoyi.app.sync.model.SyncStatus
@@ -43,6 +45,7 @@ class SyncManager private constructor() {
         const val MODULE_LAW = "法律法规"
         const val MODULE_PHRASE = "规范用语"
         const val MODULE_SUPERVISION = "监管事项"
+        const val MODULE_DOCUMENT_CATEGORY = "文书分类"
         const val MODULE_DOCUMENT_TEMPLATE = "文书模板"
         const val MODULE_MEDIA_FILE = "媒体文件"
         const val MODULE_ENFORCEMENT_RECORD = "执法记录"
@@ -56,6 +59,7 @@ class SyncManager private constructor() {
             MODULE_LAW,
             MODULE_PHRASE,
             MODULE_SUPERVISION,
+            MODULE_DOCUMENT_CATEGORY,
             MODULE_DOCUMENT_TEMPLATE,
             MODULE_MEDIA_FILE,
             MODULE_ENFORCEMENT_RECORD,
@@ -144,6 +148,7 @@ class SyncManager private constructor() {
                 MODULE_LAW -> syncLaw(context)
                 MODULE_PHRASE -> syncPhrase(context)
                 MODULE_SUPERVISION -> syncSupervision(context)
+                MODULE_DOCUMENT_CATEGORY -> syncDocumentCategory(context)
                 MODULE_DOCUMENT_TEMPLATE -> syncDocumentTemplate(context)
                 MODULE_MEDIA_FILE -> syncMediaFile(context)
                 MODULE_ENFORCEMENT_RECORD -> syncEnforcementRecord(context)
@@ -151,6 +156,7 @@ class SyncManager private constructor() {
                 else -> true
             }
         } catch (e: Exception) {
+            Log.e("SyncManager", "同步模块[$module]异常: ${e.message}", e)
             false
         }
     }
@@ -169,8 +175,13 @@ class SyncManager private constructor() {
         if (context == null) return false
         return try {
             val repository = CategoryRepository(context)
-            repository.syncCategoriesFromServer().isSuccess
+            val result = repository.syncCategoriesFromServer()
+            if (result.isFailure) {
+                Log.e("SyncManager", "行业分类同步失败: ${result.exceptionOrNull()?.message}", result.exceptionOrNull())
+            }
+            result.isSuccess
         } catch (e: Exception) {
+            Log.e("SyncManager", "行业分类同步异常: ${e.message}", e)
             false
         }
     }
@@ -182,18 +193,26 @@ class SyncManager private constructor() {
 
             // 1. 先上传本地待同步单位（避免被服务器数据覆盖）
             val pendingUnits = repository.getPendingUnits()
+            Log.d("SyncManager", "待上传单位数量: ${pendingUnits.size}")
             for (unit in pendingUnits) {
-                val uploadSuccess = uploadUnitToServer(context, unit)
-                if (uploadSuccess) {
+                val uploadResult = repository.uploadUnitToServer(unit)
+                if (uploadResult.isFailure) {
+                    Log.e("SyncManager", "上传单位[${unit.unitName}]失败: ${uploadResult.exceptionOrNull()?.message}", uploadResult.exceptionOrNull())
+                }
+                if (uploadResult.isSuccess) {
                     repository.markAsSynced(unit.unitId)
                 }
             }
 
             // 2. 再拉取服务器数据更新本地
-            val pullSuccess = repository.syncUnitsFromServer().isSuccess
+            val pullResult = repository.syncUnitsFromServer()
+            if (pullResult.isFailure) {
+                Log.e("SyncManager", "拉取单位列表失败: ${pullResult.exceptionOrNull()?.message}", pullResult.exceptionOrNull())
+            }
 
-            pullSuccess
+            pullResult.isSuccess
         } catch (e: Exception) {
+            Log.e("SyncManager", "执法单位同步异常: ${e.message}", e)
             false
         }
     }
@@ -210,14 +229,21 @@ class SyncManager private constructor() {
             val repository = LawRepository(context)
             // 同步法律法规主表
             val regulationResult = repository.syncRegulationsFromServer()
-            if (regulationResult.isFailure) return false
+            if (regulationResult.isFailure) {
+                Log.e("SyncManager", "法律法规同步失败: ${regulationResult.exceptionOrNull()?.message}", regulationResult.exceptionOrNull())
+                return false
+            }
 
             // 同步定性依据
             val basisResult = repository.syncLegalBasisesFromServer()
-            if (basisResult.isFailure) return false
+            if (basisResult.isFailure) {
+                Log.e("SyncManager", "定性依据同步失败: ${basisResult.exceptionOrNull()?.message}", basisResult.exceptionOrNull())
+                return false
+            }
 
             true
         } catch (e: Exception) {
+            Log.e("SyncManager", "法律法规同步异常: ${e.message}", e)
             false
         }
     }
@@ -227,8 +253,13 @@ class SyncManager private constructor() {
         if (context == null) return false
         return try {
             val repository = PhraseRepository(context)
-            repository.syncFullFromServer().isSuccess
+            val result = repository.syncFullFromServer()
+            if (result.isFailure) {
+                Log.e("SyncManager", "规范用语同步失败: ${result.exceptionOrNull()?.message}", result.exceptionOrNull())
+            }
+            result.isSuccess
         } catch (e: Exception) {
+            Log.e("SyncManager", "规范用语同步异常: ${e.message}", e)
             false
         }
     }
@@ -241,12 +272,36 @@ class SyncManager private constructor() {
         return true
     }
 
+    private suspend fun syncDocumentCategory(context: Context?): Boolean {
+        // 文书分类同步
+        if (context == null) return false
+        return try {
+            val repository = DocumentRepository(context)
+            repository.syncCategories()
+            Log.d("SyncManager", "文书分类同步成功")
+            true
+        } catch (e: Exception) {
+            Log.e("SyncManager", "文书分类同步异常: ${e.message}", e)
+            false
+        }
+    }
+
     private suspend fun syncDocumentTemplate(context: Context?): Boolean {
-        // 文书模板同步
-        // TODO: 调用后端 GET /document/template/list
-        // 存储到 document_template 表
-        delay(500) // 模拟网络请求
-        return true
+        // 文书模板同步（不包含分类，分类已单独同步）
+        if (context == null) return false
+        return try {
+            val repository = DocumentRepository(context)
+            // 同步模板
+            repository.syncTemplates()
+            // 同步套组
+            repository.syncGroups()
+            // 同步模板与行业分类关联
+            repository.syncTemplateIndustry()
+            true
+        } catch (e: Exception) {
+            Log.e("SyncManager", "文书模板同步异常: ${e.message}", e)
+            false
+        }
     }
 
     private suspend fun syncMediaFile(context: Context?): Boolean {

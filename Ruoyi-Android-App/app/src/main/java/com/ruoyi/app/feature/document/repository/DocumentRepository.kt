@@ -1,10 +1,12 @@
 package com.ruoyi.app.feature.document.repository
 
 import android.content.Context
+import android.util.Log
 import com.ruoyi.app.data.database.AppDatabase
 import com.ruoyi.app.data.database.entity.DocumentCategoryEntity
 import com.ruoyi.app.data.database.entity.DocumentGroupEntity
 import com.ruoyi.app.data.database.entity.DocumentTemplateEntity
+import com.ruoyi.app.data.database.entity.DocumentTemplateIndustryEntity
 import com.ruoyi.app.data.database.entity.DocumentVariableEntity
 import com.ruoyi.app.feature.document.api.DocumentApi
 import com.ruoyi.app.feature.document.model.DocumentCategory
@@ -24,6 +26,7 @@ class DocumentRepository(private val context: Context) {
     private val categoryDao = AppDatabase.getInstance(context).documentCategoryDao()
     private val groupDao = AppDatabase.getInstance(context).documentGroupDao()
     private val variableDao = AppDatabase.getInstance(context).documentVariableDao()
+    private val industryDao = AppDatabase.getInstance(context).documentTemplateIndustryDao()
 
     // ==================== 远程操作 ====================
 
@@ -32,8 +35,14 @@ class DocumentRepository(private val context: Context) {
      */
     suspend fun syncTemplates() = withContext(Dispatchers.IO) {
         val templates = DocumentApi.syncTemplates()
+        Log.d("DocumentRepository", "=== 文书模板同步 ===")
+        Log.d("DocumentRepository", "API 返回模板数量: ${templates.size}")
+        templates.forEach { t ->
+            Log.d("DocumentRepository", "  模板[id=${t.id}, name=${t.templateName}, categoryId=${t.categoryId}, category=${t.category}]")
+        }
         val entities = templates.map { it.toEntity() }
         templateDao.insertAll(entities)
+        Log.d("DocumentRepository", "模板已存入本地数据库")
     }
 
     /**
@@ -41,8 +50,18 @@ class DocumentRepository(private val context: Context) {
      */
     suspend fun syncCategories() = withContext(Dispatchers.IO) {
         val categories = DocumentApi.syncCategories()
+        Log.d("DocumentRepository", "=== 文书分类同步 ===")
+        Log.d("DocumentRepository", "API 返回分类数量: ${categories.size}")
+        categories.forEach { c ->
+            Log.d("DocumentRepository", "  分类[id=${c.categoryId}, name=${c.categoryName}, displayType=${c.displayType}]")
+        }
         val entities = categories.map { it.toEntity() }
         categoryDao.insertAll(entities)
+        Log.d("DocumentRepository", "分类已存入本地数据库")
+
+        // 验证插入结果
+        val count = categoryDao.getCategoryById(0)
+        Log.d("DocumentRepository", "插入后验证: categoryDao 查询结果 = $count")
     }
 
     /**
@@ -52,6 +71,27 @@ class DocumentRepository(private val context: Context) {
         val groups = DocumentApi.syncGroups()
         val entities = groups.map { it.toEntity() }
         groupDao.insertAll(entities)
+    }
+
+    /**
+     * 同步文书模板与行业分类关联到本地
+     */
+    suspend fun syncTemplateIndustry() = withContext(Dispatchers.IO) {
+        val relations = DocumentApi.syncTemplateIndustry()
+        Log.d("DocumentRepository", "=== 文书模板行业关联同步 ===")
+        Log.d("DocumentRepository", "API 返回关联数量: ${relations.size}")
+        relations.forEach { r ->
+            Log.d("DocumentRepository", "  关联[templateId=${r.templateId}, industryCategoryId=${r.industryCategoryId}]")
+        }
+        // 转换为实体并批量插入
+        val entities = relations.map {
+            DocumentTemplateIndustryEntity(
+                templateId = it.templateId,
+                industryCategoryId = it.industryCategoryId
+            )
+        }
+        industryDao.insertAll(entities)
+        Log.d("DocumentRepository", "模板行业关联已存入本地数据库")
     }
 
     /**
@@ -78,6 +118,13 @@ class DocumentRepository(private val context: Context) {
     }
 
     /**
+     * 根据分类名称获取模板
+     */
+    fun getTemplatesByCategoryName(categoryName: String): Flow<List<DocumentTemplateEntity>> {
+        return templateDao.getTemplatesByCategoryName(categoryName)
+    }
+
+    /**
      * 获取本地分类 Flow
      */
     fun getCategories(): Flow<List<DocumentCategoryEntity>> {
@@ -98,6 +145,13 @@ class DocumentRepository(private val context: Context) {
         variableDao.getVariablesByTemplateId(templateId)
     }
 
+    /**
+     * 根据行业分类ID获取模板ID列表（从中间表查询）
+     */
+    suspend fun getTemplateIdsByIndustryCategory(industryCategoryId: Long): List<Long> = withContext(Dispatchers.IO) {
+        industryDao.getTemplateIdsByIndustryCategory(industryCategoryId)
+    }
+
     // ==================== 转换方法 ====================
 
     private fun DocumentTemplate.toEntity() = DocumentTemplateEntity(
@@ -106,12 +160,14 @@ class DocumentRepository(private val context: Context) {
         templateName = templateName,
         templateType = templateType,
         category = category,
-        categoryId = 0,  // API返回的模板暂无categoryId，本地使用时通过关联获取
+        categoryId = categoryId,  // 使用API返回的categoryId
         sort = 0,
         filePath = filePath,
         fileUrl = fileUrl,
         version = version,
         isActive = isActive,
+        industryCategoryId = industryCategoryId,
+        industryCategoryName = industryCategoryName,
         syncTime = System.currentTimeMillis()
     )
 

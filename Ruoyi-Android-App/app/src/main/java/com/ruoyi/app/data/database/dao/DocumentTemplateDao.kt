@@ -16,8 +16,14 @@ interface DocumentTemplateDao {
     @Query("SELECT * FROM document_template WHERE isActive = '1' AND categoryId = :categoryId ORDER BY sort ASC, id ASC")
     fun getTemplatesByCategory(categoryId: Long): Flow<List<DocumentTemplateEntity>>
 
+    @Query("SELECT * FROM document_template WHERE isActive = '1' AND category = :categoryName ORDER BY sort ASC, id ASC")
+    fun getTemplatesByCategoryName(categoryName: String): Flow<List<DocumentTemplateEntity>>
+
     @Query("SELECT * FROM document_template WHERE isActive = '1' AND categoryId != 0 ORDER BY categoryId ASC, sort ASC, id ASC")
     fun getTemplatesWithCategory(): Flow<List<DocumentTemplateEntity>>
+
+    @Query("SELECT * FROM document_template WHERE isActive = '1' AND industryCategoryId = :industryCategoryId ORDER BY sort ASC, id ASC")
+    fun getTemplatesByIndustryCategory(industryCategoryId: Long): Flow<List<DocumentTemplateEntity>>
 
     @Query("SELECT * FROM document_template WHERE id = :id")
     suspend fun getTemplateById(id: Long): DocumentTemplateEntity?

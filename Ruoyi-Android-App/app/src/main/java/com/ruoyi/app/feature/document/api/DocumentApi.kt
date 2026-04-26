@@ -52,6 +52,14 @@ data class DocumentRecord(
 )
 
 /**
+ * 文书模板与行业分类关联
+ */
+data class DocumentTemplateIndustry(
+    val templateId: Long,
+    val industryCategoryId: Long
+)
+
+/**
  * 文书模板 API 接口
  */
 object DocumentApi {
@@ -99,6 +107,19 @@ object DocumentApi {
 
         val response = client.newCall(request).execute()
         parseCategoryListResponse(response.body?.string() ?: "")
+    }
+
+    /**
+     * 同步文书模板与行业分类关联(下行)
+     */
+    suspend fun syncTemplateIndustry(): List<DocumentTemplateIndustry> = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url("${ConfigApi.baseUrl}/api/admin/document/template/industry/sync")
+            .get()
+            .build()
+
+        val response = client.newCall(request).execute()
+        parseTemplateIndustryResponse(response.body?.string() ?: "")
     }
 
     /**
@@ -160,6 +181,24 @@ object DocumentApi {
         }
     }
 
+    private fun parseTemplateIndustryResponse(json: String): List<DocumentTemplateIndustry> {
+        return try {
+            val obj = JSONObject(json)
+            val dataArray = obj.optJSONArray("data") ?: JSONArray()
+            val relations = mutableListOf<DocumentTemplateIndustry>()
+            for (i in 0 until dataArray.length()) {
+                val itemObj = dataArray.getJSONObject(i)
+                relations.add(DocumentTemplateIndustry(
+                    templateId = itemObj.optLong("templateId", 0),
+                    industryCategoryId = itemObj.optLong("industryCategoryId", 0)
+                ))
+            }
+            relations
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
     private fun parseTemplateListResponse(json: String): List<DocumentTemplate> {
         return try {
             val obj = JSONObject(json)
@@ -216,10 +255,13 @@ object DocumentApi {
             templateName = obj.optString("templateName", ""),
             templateType = obj.optString("templateType", null),
             category = obj.optString("category", null),
+            categoryId = obj.optLong("categoryId", 0),
             filePath = obj.optString("filePath", null),
             fileUrl = obj.optString("fileUrl", null),
             version = obj.optInt("version", 1),
-            isActive = obj.optString("isActive", "1")
+            isActive = obj.optString("isActive", "1"),
+            industryCategoryId = if (obj.has("industryCategoryId") && !obj.isNull("industryCategoryId")) obj.optLong("industryCategoryId") else null,
+            industryCategoryName = obj.optString("industryCategoryName", null)
         )
     }
 

@@ -86,6 +86,14 @@ public interface ISysDocumentService {
      */
     List<SysDocumentTemplate> selectByTemplateIds(List<Long> templateIds);
 
+    /**
+     * 根据模板ID查询关联的行业分类ID列表
+     *
+     * @param templateId 模板ID
+     * @return 行业分类ID列表
+     */
+    List<Long> selectIndustryCategoryIdsByTemplateId(Long templateId);
+
     // 文书模板变量
 
     /**

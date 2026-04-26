@@ -18,5 +18,7 @@ public interface SysDocumentTemplateIndustryMapper {
 
     List<Long> selectByIndustryCategoryId(Long industryCategoryId);
 
+    List<Long> selectIndustryCategoryIdsByTemplateId(Long templateId);
+
     List<SysDocumentTemplateIndustry> selectAll();
 }

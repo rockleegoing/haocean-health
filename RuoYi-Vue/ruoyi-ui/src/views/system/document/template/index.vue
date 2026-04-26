@@ -9,13 +9,23 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="模板类型" prop="templateType">
-        <el-select v-model="queryParams.templateType" placeholder="请选择模板类型" clearable>
+      <el-form-item label="所属分类" prop="categoryId">
+        <el-select v-model="queryParams.categoryId" placeholder="请选择所属分类" clearable style="width: 100%">
           <el-option
-            v-for="item in templateTypeOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+            v-for="item in categoryOptions"
+            :key="item.categoryId"
+            :label="item.categoryName"
+            :value="item.categoryId"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="行业分类" prop="industryCategoryId">
+        <el-select v-model="queryParams.industryCategoryId" placeholder="请选择行业分类" clearable style="width: 100%">
+          <el-option
+            v-for="item in industryCategoryOptions"
+            :key="item.categoryId"
+            :label="item.categoryName"
+            :value="item.categoryId"
           />
         </el-select>
       </el-form-item>
@@ -63,7 +73,7 @@
 
     <el-table v-loading="loading" :data="templateList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="模板ID" align="center" prop="templateId" />
+      <el-table-column label="模板ID" align="center" prop="id" />
       <el-table-column label="模板编码" align="center" prop="templateCode" />
       <el-table-column label="模板名称" align="center" prop="templateName" />
       <el-table-column label="模板类型" align="center" prop="templateType">
@@ -71,6 +81,8 @@
           <span>{{ getTemplateTypeLabel(scope.row.templateType) }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="所属分类" align="center" prop="category" />
+      <el-table-column label="行业分类" align="center" prop="industryCategoryName" />
       <el-table-column label="版本" align="center" prop="version" width="80" />
       <el-table-column label="状态" align="center" prop="isActive" width="80">
         <template slot-scope="scope">
@@ -115,13 +127,23 @@
         <el-form-item label="模板名称" prop="templateName">
           <el-input v-model="form.templateName" placeholder="请输入模板名称" />
         </el-form-item>
-        <el-form-item label="模板类型" prop="templateType">
-          <el-select v-model="form.templateType" placeholder="请选择模板类型" style="width: 100%">
+        <el-form-item label="所属分类" prop="categoryId">
+          <el-select v-model="form.categoryId" placeholder="请选择所属分类" @change="handleCategoryChange" style="width: 100%">
             <el-option
-              v-for="item in templateTypeOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="item in categoryOptions"
+              :key="item.categoryId"
+              :label="item.categoryName"
+              :value="item.categoryId"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="行业分类" prop="industryCategoryIds">
+          <el-select v-model="form.industryCategoryIds" multiple placeholder="请选择行业分类" style="width: 100%">
+            <el-option
+              v-for="item in industryCategoryOptions"
+              :key="item.categoryId"
+              :label="item.categoryName"
+              :value="item.categoryId"
             />
           </el-select>
         </el-form-item>
@@ -159,6 +181,8 @@
 
 <script>
 import { listTemplate, getTemplate, addTemplate, updateTemplate, delTemplate } from "@/api/system/document"
+import { listCategory } from "@/api/system/documentCategory"
+import { listCategory as listIndustryCategory } from "@/api/system/category"
 
 export default {
   name: "DocumentTemplate",
@@ -182,20 +206,19 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
-      // 模板类型选项
-      templateTypeOptions: [
-        { label: '现场笔录类', value: 'SCENE_RECORD' },
-        { label: '询问笔录类', value: 'INQUIRY_RECORD' },
-        { label: '行政强制类', value: 'ADMIN_FORCE' },
-        { label: '行政处罚类', value: 'ADMIN_PUNISH' },
-        { label: '其他', value: 'OTHER' }
-      ],
+      // 分类选项
+      categoryOptions: [],
+      // 行业分类选项
+      industryCategoryOptions: [],
+      // 模板类型选项（保留用于搜索）
+      templateTypeOptions: [],
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
         templateName: null,
-        templateType: null,
+        categoryId: null,
+        industryCategoryId: null,
       },
       // 表单参数
       form: {},
@@ -212,16 +235,39 @@ export default {
   },
   created() {
     this.getList()
+    this.getCategoryOptions()
+    this.getIndustryCategoryOptions()
   },
   methods: {
     /** 查询模板列表 */
     getList() {
       this.loading = true
       listTemplate(this.queryParams).then(response => {
-        this.templateList = response.rows
-        this.total = response.total
+        // 处理两种响应结构：response.rows 或 response.data.rows
+        this.templateList = response.rows || (response.data && response.data.rows) || []
+        this.total = response.total || (response.data && response.data.total) || 0
         this.loading = false
       })
+    },
+    /** 获取分类选项 */
+    getCategoryOptions() {
+      listCategory().then(response => {
+        this.categoryOptions = response.rows || (response.data && response.data.rows) || []
+      })
+    },
+    /** 获取行业分类选项 */
+    getIndustryCategoryOptions() {
+      listIndustryCategory().then(response => {
+        this.industryCategoryOptions = response.rows || (response.data && response.data.rows) || []
+      })
+    },
+    /** 分类选择变更 */
+    handleCategoryChange(categoryId) {
+      if (!this.categoryOptions || !categoryId) return
+      const category = this.categoryOptions.find(c => c.categoryId === categoryId)
+      if (category) {
+        this.form.category = category.categoryName
+      }
     },
     // 取消按钮
     cancel() {
@@ -234,6 +280,9 @@ export default {
         id: null,
         templateCode: null,
         templateName: null,
+        categoryId: null,
+        category: null,
+        industryCategoryIds: [],
         templateType: null,
         fileUrl: null,
         version: '1.0',
@@ -270,6 +319,12 @@ export default {
       const templateId = row.id || this.ids
       getTemplate(templateId).then(response => {
         this.form = response.data
+        // 设置行业分类ID列表（从中间表关联获取）
+        if (response.data.industryCategoryIds) {
+          this.form.industryCategoryIds = response.data.industryCategoryIds
+        } else {
+          this.form.industryCategoryIds = []
+        }
         this.open = true
         this.title = "修改文书模板"
       })
@@ -315,6 +370,8 @@ export default {
     },
     /** 获取模板类型标签 */
     getTemplateTypeLabel(value) {
+      if (!value) return ''
+      // 如果有模板类型选项则查找标签，否则直接返回值
       const item = this.templateTypeOptions.find(opt => opt.value === value)
       return item ? item.label : value
     }

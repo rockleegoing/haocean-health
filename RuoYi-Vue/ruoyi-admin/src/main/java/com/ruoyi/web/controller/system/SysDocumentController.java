@@ -41,7 +41,9 @@ public class SysDocumentController extends BaseController {
     @GetMapping("/template/{id}")
     public AjaxResult getTemplateInfo(@PathVariable("id") Long id) {
         SysDocumentTemplate template = sysDocumentService.selectSysDocumentTemplateById(id);
-        return AjaxResult.success(template);
+        // 获取关联的行业分类ID列表
+        List<Long> industryCategoryIds = sysDocumentService.selectIndustryCategoryIdsByTemplateId(id);
+        return AjaxResult.success(template).put("industryCategoryIds", industryCategoryIds);
     }
 
     /**
