@@ -258,6 +258,12 @@ export default {
   methods: {
     /** 查询条款列表 */
     getList() {
+      if (!this.queryParams.regulationId) {
+        this.articleList = []
+        this.total = 0
+        this.loading = false
+        return
+      }
       this.loading = true
       // 使用条款列表接口，按 regulationId 筛选，支持后端分页
       getArticleList(this.queryParams.regulationId, {
