@@ -244,6 +244,7 @@
         <el-descriptions-item label="备注" :span="2">{{ detailData.remark }}</el-descriptions-item>
       </el-descriptions>
       <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="handleManageChapters">管理章节</el-button>
         <el-button @click="detailOpen = false">关 闭</el-button>
       </div>
     </el-dialog>
@@ -378,6 +379,13 @@ export default {
       getRegulation(row.regulationId).then(response => {
         this.detailData = response.data || {}
         this.detailOpen = true
+      })
+    },
+    /** 管理章节按钮操作 */
+    handleManageChapters() {
+      this.$router.push({
+        path: '/system/regulation/chapter',
+        query: { regulationId: this.detailData.regulationId }
       })
     },
     /** 提交按钮 */
