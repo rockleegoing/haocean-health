@@ -233,7 +233,7 @@ git commit -m "fix(backend): 添加条款列表分页和章节筛选支持"
 
 ## 阶段二：后台管理端 - 导入导出功能
 
-### Task 3: Excel 导入导出
+### Task 3: Excel + JSON 导入导出
 
 **Files:**
 - Create: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/vo/RegulationImportVo.java` (新增)
@@ -725,6 +725,12 @@ git commit -m "feat(android): 添加增量同步时间参数支持"
 
 ### Task 9: 实现混合模式同步逻辑
 
+**注意：** LawSyncManager 中调用的 DAO 方法已在现有代码中存在：
+- `RegulationDao.insertRegulations(List)` ✓ 存在
+- `ChapterDao.insertChapters(List)` ✓ 存在
+- `ArticleDao.insertArticles(List)` ✓ 存在
+- `LegalBasisDao.insertLegalBasises(List)` ✓ 存在
+
 **Files:**
 - Create: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/sync/LawSyncManager.kt`
 - Modify: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/repository/LawRepository.kt`
@@ -1142,8 +1148,8 @@ class RegulationDetailActivity : AppCompatActivity() {
                 } else {
                     expandedChapters.add(chapter.chapterId)
                 }
-                // 重新加载并刷新
-                loadData(intent.getLongExtra("regulation_id", 0))
+                // 重新构建列表（不重新查询数据库）
+                rebuildTreeItems()
             },
             onArticleClick = { article ->
                 // 跳转到条款详情
@@ -1157,45 +1163,57 @@ class RegulationDetailActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
     }
 
+    private var chaptersCache: List<RegulationChapterEntity> = emptyList()
+    private var articlesCache: List<RegulationArticleEntity> = emptyList()
+
     private fun loadData(regulationId: Long) {
         lifecycleScope.launch {
-            repository.getChaptersByRegulationId(regulationId).collectLatest { chapters ->
-                val treeItems = mutableListOf<ChapterTreeItem>()
+            // 并行加载章节和条款
+            val chaptersDeferred = async { repository.getChaptersByRegulationId(regulationId).first() }
+            val articlesDeferred = async { repository.getArticlesByRegulationId(regulationId).first() }
 
-                for (chapter in chapters) {
-                    val chapterItem = ChapterTreeItem.Chapter(
-                        chapterId = chapter.chapterId,
-                        chapterNo = chapter.chapterNo,
-                        chapterTitle = chapter.chapterTitle,
-                        hasArticles = true,
-                        isExpanded = expandedChapters.contains(chapter.chapterId)
+            chaptersCache = chaptersDeferred.await()
+            articlesCache = articlesDeferred.await()
+
+            rebuildTreeItems()
+        }
+    }
+
+    private fun rebuildTreeItems() {
+        val treeItems = mutableListOf<ChapterTreeItem>()
+
+        for (chapter in chaptersCache) {
+            val chapterItem = ChapterTreeItem.Chapter(
+                chapterId = chapter.chapterId,
+                chapterNo = chapter.chapterNo,
+                chapterTitle = chapter.chapterTitle,
+                hasArticles = articlesCache.any { it.chapterId == chapter.chapterId },
+                isExpanded = expandedChapters.contains(chapter.chapterId)
+            )
+            treeItems.add(chapterItem)
+
+            // 如果展开，显示条款
+            if (expandedChapters.contains(chapter.chapterId)) {
+                val chapterArticles = articlesCache.filter { it.chapterId == chapter.chapterId }
+                for (article in chapterArticles) {
+                    treeItems.add(
+                        ChapterTreeItem.Article(
+                            articleId = article.articleId,
+                            chapterId = article.chapterId,
+                            articleNo = article.articleNo,
+                            content = article.content
+                        )
                     )
-                    treeItems.add(chapterItem)
-
-                    // 如果展开，显示条款
-                    if (expandedChapters.contains(chapter.chapterId)) {
-                        repository.getArticlesByRegulationId(regulationId).collectLatest { articles ->
-                            val chapterArticles = articles.filter { it.chapterId == chapter.chapterId }
-                            for (article in chapterArticles) {
-                                treeItems.add(
-                                    ChapterTreeItem.Article(
-                                        articleId = article.articleId,
-                                        chapterId = article.chapterId,
-                                        articleNo = article.articleNo,
-                                        content = article.content
-                                    )
-                                )
-                            }
-                        }
-                    }
                 }
-
-                adapter.submitList(treeItems)
             }
         }
+
+        adapter.submitList(treeItems)
     }
 }
 ```
+
+**注意：** 使用 `first()` 替代 `collectLatest` 在循环中，正确获取一次性数据后再构建树状列表。
 
 - [ ] **Step 5: 提交**
 
@@ -1214,11 +1232,50 @@ git commit -m "feat(android): 实现法规详情页章节条款树状结构"
 ### Task 11: 定性依据详情页添加复制功能
 
 **Files:**
+- Modify: `Ruoyi-Android-App/app/src/main/res/layout/activity_legal_basis_detail.xml`
 - Modify: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/ui/basis/LegalBasisDetailActivity.kt`
 
-- [ ] **Step 1: 修改 LegalBasisDetailActivity.kt - 添加条款内容复制按钮**
+- [ ] **Step 1: 修改 activity_legal_basis_detail.xml - 在条款内容区域添加复制按钮**
 
-在布局中添加复制按钮和剪贴板逻辑：
+在条款内容 TextView 后添加复制按钮：
+
+```xml
+<!-- 条款内容 -->
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="条款内容"
+    android:textSize="15sp"
+    android:textColor="@color/black"
+    android:textStyle="bold"/>
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_marginTop="8dp">
+
+    <TextView
+        android:id="@+id/tv_clauses"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="14sp"
+        android:textColor="@color/color_6"
+        android:lineSpacingExtra="4dp"/>
+
+    <ImageButton
+        android:id="@+id/btn_copy_clauses"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@android:drawable/ic_menu_share"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="复制条款内容"/>
+</LinearLayout>
+```
+
+- [ ] **Step 2: 修改 LegalBasisDetailActivity.kt - 添加复制逻辑**
 
 ```kotlin
 class LegalBasisDetailActivity : AppCompatActivity() {
@@ -1251,19 +1308,10 @@ class LegalBasisDetailActivity : AppCompatActivity() {
 }
 ```
 
-- [ ] **Step 2: 在布局 XML 中添加复制按钮**
-
-```xml
-<Button
-    android:id="@+id/btnCopyClauses"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="复制条款内容" />
-```
-
 - [ ] **Step 3: 提交**
 
 ```bash
+git add Ruoyi-Android-App/app/src/main/res/layout/activity_legal_basis_detail.xml
 git add Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/ui/basis/LegalBasisDetailActivity.kt
 git commit -m "feat(android): 定性依据详情页添加条款复制功能"
 ```
@@ -1275,30 +1323,47 @@ git commit -m "feat(android): 定性依据详情页添加条款复制功能"
 ### Task 12: 添加前端菜单
 
 **Files:**
-- Modify: `RuoYi-Vue/sql/V1.1.6__document_mock_data.sql` (如需添加菜单)
-- 或通过后台管理界面添加
+- Create: `RuoYi-Vue/sql/V1.1.7__regulation_menu.sql`
 
-- [ ] **Step 1: 添加导入导出菜单**
+- [ ] **Step 1: 创建菜单SQL脚本**
 
-通过后台管理界面添加以下菜单：
+```sql
+-- ============================================
+-- 脚本：V1.1.7__regulation_menu.sql
+-- 版本：1.1.7
+-- 日期：2026-04-26
+-- 描述：添加法律法规批量操作菜单
+-- ============================================
 
-```
-法律法规管理
-├── 法规管理
-├── 章节管理
-├── 条款管理
-├── 定性依据管理
-└── 批量操作 (按钮级权限)
-    ├── 导入Excel
-    ├── 导出Excel
-    ├── 导入JSON
-    └── 导出JSON
+-- 批量操作菜单（按钮级权限）
+-- menu_name: 批量操作, order_num: 6, path: /system/regulation/batch
+INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
+VALUES ('批量操作', (SELECT menu_id FROM sys_menu WHERE menu_name = '法律法规管理'), 6, '/system/regulation/batch', 'system/regulation/batch/index', 1, 0, 'F', '0', '0', '', 'btn', 'admin', NOW(), '批量操作菜单');
+
+-- 获取刚插入的批量操作菜单ID
+SET @parent_id = (SELECT menu_id FROM sys_menu WHERE menu_name = '批量操作' AND parent_id = (SELECT menu_id FROM sys_menu WHERE menu_name = '法律法规管理'));
+
+-- 导入Excel
+INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
+VALUES ('导入Excel', @parent_id, 1, '', '', 1, 0, 'F', '0', '0', 'system:regulation:import', '#', 'admin', NOW(), '导入Excel权限');
+
+-- 导出Excel
+INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
+VALUES ('导出Excel', @parent_id, 2, '', '', 1, 0, 'F', '0', '0', 'system:regulation:export', '#', 'admin', NOW(), '导出Excel权限');
+
+-- 导入JSON
+INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
+VALUES ('导入JSON', @parent_id, 3, '', '', 1, 0, 'F', '0', '0', 'system:regulation:importJson', '#', 'admin', NOW(), '导入JSON权限');
+
+-- 导出JSON
+INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
+VALUES ('导出JSON', @parent_id, 4, '', '', 1, 0, 'F', '0', '0', 'system:regulation:exportJson', '#', 'admin', NOW(), '导出JSON权限');
 ```
 
 - [ ] **Step 2: 提交**
 
 ```bash
-git add RuoYi-Vue/sql/V1.1.6__document_mock_data.sql
+git add RuoYi-Vue/sql/V1.1.7__regulation_menu.sql
 git commit -m "docs: 添加法律法规批量操作菜单SQL"
 ```
 
