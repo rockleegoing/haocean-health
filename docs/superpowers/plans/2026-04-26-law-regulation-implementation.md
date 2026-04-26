@@ -236,62 +236,209 @@ git commit -m "fix(backend): 添加条款列表分页和章节筛选支持"
 ### Task 3: Excel 导入导出
 
 **Files:**
-- Create: `RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysRegulationController.java` (修改)
-- Create: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/service/ISysRegulationService.java` (修改)
-- Create: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/service/impl/SysRegulationServiceImpl.java` (修改)
 - Create: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/vo/RegulationImportVo.java` (新增)
+- Create: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/vo/ChapterImportVo.java` (新增)
+- Create: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/vo/ArticleImportVo.java` (新增)
+- Modify: `RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysRegulationController.java`
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/service/ISysRegulationService.java`
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/service/impl/SysRegulationServiceImpl.java`
 
-- [ ] **Step 1: 添加 Apache POI 依赖**
+- [ ] **Step 1: 创建 ArticleImportVo.java**
 
-检查 `pom.xml` 是否已有 poi 和 poi-ooxml 依赖，如有则跳过
+```java
+package com.ruoyi.system.domain.vo;
 
-```xml
-<!-- 如需添加 -->
-<dependency>
-    <groupId>org.apache.poi</groupId>
-    <artifactId>poi-ooxml</artifactId>
-    <version>4.1.2</version>
-</dependency>
+public class ArticleImportVo {
+    private String articleNo;
+    private String content;
+    private Integer sortOrder;
+
+    public String getArticleNo() { return articleNo; }
+    public void setArticleNo(String articleNo) { this.articleNo = articleNo; }
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+    public Integer getSortOrder() { return sortOrder; }
+    public void setSortOrder(Integer sortOrder) { this.sortOrder = sortOrder; }
+}
 ```
 
-- [ ] **Step 2: 创建 RegulationImportVo.java**
+- [ ] **Step 2: 创建 ChapterImportVo.java**
 
 ```java
 package com.ruoyi.system.domain.vo;
 
 import java.util.List;
-import com.ruoyi.common.annotation.Excel;
 
-public class RegulationImportVo {
-    @Excel(name = "法律名称")
-    private String title;
+public class ChapterImportVo {
+    private String chapterNo;
+    private String chapterTitle;
+    private Integer sortOrder;
+    private List<ArticleImportVo> articles;
 
-    @Excel(name = "法律类型")
-    private String legalType;
-
-    @Excel(name = "监管类型")
-    private String supervisionTypes;
-
-    @Excel(name = "发布日期")
-    private String publishDate;
-
-    @Excel(name = "实施日期")
-    private String effectiveDate;
-
-    @Excel(name = "颁发机构")
-    private String issuingAuthority;
-
-    @Excel(name = "完整内容")
-    private String content;
-
-    // 嵌套章节和条款
-    private List<ChapterImportVo> chapters;
-
-    // getters and setters...
+    public String getChapterNo() { return chapterNo; }
+    public void setChapterNo(String chapterNo) { this.chapterNo = chapterNo; }
+    public String getChapterTitle() { return chapterTitle; }
+    public void setChapterTitle(String chapterTitle) { this.chapterTitle = chapterTitle; }
+    public Integer getSortOrder() { return sortOrder; }
+    public void setSortOrder(Integer sortOrder) { this.sortOrder = sortOrder; }
+    public List<ArticleImportVo> getArticles() { return articles; }
+    public void setArticles(List<ArticleImportVo> articles) { this.articles = articles; }
 }
 ```
 
-- [ ] **Step 3: 修改 SysRegulationController.java - 添加导出方法**
+- [ ] **Step 3: 创建 RegulationImportVo.java**
+
+```java
+package com.ruoyi.system.domain.vo;
+
+import java.util.List;
+
+public class RegulationImportVo {
+    private String title;
+    private String legalType;
+    private String supervisionTypes;
+    private String publishDate;
+    private String effectiveDate;
+    private String issuingAuthority;
+    private String content;
+    private List<ChapterImportVo> chapters;
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getLegalType() { return legalType; }
+    public void setLegalType(String legalType) { this.legalType = legalType; }
+    public String getSupervisionTypes() { return supervisionTypes; }
+    public void setSupervisionTypes(String supervisionTypes) { this.supervisionTypes = supervisionTypes; }
+    public String getPublishDate() { return publishDate; }
+    public void setPublishDate(String publishDate) { this.publishDate = publishDate; }
+    public String getEffectiveDate() { return effectiveDate; }
+    public void setEffectiveDate(String effectiveDate) { this.effectiveDate = effectiveDate; }
+    public String getIssuingAuthority() { return issuingAuthority; }
+    public void setIssuingAuthority(String issuingAuthority) { this.issuingAuthority = issuingAuthority; }
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+    public List<ChapterImportVo> getChapters() { return chapters; }
+    public void setChapters(List<ChapterImportVo> chapters) { this.chapters = chapters; }
+}
+```
+
+- [ ] **Step 4: 修改 ISysRegulationService.java - 添加导入方法**
+
+```java
+/**
+ * 批量导入法律法规（支持章节和条款）
+ * @param regulations 法规列表
+ * @param updateSupport 是否支持更新
+ * @param operName 操作人
+ * @return 导入结果
+ */
+public Map<String, Object> importRegulation(List<RegulationImportVo> regulations, boolean updateSupport, String operName);
+```
+
+- [ ] **Step 5: 修改 SysRegulationServiceImpl.java - 实现导入逻辑**
+
+```java
+@Override
+public Map<String, Object> importRegulation(List<RegulationImportVo> regulations, boolean updateSupport, String operName) {
+    Map<String, Object> result = new HashMap<>();
+    int successCount = 0;
+    int failCount = 0;
+    List<String> errors = new ArrayList<>();
+
+    for (int i = 0; i < regulations.size(); i++) {
+        RegulationImportVo vo = regulations.get(i);
+        try {
+            // 校验必填字段
+            if (StringUtils.isEmpty(vo.getTitle()) || StringUtils.isEmpty(vo.getLegalType())) {
+                errors.add("第" + (i+1) + "条：法律名称和法律类型不能为空");
+                failCount++;
+                continue;
+            }
+
+            // 检查是否已存在
+            SysRegulation existReg = new SysRegulation();
+            existReg.setTitle(vo.getTitle());
+            List<SysRegulation> existList = selectSysRegulationList(existReg);
+
+            Long regulationId;
+            if (!existList.isEmpty() && updateSupport) {
+                // 更新模式
+                SysRegulation updateReg = existList.get(0);
+                updateReg.setLegalType(vo.getLegalType());
+                updateReg.setSupervisionTypes(vo.getSupervisionTypes());
+                updateReg.setPublishDate(vo.getPublishDate());
+                updateReg.setEffectiveDate(vo.getEffectiveDate());
+                updateReg.setIssuingAuthority(vo.getIssuingAuthority());
+                updateReg.setContent(vo.getContent());
+                updateReg.setUpdateBy(operName);
+                updateSysRegulation(updateReg);
+                regulationId = updateReg.getRegulationId();
+            } else if (!existList.isEmpty()) {
+                errors.add("第" + (i+1) + "条：法律名称已存在（" + vo.getTitle() + "），跳过导入");
+                failCount++;
+                continue;
+            } else {
+                // 新增模式
+                SysRegulation newReg = new SysRegulation();
+                newReg.setTitle(vo.getTitle());
+                newReg.setLegalType(vo.getLegalType());
+                newReg.setSupervisionTypes(vo.getSupervisionTypes());
+                newReg.setPublishDate(vo.getPublishDate());
+                newReg.setEffectiveDate(vo.getEffectiveDate());
+                newReg.setIssuingAuthority(vo.getIssuingAuthority());
+                newReg.setContent(vo.getContent());
+                newReg.setCreateBy(operName);
+                insertSysRegulation(newReg);
+                regulationId = newReg.getRegulationId();
+            }
+
+            // 导入章节和条款
+            if (vo.getChapters() != null) {
+                for (ChapterImportVo chapterVo : vo.getChapters()) {
+                    if (StringUtils.isEmpty(chapterVo.getChapterNo()) && StringUtils.isEmpty(chapterVo.getChapterTitle())) {
+                        continue;
+                    }
+                    SysRegulationChapter chapter = new SysRegulationChapter();
+                    chapter.setRegulationId(regulationId);
+                    chapter.setChapterNo(chapterVo.getChapterNo());
+                    chapter.setChapterTitle(chapterVo.getChapterTitle());
+                    chapter.setSortOrder(chapterVo.getSortOrder() != null ? chapterVo.getSortOrder() : 0);
+                    chapter.setCreateBy(operName);
+                    insertSysRegulationChapter(chapter);
+
+                    // 导入条款
+                    if (chapterVo.getArticles() != null) {
+                        for (ArticleImportVo articleVo : chapterVo.getArticles()) {
+                            if (StringUtils.isEmpty(articleVo.getArticleNo()) && StringUtils.isEmpty(articleVo.getContent())) {
+                                continue;
+                            }
+                            SysRegulationArticle article = new SysRegulationArticle();
+                            article.setRegulationId(regulationId);
+                            article.setChapterId(chapter.getChapterId());
+                            article.setArticleNo(articleVo.getArticleNo());
+                            article.setContent(articleVo.getContent());
+                            article.setSortOrder(articleVo.getSortOrder() != null ? articleVo.getSortOrder() : 0);
+                            article.setCreateBy(operName);
+                            insertSysRegulationArticle(article);
+                        }
+                    }
+                }
+            }
+            successCount++;
+        } catch (Exception e) {
+            errors.add("第" + (i+1) + "条：导入失败 - " + e.getMessage());
+            failCount++;
+        }
+    }
+
+    result.put("success", successCount);
+    result.put("fail", failCount);
+    result.put("errors", errors);
+    return result;
+}
+```
+
+- [ ] **Step 6: 修改 SysRegulationController.java - 添加导出导入方法**
 
 ```java
 /**
@@ -299,20 +446,9 @@ public class RegulationImportVo {
  */
 @Anonymous
 @GetMapping("/export")
-public AjaxResult export(SysRegulation sysRegulation) {
+public void export(HttpServletResponse response, SysRegulation sysRegulation) {
     List<SysRegulation> list = sysRegulationService.selectSysRegulationList(sysRegulation);
-    List<RegulationExportVo> exportList = list.stream().map(reg -> {
-        RegulationExportVo vo = new RegulationExportVo();
-        vo.setTitle(reg.getTitle());
-        vo.setLegalType(reg.getLegalType());
-        vo.setSupervisionTypes(reg.getSupervisionTypes());
-        vo.setPublishDate(reg.getPublishDate());
-        vo.setEffectiveDate(reg.getEffectiveDate());
-        vo.setIssuingAuthority(reg.getIssuingAuthority());
-        vo.setStatus(reg.getStatus());
-        return vo;
-    }).collect(Collectors.toList());
-    return exportList;
+    ExcelUtil.exportExcel(response, list, "法律法规数据", SysRegulation.class);
 }
 
 /**
@@ -320,34 +456,13 @@ public AjaxResult export(SysRegulation sysRegulation) {
  */
 @Anonymous
 @PostMapping("/import")
-public AjaxResult importExcel(MultipartFile file) throws Exception {
+public AjaxResult importExcel(MultipartFile file, boolean updateSupport) throws Exception {
     List<RegulationImportVo> voList = ExcelUtil.importExcel(file.getInputStream(), RegulationImportVo.class);
-    // 校验并导入
-    // ... 实现导入逻辑 ...
-    return AjaxResult.success("导入成功");
+    String operName = getUsername();
+    Map<String, Object> result = sysRegulationService.importRegulation(voList, updateSupport, operName);
+    return AjaxResult.success("导入成功，成功" + result.get("success") + "条，失败" + result.get("fail") + "条", result.get("errors"));
 }
-```
 
-- [ ] **Step 4: 提交**
-
-```bash
-git add RuoYi-Vue/ruoyi-system/.../domain/vo/RegulationImportVo.java
-git add RuoYi-Vue/ruoyi-admin/.../SysRegulationController.java
-git commit -m "feat(backend): 添加法律法规Excel导入导出功能"
-```
-
----
-
-### Task 4: JSON 导入导出
-
-**Files:**
-- Modify: `RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysRegulationController.java`
-- Modify: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/service/ISysRegulationService.java`
-- Modify: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/service/impl/SysRegulationServiceImpl.java`
-
-- [ ] **Step 1: 修改 SysRegulationController.java - 添加 JSON 导出**
-
-```java
 /**
  * 导出法律法规 JSON
  */
@@ -355,15 +470,19 @@ git commit -m "feat(backend): 添加法律法规Excel导入导出功能"
 @GetMapping("/export/json")
 public void exportJson(HttpServletResponse response, SysRegulation sysRegulation) {
     List<SysRegulation> list = sysRegulationService.selectSysRegulationList(sysRegulation);
-    // 获取完整的章节和条款数据
-    List<RegulationFullVo> fullList = list.stream().map(reg -> {
-        RegulationFullVo vo = new RegulationFullVo();
-        BeanUtils.copyProperties(reg, vo);
-        vo.setChapters(sysRegulationService.selectChapterListByRegulationId(reg.getRegulationId()));
-        vo.setArticles(sysRegulationService.selectArticleListByRegulationId(reg.getRegulationId()));
-        return vo;
-    }).collect(Collectors.toList());
-
+    List<Map<String, Object>> fullList = new ArrayList<>();
+    for (SysRegulation reg : list) {
+        Map<String, Object> regMap = new HashMap<>();
+        regMap.put("title", reg.getTitle());
+        regMap.put("legalType", reg.getLegalType());
+        regMap.put("supervisionTypes", reg.getSupervisionTypes());
+        regMap.put("publishDate", reg.getPublishDate());
+        regMap.put("effectiveDate", reg.getEffectiveDate());
+        regMap.put("issuingAuthority", reg.getIssuingAuthority());
+        regMap.put("content", reg.getContent());
+        regMap.put("chapters", sysRegulationService.selectChapterListByRegulationId(reg.getRegulationId()));
+        fullList.add(regMap);
+    }
     response.setContentType("application/json;charset=utf-8");
     response.setCharacterEncoding("utf-8");
     try (PrintWriter writer = response.getWriter()) {
@@ -377,46 +496,24 @@ public void exportJson(HttpServletResponse response, SysRegulation sysRegulation
 @Anonymous
 @PostMapping("/import/json")
 public AjaxResult importJson(@RequestBody List<RegulationImportVo> voList) {
-    int successCount = 0;
-    List<String> errors = new ArrayList<>();
-    for (int i = 0; i < voList.size(); i++) {
-        try {
-            RegulationImportVo vo = voList.get(i);
-            // 校验必填字段
-            if (StringUtils.isEmpty(vo.getTitle()) || StringUtils.isEmpty(vo.getLegalType())) {
-                errors.add("第" + (i+1) + "条：法律名称和法律类型不能为空");
-                continue;
-            }
-            // 导入法规
-            SysRegulation reg = new SysRegulation();
-            BeanUtils.copyProperties(vo, reg);
-            sysRegulationService.insertSysRegulation(reg);
-            // 导入章节和条款
-            if (vo.getChapters() != null) {
-                for (ChapterImportVo chapterVo : vo.getChapters()) {
-                    SysRegulationChapter chapter = new SysRegulationChapter();
-                    chapter.setRegulationId(reg.getRegulationId());
-                    chapter.setChapterNo(chapterVo.getChapterNo());
-                    chapter.setChapterTitle(chapterVo.getChapterTitle());
-                    chapter.setSortOrder(chapterVo.getSortOrder());
-                    sysRegulationService.insertSysRegulationChapter(chapter);
-                    // 导入条款...
-                }
-            }
-            successCount++;
-        } catch (Exception e) {
-            errors.add("第" + (i+1) + "条：导入失败 - " + e.getMessage());
-        }
-    }
-    return AjaxResult.success("导入完成，成功" + successCount + "条，失败" + errors.size() + "条", errors);
+    String operName = getUsername();
+    Map<String, Object> result = sysRegulationService.importRegulation(voList, false, operName);
+    @SuppressWarnings("unchecked")
+    List<String> errors = (List<String>) result.get("errors");
+    return AjaxResult.success("导入完成，成功" + result.get("success") + "条，失败" + result.get("fail") + "条", errors);
 }
 ```
 
-- [ ] **Step 2: 提交**
+- [ ] **Step 7: 提交**
 
 ```bash
-git add RuoYi-Vue/ruoyi-admin/.../SysRegulationController.java
-git commit -m "feat(backend): 添加法律法规JSON导入导出功能"
+git add RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/vo/RegulationImportVo.java
+git add RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/vo/ChapterImportVo.java
+git add RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/vo/ArticleImportVo.java
+git add RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/service/ISysRegulationService.java
+git add RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/service/impl/SysRegulationServiceImpl.java
+git add RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysRegulationController.java
+git commit -m "feat(backend): 添加法律法规Excel和JSON导入导出功能"
 ```
 
 ---
@@ -506,7 +603,79 @@ git commit -m "refactor(android): 移除收藏功能相关代码"
 
 ## 阶段五：移动端 - 混合模式同步
 
-### Task 7: 添加增量同步接口支持
+### Task 7: 后端添加增量同步参数支持
+
+**Files:**
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/SysRegulation.java`
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/resources/mapper/system/SysRegulationMapper.xml`
+- Modify: `RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysRegulationController.java`
+
+- [ ] **Step 1: 修改 SysRegulation.java - 添加 updateTimeFrom 字段**
+
+在 SysRegulation 类中添加（用于接收前端传来的增量同步时间参数）：
+
+```java
+/** 增量同步起始时间（前端传入，非数据库字段） */
+private String updateTimeFrom;
+
+public String getUpdateTimeFrom() { return updateTimeFrom; }
+public void setUpdateTimeFrom(String updateTimeFrom) { this.updateTimeFrom = updateTimeFrom; }
+```
+
+同样为 SysLegalBasis 添加 updateTimeFrom 字段。
+
+- [ ] **Step 2: 修改 SysRegulationMapper.xml - 添加 updateTimeFrom 查询条件**
+
+找到 `selectSysRegulationList` SQL，添加 where 条件：
+
+```xml
+<select id="selectSysRegulationList" parameterType="SysRegulation" resultMap="SysRegulationResult">
+    <include refid="selectSysRegulationVo"/>
+    <where>
+        <if test="title != null and title != ''">and title like concat('%', #{title}, '%')</if>
+        <if test="legalType != null and legalType != ''">and legal_type = #{legalType}</if>
+        <if test="status != null and status != ''">and status = #{status}</if>
+        <if test="delFlag != null and delFlag != ''">and del_flag = #{delFlag}</if>
+        <if test="updateTimeFrom != null and updateTimeFrom != ''">and update_time &gt;= #{updateTimeFrom}</if>
+    </where>
+    order by create_time desc
+</select>
+```
+
+- [ ] **Step 3: 修改 SysRegulationController.java - 添加 updateTimeFrom 参数支持**
+
+修改法规列表接口：
+
+```java
+/**
+ * 获取法律法规列表
+ */
+@Anonymous
+@GetMapping("/list")
+public TableDataInfo list(SysRegulation sysRegulation) {
+    startPage();
+    List<SysRegulation> list = sysRegulationService.selectSysRegulationList(sysRegulation);
+    return getDataTable(list);
+}
+```
+
+修改定性依据列表接口（同样添加 updateTimeFrom 参数）。
+
+- [ ] **Step 4: 提交**
+
+```bash
+git add RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/SysRegulation.java
+git add RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/SysLegalBasis.java
+git add RuoYi-Vue/ruoyi-system/src/main/resources/mapper/system/SysRegulationMapper.xml
+git add RuoYi-Vue/ruoyi-system/src/main/resources/mapper/system/SysLegalBasisMapper.xml
+git add RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysRegulationController.java
+git add RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysLegalBasisController.java
+git commit -m "feat(backend): 添加增量同步updateTimeFrom参数支持"
+```
+
+---
+
+### Task 8: 移动端添加增量同步接口支持
 
 **Files:**
 - Modify: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/api/LawApi.kt`
@@ -531,7 +700,7 @@ suspend fun getRegulationList(
     title?.let { urlBuilder.append("&title=$it") }
     legalType?.let { urlBuilder.append("&legalType=$it") }
     status?.let { urlBuilder.append("&status=$it") }
-    updateTimeFrom?.let { urlBuilder.append("&updateTimeFrom=$it") }  // 新增
+    updateTimeFrom?.let { urlBuilder.append("&updateTimeFrom=$it") }
 
     val request = Request.Builder()
         .url(urlBuilder.toString())
@@ -543,7 +712,7 @@ suspend fun getRegulationList(
 }
 ```
 
-同样修改 `getLegalBasisList` 方法添加 `updateTimeFrom` 参数
+同样修改 `getLegalBasisList` 方法添加 `updateTimeFrom` 参数。
 
 - [ ] **Step 2: 提交**
 
@@ -554,7 +723,7 @@ git commit -m "feat(android): 添加增量同步时间参数支持"
 
 ---
 
-### Task 8: 实现混合模式同步逻辑
+### Task 9: 实现混合模式同步逻辑
 
 **Files:**
 - Create: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/sync/LawSyncManager.kt`
@@ -751,7 +920,7 @@ git commit -m "feat(android): 实现混合模式法律法规同步"
 
 ## 阶段六：移动端 - 法规详情树状图
 
-### Task 9: 实现法规详情页树状结构
+### Task 10: 实现法规详情页树状结构
 
 **Files:**
 - Modify: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/ui/regulation/RegulationDetailActivity.kt`
@@ -1042,7 +1211,7 @@ git commit -m "feat(android): 实现法规详情页章节条款树状结构"
 
 ## 阶段七：移动端 - 定性依据复制功能
 
-### Task 10: 定性依据详情页添加复制功能
+### Task 11: 定性依据详情页添加复制功能
 
 **Files:**
 - Modify: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/ui/basis/LegalBasisDetailActivity.kt`
@@ -1103,7 +1272,7 @@ git commit -m "feat(android): 定性依据详情页添加条款复制功能"
 
 ## 阶段八：前端菜单配置
 
-### Task 11: 添加前端菜单
+### Task 12: 添加前端菜单
 
 **Files:**
 - Modify: `RuoYi-Vue/sql/V1.1.6__document_mock_data.sql` (如需添加菜单)
