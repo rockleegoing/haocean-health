@@ -20,5 +20,7 @@ data class DocumentTemplateEntity(
     val fileUrl: String?,
     val version: Int = 1,
     val isActive: String = "1",
+    val industryCategoryId: Long? = null,
+    val industryCategoryName: String? = null,
     val syncTime: Long = System.currentTimeMillis()
 )
