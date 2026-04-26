@@ -1,0 +1,1165 @@
+# 法律法规模块完善实施计划
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** 完善法律法规模块后台管理和移动端功能，包括分页修复、导入导出、法规详情增强、树状图展示、混合模式同步
+
+**Architecture:** 后端采用 Spring Boot + MyBatis + PageHelper 分页，前端 Vue + Element UI，移动端 Android + Kotlin + RoomDB
+
+**Tech Stack:** Spring Boot 4.0.3, Vue 2.6, Element UI, Android Kotlin, RoomDB, Apache POI
+
+---
+
+## 文件结构
+
+### 后台管理端 (RuoYi-Vue)
+
+```
+RuoYi-Vue/
+├── ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/
+│   ├── SysRegulationController.java      # 修改：添加分页、导入导出
+│   └── SysLegalBasisController.java      # 修改：添加导入导出
+├── ruoyi-system/src/main/java/com/ruoyi/system/
+│   ├── service/ISysRegulationService.java   # 修改：添加分页方法
+│   ├── service/impl/SysRegulationServiceImpl.java  # 修改：实现分页
+│   ├── mapper/SysRegulationMapper.java     # 修改：添加分页SQL
+│   └── domain/
+│       ├── SysRegulation.java             # 修改：添加 updateTime 字段
+│       ├── SysRegulationChapter.java       # 修改：添加 updateTime 字段
+│       ├── SysRegulationArticle.java       # 修改：添加 updateTime 字段
+│       └── SysLegalBasis.java             # 修改：添加 updateTime 字段
+├── ruoyi-ui/src/views/system/regulation/
+│   ├── index.vue                         # 修改：法规详情增强
+│   ├── chapter/index.vue                  # 修改：分页支持
+│   └── article/index.vue                 # 修改：分页支持
+└── ruoyi-ui/src/views/system/legalBasis/
+    └── index.vue                         # 修改：导入导出
+```
+
+### 移动端 (Ruoyi-Android-App)
+
+```
+Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/
+├── feature/law/
+│   ├── api/LawApi.kt                     # 修改：添加增量同步接口
+│   ├── repository/LawRepository.kt       # 修改：混合同步、移除收藏
+│   ├── db/
+│   │   ├── dao/RegulationDao.kt         # 修改：增量查询
+│   │   └── entity/RegulationEntity.kt    # 不变
+│   └── ui/regulation/
+│       ├── RegulationDetailActivity.kt   # 修改：树状图展示
+│       └── ArticleDetailActivity.kt     # 不变
+├── feature/basis/
+│   └── ui/
+│       └── LegalBasisDetailActivity.kt  # 修改：添加复制功能
+└── sync/
+    └── LawSyncManager.kt                # 新增：同步管理器
+```
+
+---
+
+## 阶段一：后台管理端 - 分页修复
+
+### Task 1: 章节列表分页支持
+
+**Files:**
+- Modify: `RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysRegulationController.java`
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/service/ISysRegulationService.java`
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/service/impl/SysRegulationServiceImpl.java`
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/mapper/SysRegulationMapper.java`
+- Modify: `RuoYi-Vue/ruoyi-ui/src/views/system/regulation/chapter/index.vue`
+
+- [ ] **Step 1: 修改 SysRegulationController.java - 添加分页参数**
+
+在 `getChapterList` 方法添加分页支持：
+
+```java
+/**
+ * 获取章节列表
+ */
+@Anonymous
+@GetMapping("/chapters/{regulationId}")
+public TableDataInfo getChapterList(
+    @PathVariable("regulationId") Long regulationId,
+    @RequestParam(defaultValue = "1") Integer pageNum,
+    @RequestParam(defaultValue = "10") Integer pageSize) {
+    startPage();
+    List<SysRegulationChapter> list = sysRegulationService.selectChapterListByRegulationId(regulationId);
+    return getDataTable(list);
+}
+```
+
+- [ ] **Step 2: 修改 ISysRegulationService.java - 添加重载方法**
+
+添加带分页参数的方法签名：
+
+```java
+/**
+ * 查询章节列表（带分页）
+ */
+public List<SysRegulationChapter> selectChapterListByRegulationId(Long regulationId);
+```
+
+- [ ] **Step 3: 修改 SysRegulationServiceImpl.java - 章节方法不变**
+
+章节列表查询本身不需要修改，因为 PageHelper 会在查询前拦截
+
+- [ ] **Step 4: 修改 chapter/index.vue - 使用真实分页**
+
+修改 `getList()` 方法：
+
+```javascript
+getList() {
+  if (!this.queryParams.regulationId) {
+    this.chapterList = []
+    this.total = 0
+    this.loading = false
+    return
+  }
+  this.loading = true
+  getChapterList(this.queryParams.regulationId, {
+    pageNum: this.queryParams.pageNum,
+    pageSize: this.queryParams.pageSize
+  }).then(response => {
+    this.chapterList = response.rows || []
+    this.total = response.total || 0
+    this.loading = false
+  })
+},
+```
+
+修改 API 调用导入：
+
+```javascript
+import { getChapter, delChapter, addChapter, updateChapter, getChapterList } from "@/api/system/regulation"
+```
+
+修改 `getChapterList` 调用传入分页参数
+
+- [ ] **Step 5: 提交**
+
+```bash
+git add RuoYi-Vue/ruoyi-admin/.../SysRegulationController.java
+git add RuoYi-Vue/ruoyi-system/.../ISysRegulationService.java
+git add RuoYi-Vue/ruoyi-system/.../SysRegulationServiceImpl.java
+git add RuoYi-Vue/ruoyi-system/.../SysRegulationMapper.java
+git add RuoYi-Vue/ruoyi-ui/.../chapter/index.vue
+git commit -m "fix(backend): 添加章节列表分页支持"
+```
+
+---
+
+### Task 2: 条款列表分页支持
+
+**Files:**
+- Modify: `RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysRegulationController.java`
+- Modify: `RuoYi-Vue/ruoyi-ui/src/views/system/regulation/article/index.vue`
+
+- [ ] **Step 1: 修改 SysRegulationController.java - 添加分页参数**
+
+```java
+/**
+ * 获取条款列表
+ */
+@Anonymous
+@GetMapping("/articles/{regulationId}")
+public TableDataInfo getArticleList(
+    @PathVariable("regulationId") Long regulationId,
+    @RequestParam(required = false) Long chapterId,
+    @RequestParam(defaultValue = "1") Integer pageNum,
+    @RequestParam(defaultValue = "10") Integer pageSize) {
+    startPage();
+    List<SysRegulationArticle> list = sysRegulationService.selectArticleListByRegulationId(regulationId, chapterId);
+    return getDataTable(list);
+}
+```
+
+- [ ] **Step 2: 修改 ISysRegulationService.java - 添加带 chapterId 参数的方法**
+
+```java
+/**
+ * 查询条款列表（可选按章节筛选）
+ */
+public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId, Long chapterId);
+```
+
+- [ ] **Step 3: 修改 SysRegulationServiceImpl.java - 实现章节筛选**
+
+```java
+@Override
+public List<SysRegulationArticle> selectArticleListByRegulationId(Long regulationId, Long chapterId) {
+    List<SysRegulationArticle> articles = sysRegulationMapper.selectArticleListByRegulationId(regulationId);
+    // 填充法规和章节标题
+    // ... 保持原有逻辑 ...
+    // 如果指定了 chapterId，进行过滤
+    if (chapterId != null) {
+        articles = articles.stream()
+            .filter(a -> chapterId.equals(a.getChapterId()))
+            .collect(Collectors.toList());
+    }
+    return articles;
+}
+```
+
+- [ ] **Step 4: 修改 article/index.vue - 使用真实分页**
+
+修改 `getList()` 方法：
+
+```javascript
+getList() {
+  this.loading = true
+  getArticleList(this.queryParams.regulationId, this.queryParams.chapterId, {
+    pageNum: this.queryParams.pageNum,
+    pageSize: this.queryParams.pageSize
+  }).then(response => {
+    this.articleList = response.rows || []
+    this.total = response.total || 0
+    this.loading = false
+  })
+},
+```
+
+- [ ] **Step 5: 提交**
+
+```bash
+git add RuoYi-Vue/ruoyi-admin/.../SysRegulationController.java
+git add RuoYi-Vue/ruoyi-system/.../ISysRegulationService.java
+git add RuoYi-Vue/ruoyi-system/.../SysRegulationServiceImpl.java
+git add RuoYi-Vue/ruoyi-ui/.../article/index.vue
+git commit -m "fix(backend): 添加条款列表分页和章节筛选支持"
+```
+
+---
+
+## 阶段二：后台管理端 - 导入导出功能
+
+### Task 3: Excel 导入导出
+
+**Files:**
+- Create: `RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysRegulationController.java` (修改)
+- Create: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/service/ISysRegulationService.java` (修改)
+- Create: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/service/impl/SysRegulationServiceImpl.java` (修改)
+- Create: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/domain/vo/RegulationImportVo.java` (新增)
+
+- [ ] **Step 1: 添加 Apache POI 依赖**
+
+检查 `pom.xml` 是否已有 poi 和 poi-ooxml 依赖，如有则跳过
+
+```xml
+<!-- 如需添加 -->
+<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi-ooxml</artifactId>
+    <version>4.1.2</version>
+</dependency>
+```
+
+- [ ] **Step 2: 创建 RegulationImportVo.java**
+
+```java
+package com.ruoyi.system.domain.vo;
+
+import java.util.List;
+import com.ruoyi.common.annotation.Excel;
+
+public class RegulationImportVo {
+    @Excel(name = "法律名称")
+    private String title;
+
+    @Excel(name = "法律类型")
+    private String legalType;
+
+    @Excel(name = "监管类型")
+    private String supervisionTypes;
+
+    @Excel(name = "发布日期")
+    private String publishDate;
+
+    @Excel(name = "实施日期")
+    private String effectiveDate;
+
+    @Excel(name = "颁发机构")
+    private String issuingAuthority;
+
+    @Excel(name = "完整内容")
+    private String content;
+
+    // 嵌套章节和条款
+    private List<ChapterImportVo> chapters;
+
+    // getters and setters...
+}
+```
+
+- [ ] **Step 3: 修改 SysRegulationController.java - 添加导出方法**
+
+```java
+/**
+ * 导出法律法规 Excel
+ */
+@Anonymous
+@GetMapping("/export")
+public AjaxResult export(SysRegulation sysRegulation) {
+    List<SysRegulation> list = sysRegulationService.selectSysRegulationList(sysRegulation);
+    List<RegulationExportVo> exportList = list.stream().map(reg -> {
+        RegulationExportVo vo = new RegulationExportVo();
+        vo.setTitle(reg.getTitle());
+        vo.setLegalType(reg.getLegalType());
+        vo.setSupervisionTypes(reg.getSupervisionTypes());
+        vo.setPublishDate(reg.getPublishDate());
+        vo.setEffectiveDate(reg.getEffectiveDate());
+        vo.setIssuingAuthority(reg.getIssuingAuthority());
+        vo.setStatus(reg.getStatus());
+        return vo;
+    }).collect(Collectors.toList());
+    return exportList;
+}
+
+/**
+ * 导入法律法规 Excel
+ */
+@Anonymous
+@PostMapping("/import")
+public AjaxResult importExcel(MultipartFile file) throws Exception {
+    List<RegulationImportVo> voList = ExcelUtil.importExcel(file.getInputStream(), RegulationImportVo.class);
+    // 校验并导入
+    // ... 实现导入逻辑 ...
+    return AjaxResult.success("导入成功");
+}
+```
+
+- [ ] **Step 4: 提交**
+
+```bash
+git add RuoYi-Vue/ruoyi-system/.../domain/vo/RegulationImportVo.java
+git add RuoYi-Vue/ruoyi-admin/.../SysRegulationController.java
+git commit -m "feat(backend): 添加法律法规Excel导入导出功能"
+```
+
+---
+
+### Task 4: JSON 导入导出
+
+**Files:**
+- Modify: `RuoYi-Vue/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysRegulationController.java`
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/service/ISysRegulationService.java`
+- Modify: `RuoYi-Vue/ruoyi-system/src/main/java/com/ruoyi/system/service/impl/SysRegulationServiceImpl.java`
+
+- [ ] **Step 1: 修改 SysRegulationController.java - 添加 JSON 导出**
+
+```java
+/**
+ * 导出法律法规 JSON
+ */
+@Anonymous
+@GetMapping("/export/json")
+public void exportJson(HttpServletResponse response, SysRegulation sysRegulation) {
+    List<SysRegulation> list = sysRegulationService.selectSysRegulationList(sysRegulation);
+    // 获取完整的章节和条款数据
+    List<RegulationFullVo> fullList = list.stream().map(reg -> {
+        RegulationFullVo vo = new RegulationFullVo();
+        BeanUtils.copyProperties(reg, vo);
+        vo.setChapters(sysRegulationService.selectChapterListByRegulationId(reg.getRegulationId()));
+        vo.setArticles(sysRegulationService.selectArticleListByRegulationId(reg.getRegulationId()));
+        return vo;
+    }).collect(Collectors.toList());
+
+    response.setContentType("application/json;charset=utf-8");
+    response.setCharacterEncoding("utf-8");
+    try (PrintWriter writer = response.getWriter()) {
+        writer.write(new ObjectMapper().writeValueAsString(fullList));
+    }
+}
+
+/**
+ * 导入法律法规 JSON
+ */
+@Anonymous
+@PostMapping("/import/json")
+public AjaxResult importJson(@RequestBody List<RegulationImportVo> voList) {
+    int successCount = 0;
+    List<String> errors = new ArrayList<>();
+    for (int i = 0; i < voList.size(); i++) {
+        try {
+            RegulationImportVo vo = voList.get(i);
+            // 校验必填字段
+            if (StringUtils.isEmpty(vo.getTitle()) || StringUtils.isEmpty(vo.getLegalType())) {
+                errors.add("第" + (i+1) + "条：法律名称和法律类型不能为空");
+                continue;
+            }
+            // 导入法规
+            SysRegulation reg = new SysRegulation();
+            BeanUtils.copyProperties(vo, reg);
+            sysRegulationService.insertSysRegulation(reg);
+            // 导入章节和条款
+            if (vo.getChapters() != null) {
+                for (ChapterImportVo chapterVo : vo.getChapters()) {
+                    SysRegulationChapter chapter = new SysRegulationChapter();
+                    chapter.setRegulationId(reg.getRegulationId());
+                    chapter.setChapterNo(chapterVo.getChapterNo());
+                    chapter.setChapterTitle(chapterVo.getChapterTitle());
+                    chapter.setSortOrder(chapterVo.getSortOrder());
+                    sysRegulationService.insertSysRegulationChapter(chapter);
+                    // 导入条款...
+                }
+            }
+            successCount++;
+        } catch (Exception e) {
+            errors.add("第" + (i+1) + "条：导入失败 - " + e.getMessage());
+        }
+    }
+    return AjaxResult.success("导入完成，成功" + successCount + "条，失败" + errors.size() + "条", errors);
+}
+```
+
+- [ ] **Step 2: 提交**
+
+```bash
+git add RuoYi-Vue/ruoyi-admin/.../SysRegulationController.java
+git commit -m "feat(backend): 添加法律法规JSON导入导出功能"
+```
+
+---
+
+## 阶段三：后台管理端 - 法规详情增强
+
+### Task 5: 法规详情页添加管理章节入口
+
+**Files:**
+- Modify: `RuoYi-Vue/ruoyi-ui/src/views/system/regulation/index.vue`
+
+- [ ] **Step 1: 修改 regulation/index.vue - 法规详情对话框添加管理章节按钮**
+
+在法规详情对话框中添加按钮：
+
+```vue
+<!-- 法规详情对话框 -->
+<el-dialog title="法律法规详情" :visible.sync="detailOpen" width="800px" append-to-body>
+  <el-descriptions :column="2" border>
+    <!-- ... 现有字段 ... -->
+  </el-descriptions>
+  <div slot="footer" class="dialog-footer">
+    <el-button type="primary" @click="handleManageChapters">管理章节</el-button>
+    <el-button @click="detailOpen = false">关 闭</el-button>
+  </div>
+</el-dialog>
+```
+
+添加方法：
+
+```javascript
+handleManageChapters() {
+  this.$router.push({
+    path: '/system/regulation/chapter',
+    query: { regulationId: this.detailData.regulationId }
+  })
+},
+```
+
+- [ ] **Step 2: 提交**
+
+```bash
+git add RuoYi-Vue/ruoyi-ui/src/views/system/regulation/index.vue
+git commit -m "feat(backend): 法规详情页添加管理章节入口"
+```
+
+---
+
+## 阶段四：移动端 - 移除收藏功能
+
+### Task 6: 删除收藏相关代码
+
+**Files:**
+- Delete: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/db/dao/CollectionDao.kt` (如存在)
+- Modify: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/repository/LawRepository.kt`
+- Modify: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/api/LawApi.kt`
+
+- [ ] **Step 1: 检查收藏相关文件是否存在**
+
+```bash
+find Ruoyi-Android-App -name "*Collection*" -o -name "*collection*"
+```
+
+- [ ] **Step 2: 从 LawRepository 删除收藏相关方法**
+
+删除以下方法（如果存在）：
+- `addCollection()`
+- `removeCollection()`
+- `isCollected()`
+- `getCollections()`
+
+- [ ] **Step 3: 从 LawApi 删除收藏相关方法**
+
+删除以下方法（如果存在）：
+- `addCollection()`
+- `removeCollection()`
+- `getCollections()`
+
+- [ ] **Step 4: 提交**
+
+```bash
+git add -A  # 删除的文件会被暂存
+git commit -m "refactor(android): 移除收藏功能相关代码"
+```
+
+---
+
+## 阶段五：移动端 - 混合模式同步
+
+### Task 7: 添加增量同步接口支持
+
+**Files:**
+- Modify: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/api/LawApi.kt`
+
+- [ ] **Step 1: 修改 LawApi.kt - 添加增量同步参数支持**
+
+```kotlin
+/**
+ * 获取法律法规列表（支持增量同步）
+ */
+suspend fun getRegulationList(
+    pageNum: Int = 1,
+    pageSize: Int = 20,
+    title: String? = null,
+    legalType: String? = null,
+    status: String? = null,
+    updateTimeFrom: String? = null  // 新增：增量同步起始时间
+): RegulationListResponse = withContext(Dispatchers.IO) {
+    val urlBuilder = StringBuilder("${ConfigApi.baseUrl}/system/regulation/list?")
+        .append("pageNum=$pageNum")
+        .append("&pageSize=$pageSize")
+    title?.let { urlBuilder.append("&title=$it") }
+    legalType?.let { urlBuilder.append("&legalType=$it") }
+    status?.let { urlBuilder.append("&status=$it") }
+    updateTimeFrom?.let { urlBuilder.append("&updateTimeFrom=$it") }  // 新增
+
+    val request = Request.Builder()
+        .url(urlBuilder.toString())
+        .get()
+        .build()
+
+    val response = client.newCall(request).execute()
+    parseRegulationListResponse(response.body?.string() ?: "")
+}
+```
+
+同样修改 `getLegalBasisList` 方法添加 `updateTimeFrom` 参数
+
+- [ ] **Step 2: 提交**
+
+```bash
+git add Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/api/LawApi.kt
+git commit -m "feat(android): 添加增量同步时间参数支持"
+```
+
+---
+
+### Task 8: 实现混合模式同步逻辑
+
+**Files:**
+- Create: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/sync/LawSyncManager.kt`
+- Modify: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/repository/LawRepository.kt`
+
+- [ ] **Step 1: 创建 LawSyncManager.kt**
+
+```kotlin
+package com.ruoyi.app.sync
+
+import android.content.Context
+import android.content.SharedPreferences
+import com.ruoyi.app.feature.law.api.LawApi
+import com.ruoyi.app.feature.law.db.AppDatabase
+import com.ruoyi.app.feature.law.db.entity.RegulationEntity
+import com.ruoyi.app.feature.law.db.entity.RegulationChapterEntity
+import com.ruoyi.app.feature.law.db.entity.RegulationArticleEntity
+import com.ruoyi.app.feature.law.db.entity.LegalBasisEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+
+class LawSyncManager(private val context: Context) {
+
+    private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val regulationDao = AppDatabase.getInstance(context).regulationDao()
+    private val chapterDao = AppDatabase.getInstance(context).chapterDao()
+    private val articleDao = AppDatabase.getInstance(context).articleDao()
+    private val legalBasisDao = AppDatabase.getInstance(context).legalBasisDao()
+
+    companion object {
+        private const val PREFS_NAME = "law_sync_prefs"
+        private const val KEY_LAST_SYNC_TIME = "last_sync_time"
+        private const val KEY_HAS_FULL_SYNC = "has_full_sync"
+    }
+
+    /**
+     * 执行混合模式同步
+     */
+    suspend fun sync(): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val hasFullSync = prefs.getBoolean(KEY_HAS_FULL_SYNC, false)
+
+            if (!hasFullSync) {
+                // 首次全量同步
+                syncFull()
+                prefs.edit().putBoolean(KEY_HAS_FULL_SYNC, true).apply()
+            } else {
+                // 增量同步
+                syncIncremental()
+            }
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 全量同步
+     */
+    private suspend fun syncFull() {
+        // 同步法规
+        val regulationResponse = LawApi.getRegulationList(pageNum = 1, pageSize = 1000)
+        if (regulationResponse.code == 200) {
+            val entities = regulationResponse.rows.map { it.toEntity() }
+            regulationDao.insertRegulations(entities)
+        }
+
+        // 同步章节和条款（每个法规）
+        for (regulation in regulationResponse.rows) {
+            syncChaptersAndArticles(regulation.regulationId)
+        }
+
+        // 同步定性依据
+        val basisResponse = LawApi.getLegalBasisList(pageNum = 1, pageSize = 1000)
+        if (basisResponse.code == 200) {
+            val entities = basisResponse.rows.map { it.toEntity() }
+            legalBasisDao.insertLegalBasises(entities)
+        }
+
+        // 更新同步时间
+        prefs.edit().putLong(KEY_LAST_SYNC_TIME, System.currentTimeMillis()).apply()
+    }
+
+    /**
+     * 增量同步
+     */
+    private suspend fun syncIncremental() {
+        val lastSyncTime = prefs.getLong(KEY_LAST_SYNC_TIME, 0)
+        val lastSyncTimeStr = if (lastSyncTime > 0) {
+            java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.CHINA)
+                .format(java.util.Date(lastSyncTime))
+        } else null
+
+        // 增量同步法规
+        val regulationResponse = LawApi.getRegulationList(
+            pageNum = 1,
+            pageSize = 1000,
+            updateTimeFrom = lastSyncTimeStr
+        )
+        if (regulationResponse.code == 200) {
+            for (regulation in regulationResponse.rows) {
+                val entity = regulation.toEntity()
+                regulationDao.insertRegulations(listOf(entity))
+                // 同步该法规的章节和条款
+                syncChaptersAndArticles(regulation.regulationId)
+            }
+        }
+
+        // 增量同步定性依据
+        val basisResponse = LawApi.getLegalBasisList(
+            pageNum = 1,
+            pageSize = 1000,
+            updateTimeFrom = lastSyncTimeStr
+        )
+        if (basisResponse.code == 200) {
+            val entities = basisResponse.rows.map { it.toEntity() }
+            legalBasisDao.insertLegalBasises(entities)
+        }
+
+        // 更新同步时间
+        prefs.edit().putLong(KEY_LAST_SYNC_TIME, System.currentTimeMillis()).apply()
+    }
+
+    /**
+     * 同步章节和条款
+     */
+    private suspend fun syncChaptersAndArticles(regulationId: Long) {
+        val chapterResponse = LawApi.getChapterList(regulationId)
+        if (chapterResponse.code == 200) {
+            val chapterEntities = chapterResponse.rows.map { it.toEntity() }
+            chapterDao.insertChapters(chapterEntities)
+        }
+
+        val articleResponse = LawApi.getArticleList(regulationId)
+        if (articleResponse.code == 200) {
+            val articleEntities = articleResponse.rows.map { it.toEntity() }
+            articleDao.insertArticles(articleEntities)
+        }
+    }
+
+    /**
+     * 获取上次同步时间
+     */
+    fun getLastSyncTime(): Long = prefs.getLong(KEY_LAST_SYNC_TIME, 0)
+
+    /**
+     * 强制全量重同步
+     */
+    suspend fun forceFullSync() {
+        prefs.edit().putBoolean(KEY_HAS_FULL_SYNC, false).apply()
+        sync()
+    }
+}
+```
+
+- [ ] **Step 2: 修改 Regulation.toEntity() 扩展方法**
+
+在 LawRepository.kt 中添加：
+
+```kotlin
+private fun com.ruoyi.app.feature.law.model.Regulation.toEntity(): RegulationEntity {
+    return RegulationEntity(
+        regulationId = regulationId,
+        title = title,
+        legalType = legalType,
+        supervisionTypes = JSONArray(supervisionTypes).toString(),
+        publishDate = publishDate,
+        effectiveDate = effectiveDate,
+        issuingAuthority = issuingAuthority,
+        content = content,
+        version = version,
+        status = status,
+        delFlag = delFlag,
+        createBy = createBy,
+        createTime = createTime?.toLongOrNull(),
+        updateBy = updateBy,
+        updateTime = updateTime?.toLongOrNull(),
+        remark = remark
+    )
+}
+```
+
+- [ ] **Step 3: 提交**
+
+```bash
+git add Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/sync/LawSyncManager.kt
+git add Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/repository/LawRepository.kt
+git commit -m "feat(android): 实现混合模式法律法规同步"
+```
+
+---
+
+## 阶段六：移动端 - 法规详情树状图
+
+### Task 9: 实现法规详情页树状结构
+
+**Files:**
+- Modify: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/ui/regulation/RegulationDetailActivity.kt`
+- Create: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/ui/regulation/ChapterTreeAdapter.kt`
+
+- [ ] **Step 1: 创建 ChapterTreeAdapter.kt - 树状列表适配器**
+
+```kotlin
+package com.ruoyi.app.feature.law.ui.regulation
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.ruoyi.app.databinding.ItemChapterBinding
+import com.ruoyi.app.databinding.ItemArticleBinding
+
+/**
+ * 章节-条款树状结构适配器
+ */
+class ChapterTreeAdapter(
+    private val onChapterClick: (ChapterTreeItem.Chapter) -> Unit,
+    private val onArticleClick: (ChapterTreeItem.Article) -> Unit
+) : ListAdapter<ChapterTreeItem, RecyclerView.ViewHolder>(DiffCallback()) {
+
+    companion object {
+        private const val TYPE_CHAPTER = 0
+        private const val TYPE_ARTICLE = 1
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return when (getItem(position)) {
+            is ChapterTreeItem.Chapter -> TYPE_CHAPTER
+            is ChapterTreeItem.Article -> TYPE_ARTICLE
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            TYPE_CHAPTER -> {
+                val binding = ItemChapterBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                ChapterViewHolder(binding)
+            }
+            TYPE_ARTICLE -> {
+                val binding = ItemArticleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                ArticleViewHolder(binding)
+            }
+            else -> throw IllegalArgumentException("Unknown view type")
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (val item = getItem(position)) {
+            is ChapterTreeItem.Chapter -> (holder as ChapterViewHolder).bind(item)
+            is ChapterTreeItem.Article -> (holder as ArticleViewHolder).bind(item)
+        }
+    }
+
+    inner class ChapterViewHolder(private val binding: ItemChapterBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: ChapterTreeItem.Chapter) {
+            binding.tvChapterNo.text = item.chapterNo
+            binding.tvChapterTitle.text = item.chapterTitle
+            binding.ivExpand.rotation = if (item.isExpanded) 90f else 0f
+            binding.ivExpand.visibility = if (item.hasArticles) View.VISIBLE else View.GONE
+
+            binding.root.setOnClickListener {
+                onChapterClick(item)
+            }
+        }
+    }
+
+    inner class ArticleViewHolder(private val binding: ItemArticleBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: ChapterTreeItem.Article) {
+            binding.tvArticleNo.text = item.articleNo
+            binding.tvArticleContent.text = item.content
+
+            binding.root.setOnClickListener {
+                onArticleClick(item)
+            }
+        }
+    }
+
+    class DiffCallback : DiffUtil.ItemCallback<ChapterTreeItem>() {
+        override fun areItemsTheSame(oldItem: ChapterTreeItem, newItem: ChapterTreeItem): Boolean {
+            return when {
+                oldItem is ChapterTreeItem.Chapter && newItem is ChapterTreeItem.Chapter ->
+                    oldItem.chapterId == newItem.chapterId
+                oldItem is ChapterTreeItem.Article && newItem is ChapterTreeItem.Article ->
+                    oldItem.articleId == newItem.articleId
+                else -> false
+            }
+        }
+
+        override fun areContentsTheSame(oldItem: ChapterTreeItem, newItem: ChapterTreeItem): Boolean {
+            return oldItem == newItem
+        }
+    }
+}
+
+sealed class ChapterTreeItem {
+    data class Chapter(
+        val chapterId: Long,
+        val chapterNo: String?,
+        val chapterTitle: String?,
+        val hasArticles: Boolean = false,
+        var isExpanded: Boolean = false
+    ) : ChapterTreeItem()
+
+    data class Article(
+        val articleId: Long,
+        val chapterId: Long,
+        val articleNo: String?,
+        val content: String?
+    ) : ChapterTreeItem()
+}
+```
+
+- [ ] **Step 2: 创建 item_chapter.xml 布局**
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:gravity="center_vertical">
+
+    <ImageView
+        android:id="@+id/ivExpand"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@android:drawable/arrow_down_float"
+        android:contentDescription="展开" />
+
+    <TextView
+        android:id="@+id/tvChapterNo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#333333"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:layout_marginStart="8dp" />
+
+    <TextView
+        android:id="@+id/tvChapterTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="#666666"
+        android:textSize="14sp"
+        android:layout_marginStart="8dp" />
+
+</LinearLayout>
+```
+
+- [ ] **Step 3: 创建 item_article.xml 布局**
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:paddingStart="48dp"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/tvArticleNo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#999999"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/tvArticleContent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="#666666"
+        android:textSize="13sp"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:layout_marginStart="8dp" />
+
+</LinearLayout>
+```
+
+- [ ] **Step 4: 修改 RegulationDetailActivity.kt - 实现树状逻辑**
+
+```kotlin
+class RegulationDetailActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityRegulationDetailBinding
+    private lateinit var adapter: ChapterTreeAdapter
+    private lateinit var repository: LawRepository
+
+    private val expandedChapters = mutableSetOf<Long>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityRegulationDetailBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val regulationId = intent.getLongExtra("regulation_id", 0)
+
+        setupRecyclerView()
+        loadData(regulationId)
+    }
+
+    private fun setupRecyclerView() {
+        adapter = ChapterTreeAdapter(
+            onChapterClick = { chapter ->
+                if (expandedChapters.contains(chapter.chapterId)) {
+                    expandedChapters.remove(chapter.chapterId)
+                } else {
+                    expandedChapters.add(chapter.chapterId)
+                }
+                // 重新加载并刷新
+                loadData(intent.getLongExtra("regulation_id", 0))
+            },
+            onArticleClick = { article ->
+                // 跳转到条款详情
+                val bundle = Bundle().apply {
+                    putLong("article_id", article.articleId)
+                }
+                TheRouter.build(Constant.articleDetailRoute).with(bundle).navigation()
+            }
+        )
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.adapter = adapter
+    }
+
+    private fun loadData(regulationId: Long) {
+        lifecycleScope.launch {
+            repository.getChaptersByRegulationId(regulationId).collectLatest { chapters ->
+                val treeItems = mutableListOf<ChapterTreeItem>()
+
+                for (chapter in chapters) {
+                    val chapterItem = ChapterTreeItem.Chapter(
+                        chapterId = chapter.chapterId,
+                        chapterNo = chapter.chapterNo,
+                        chapterTitle = chapter.chapterTitle,
+                        hasArticles = true,
+                        isExpanded = expandedChapters.contains(chapter.chapterId)
+                    )
+                    treeItems.add(chapterItem)
+
+                    // 如果展开，显示条款
+                    if (expandedChapters.contains(chapter.chapterId)) {
+                        repository.getArticlesByRegulationId(regulationId).collectLatest { articles ->
+                            val chapterArticles = articles.filter { it.chapterId == chapter.chapterId }
+                            for (article in chapterArticles) {
+                                treeItems.add(
+                                    ChapterTreeItem.Article(
+                                        articleId = article.articleId,
+                                        chapterId = article.chapterId,
+                                        articleNo = article.articleNo,
+                                        content = article.content
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+
+                adapter.submitList(treeItems)
+            }
+        }
+    }
+}
+```
+
+- [ ] **Step 5: 提交**
+
+```bash
+git add Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/ui/regulation/ChapterTreeAdapter.kt
+git add Ruoyi-Android-App/app/src/main/res/layout/item_chapter.xml
+git add Ruoyi-Android-App/app/src/main/res/layout/item_article.xml
+git add Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/ui/regulation/RegulationDetailActivity.kt
+git commit -m "feat(android): 实现法规详情页章节条款树状结构"
+```
+
+---
+
+## 阶段七：移动端 - 定性依据复制功能
+
+### Task 10: 定性依据详情页添加复制功能
+
+**Files:**
+- Modify: `Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/ui/basis/LegalBasisDetailActivity.kt`
+
+- [ ] **Step 1: 修改 LegalBasisDetailActivity.kt - 添加条款内容复制按钮**
+
+在布局中添加复制按钮和剪贴板逻辑：
+
+```kotlin
+class LegalBasisDetailActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityLegalBasisDetailBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityLegalBasisDetailBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val basisId = intent.getLongExtra("basis_id", 0)
+        loadData(basisId)
+        setupCopyButton()
+    }
+
+    private fun setupCopyButton() {
+        binding.btnCopyClauses.setOnClickListener {
+            val clauses = binding.tvClauses.text.toString()
+            copyToClipboard(clauses)
+            Toast.makeText(this, "条款内容已复制", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun copyToClipboard(text: String) {
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipboardData.newPlainText("条款内容", text)
+        clipboard.setPrimaryClip(clip)
+    }
+}
+```
+
+- [ ] **Step 2: 在布局 XML 中添加复制按钮**
+
+```xml
+<Button
+    android:id="@+id/btnCopyClauses"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="复制条款内容" />
+```
+
+- [ ] **Step 3: 提交**
+
+```bash
+git add Ruoyi-Android-App/app/src/main/java/com/ruoyi/app/feature/law/ui/basis/LegalBasisDetailActivity.kt
+git commit -m "feat(android): 定性依据详情页添加条款复制功能"
+```
+
+---
+
+## 阶段八：前端菜单配置
+
+### Task 11: 添加前端菜单
+
+**Files:**
+- Modify: `RuoYi-Vue/sql/V1.1.6__document_mock_data.sql` (如需添加菜单)
+- 或通过后台管理界面添加
+
+- [ ] **Step 1: 添加导入导出菜单**
+
+通过后台管理界面添加以下菜单：
+
+```
+法律法规管理
+├── 法规管理
+├── 章节管理
+├── 条款管理
+├── 定性依据管理
+└── 批量操作 (按钮级权限)
+    ├── 导入Excel
+    ├── 导出Excel
+    ├── 导入JSON
+    └── 导出JSON
+```
+
+- [ ] **Step 2: 提交**
+
+```bash
+git add RuoYi-Vue/sql/V1.1.6__document_mock_data.sql
+git commit -m "docs: 添加法律法规批量操作菜单SQL"
+```
+
+---
+
+## 验证清单
+
+完成所有任务后，验证以下功能：
+
+| 功能 | 验证方法 |
+|------|----------|
+| 章节分页 | 章节列表切换页码正常显示 |
+| 条款分页 | 条款列表按章节筛选+分页正常 |
+| Excel导入 | 上传Excel文件，数据正确入库 |
+| Excel导出 | 下载Excel文件，内容完整 |
+| JSON导入 | 上传JSON文件，数据正确入库 |
+| JSON导出 | 下载JSON文件，章节条款结构完整 |
+| 章节管理入口 | 法规详情页点击跳转章节管理 |
+| 全量同步 | 首次打开App，数据全部下载 |
+| 增量同步 | 更新服务器数据，App刷新后同步 |
+| 树状图 | 法规详情页展开/折叠章节正常 |
+| 条款复制 | 点击复制按钮，剪贴板内容正确 |
+| 移除收藏 | 代码中无收藏相关逻辑 |
+
+---
+
+**Plan complete.** 两个执行选项：
+
+**1. Subagent-Driven (recommended)** - 调度独立子agent逐任务执行，任务间审查
+
+**2. Inline Execution** - 在当前会话中使用 executing-plans 批量执行，设置审查检查点
+
+选择哪个方式？
