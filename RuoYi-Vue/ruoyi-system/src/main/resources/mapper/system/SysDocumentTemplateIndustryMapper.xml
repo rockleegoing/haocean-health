@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysDocumentTemplateIndustryMapper">
+
+    <resultMap type="SysDocumentTemplateIndustry" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="templateId" column="template_id"/>
+        <result property="industryCategoryId" column="industry_category_id"/>
+    </resultMap>
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO sys_document_template_industry (template_id, industry_category_id, create_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.templateId}, #{item.industryCategoryId}, NOW())
+        </foreach>
+    </insert>
+
+    <delete id="deleteByTemplateId" parameterType="Long">
+        DELETE FROM sys_document_template_industry WHERE template_id = #{templateId}
+    </delete>
+
+    <select id="selectByIndustryCategoryId" parameterType="Long" resultType="Long">
+        SELECT template_id FROM sys_document_template_industry WHERE industry_category_id = #{industryCategoryId}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT id, template_id, industry_category_id, create_time
+        FROM sys_document_template_industry
+    </select>
+
+</mapper>
