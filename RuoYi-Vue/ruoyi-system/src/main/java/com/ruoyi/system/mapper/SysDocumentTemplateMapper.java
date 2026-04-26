@@ -65,4 +65,20 @@ public interface SysDocumentTemplateMapper
      * @return 结果
      */
     public int deleteSysDocumentTemplateByIds(Long[] ids);
+
+    /**
+     * 根据行业分类ID查询模板列表
+     *
+     * @param industryCategoryId 行业分类ID
+     * @return 模板列表
+     */
+    List<SysDocumentTemplate> selectByIndustryCategoryId(Long industryCategoryId);
+
+    /**
+     * 根据模板ID列表查询模板
+     *
+     * @param templateIds 模板ID列表
+     * @return 模板列表
+     */
+    List<SysDocumentTemplate> selectByTemplateIds(@Param("templateIds") List<Long> templateIds);
 }
