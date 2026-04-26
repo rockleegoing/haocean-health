@@ -30,14 +30,15 @@ object LawApi {
     // ==================== 法律法规API ====================
 
     /**
-     * 获取法律法规列表
+     * 获取法律法规列表（支持增量同步）
      */
     suspend fun getRegulationList(
         pageNum: Int = 1,
         pageSize: Int = 20,
         title: String? = null,
         legalType: String? = null,
-        status: String? = null
+        status: String? = null,
+        updateTimeFrom: String? = null
     ): RegulationListResponse = withContext(Dispatchers.IO) {
         val urlBuilder = StringBuilder("${ConfigApi.baseUrl}/system/regulation/list?")
             .append("pageNum=$pageNum")
@@ -45,6 +46,7 @@ object LawApi {
         title?.let { urlBuilder.append("&title=$it") }
         legalType?.let { urlBuilder.append("&legalType=$it") }
         status?.let { urlBuilder.append("&status=$it") }
+        updateTimeFrom?.let { urlBuilder.append("&updateTimeFrom=$it") }
 
         val request = Request.Builder()
             .url(urlBuilder.toString())
@@ -97,14 +99,15 @@ object LawApi {
     // ==================== 定性依据API ====================
 
     /**
-     * 获取定性依据列表
+     * 获取定性依据列表（支持增量同步）
      */
     suspend fun getLegalBasisList(
         pageNum: Int = 1,
         pageSize: Int = 20,
         title: String? = null,
         violationType: String? = null,
-        status: String? = null
+        status: String? = null,
+        updateTimeFrom: String? = null
     ): LegalBasisListResponse = withContext(Dispatchers.IO) {
         val urlBuilder = StringBuilder("${ConfigApi.baseUrl}/system/legalBasis/list?")
             .append("pageNum=$pageNum")
@@ -112,6 +115,7 @@ object LawApi {
         title?.let { urlBuilder.append("&title=$it") }
         violationType?.let { urlBuilder.append("&violationType=$it") }
         status?.let { urlBuilder.append("&status=$it") }
+        updateTimeFrom?.let { urlBuilder.append("&updateTimeFrom=$it") }
 
         val request = Request.Builder()
             .url(urlBuilder.toString())
