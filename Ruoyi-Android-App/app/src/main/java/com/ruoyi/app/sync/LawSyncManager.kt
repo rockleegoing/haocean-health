@@ -118,13 +118,13 @@ class LawSyncManager(private val context: Context) {
      * 同步章节和条款
      */
     private suspend fun syncChaptersAndArticles(regulationId: Long) {
-        val chapterResponse = LawApi.getChapterList(regulationId)
+        val chapterResponse = LawApi.getChapterList(regulationId, pageSize = 10000)
         if (chapterResponse.code == 200) {
             val chapterEntities = chapterResponse.rows.map { it.toEntity() }
             chapterDao.insertChapters(chapterEntities)
         }
 
-        val articleResponse = LawApi.getArticleList(regulationId)
+        val articleResponse = LawApi.getArticleList(regulationId, pageSize = 10000)
         if (articleResponse.code == 200) {
             val articleEntities = articleResponse.rows.map { it.toEntity() }
             articleDao.insertArticles(articleEntities)

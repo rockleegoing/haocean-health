@@ -283,7 +283,7 @@ export default {
         return
       }
       getChapterList(regulationId).then(response => {
-        this.chapterOptions = response.data || []
+        this.chapterOptions = response.rows || []
       })
     },
     /** 加载表单章节列表 */
@@ -293,7 +293,7 @@ export default {
         return
       }
       getChapterList(regulationId).then(response => {
-        this.formChapterOptions = response.data || []
+        this.formChapterOptions = response.rows || []
       })
     },
     /** 法规选择变化 */

@@ -173,73 +173,7 @@ class LawRepository(private val context: Context) {
         }
     }
 
-    // ==================== 数据转换 ====================
-
-    private fun com.ruoyi.app.feature.law.model.Regulation.toEntity(): RegulationEntity {
-        val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.CHINA)
-        return RegulationEntity(
-            regulationId = regulationId,
-            title = title,
-            legalType = legalType,
-            supervisionTypes = JSONArray(supervisionTypes).toString(),
-            publishDate = publishDate,
-            effectiveDate = effectiveDate,
-            issuingAuthority = issuingAuthority,
-            content = content,
-            version = version,
-            status = status,
-            delFlag = delFlag,
-            createBy = createBy,
-            createTime = createTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
-            updateBy = updateBy,
-            updateTime = updateTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
-            remark = remark
-        )
-    }
-
-    private fun com.ruoyi.app.feature.law.model.RegulationChapter.toEntity(): RegulationChapterEntity {
-        return RegulationChapterEntity(
-            chapterId = chapterId,
-            regulationId = regulationId,
-            chapterNo = chapterNo,
-            chapterTitle = chapterTitle,
-            sortOrder = sortOrder
-        )
-    }
-
-    private fun com.ruoyi.app.feature.law.model.RegulationArticle.toEntity(): RegulationArticleEntity {
-        return RegulationArticleEntity(
-            articleId = articleId,
-            chapterId = chapterId,
-            regulationId = regulationId,
-            articleNo = articleNo,
-            content = content,
-            sortOrder = sortOrder
-        )
-    }
-
-    private fun com.ruoyi.app.feature.law.model.LegalBasis.toEntity(): LegalBasisEntity {
-        val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.CHINA)
-        return LegalBasisEntity(
-            basisId = basisId,
-            basisNo = basisNo,
-            title = title,
-            violationType = violationType,
-            issuingAuthority = issuingAuthority,
-            effectiveDate = effectiveDate,
-            legalLevel = legalLevel,
-            clauses = clauses,
-            legalLiability = legalLiability,
-            discretionStandard = discretionStandard,
-            regulationId = regulationId,
-            status = status,
-            delFlag = delFlag,
-            createBy = createBy,
-            createTime = createTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
-            updateBy = updateBy,
-            updateTime = updateTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } }
-        )
-    }
+    // Note: toEntity() 扩展函数定义在文件末尾包级别
 }
 
 // 扩展：RegulationEntity 转换回 Model
