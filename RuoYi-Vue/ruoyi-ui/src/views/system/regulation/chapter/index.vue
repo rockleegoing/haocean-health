@@ -238,15 +238,12 @@ export default {
         return
       }
       this.loading = true
-      getChapterList(this.queryParams.regulationId).then(response => {
-        let list = response.data || []
-        // 前端筛选章节标题
-        if (this.queryParams.chapterTitle) {
-          const keyword = this.queryParams.chapterTitle.toLowerCase()
-          list = list.filter(item => item.chapterTitle && item.chapterTitle.toLowerCase().includes(keyword))
-        }
-        this.chapterList = list
-        this.total = list.length
+      getChapterList(this.queryParams.regulationId, {
+        pageNum: this.queryParams.pageNum,
+        pageSize: this.queryParams.pageSize
+      }).then(response => {
+        this.chapterList = response.rows || []
+        this.total = response.total || 0
         this.loading = false
       })
     },

@@ -5,6 +5,7 @@ import java.util.List;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.system.domain.SysRegulation;
 import com.ruoyi.system.domain.SysRegulationChapter;
 import com.ruoyi.system.domain.SysRegulationArticle;
@@ -74,9 +75,13 @@ public class SysRegulationController extends BaseController {
      */
     @Anonymous
     @GetMapping("/chapters/{regulationId}")
-    public AjaxResult getChapterList(@PathVariable("regulationId") Long regulationId) {
+    public TableDataInfo getChapterList(
+        @PathVariable("regulationId") Long regulationId,
+        @RequestParam(defaultValue = "1") Integer pageNum,
+        @RequestParam(defaultValue = "10") Integer pageSize) {
+        startPage();
         List<SysRegulationChapter> list = sysRegulationService.selectChapterListByRegulationId(regulationId);
-        return AjaxResult.success(list);
+        return getDataTable(list);
     }
 
     /**

@@ -44,10 +44,11 @@ export function delRegulation(regulationIds) {
 }
 
 // 获取章节列表
-export function getChapterList(regulationId) {
+export function getChapterList(regulationId, query) {
   return request({
     url: '/system/regulation/chapters/' + regulationId,
-    method: 'get'
+    method: 'get',
+    params: query
   })
 }
 
