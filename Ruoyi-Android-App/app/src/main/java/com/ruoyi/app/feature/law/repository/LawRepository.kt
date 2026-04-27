@@ -4,9 +4,11 @@ import android.content.Context
 import com.ruoyi.app.data.database.AppDatabase
 import com.ruoyi.app.feature.law.api.LawApi
 import com.ruoyi.app.feature.law.db.entity.LegalBasisEntity
+import com.ruoyi.app.feature.law.db.entity.LegalTypeEntity
 import com.ruoyi.app.feature.law.db.entity.RegulationArticleEntity
 import com.ruoyi.app.feature.law.db.entity.RegulationChapterEntity
 import com.ruoyi.app.feature.law.db.entity.RegulationEntity
+import com.ruoyi.app.feature.law.db.entity.SupervisionTypeEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -21,6 +23,8 @@ class LawRepository(private val context: Context) {
     private val chapterDao = AppDatabase.getInstance(context).chapterDao()
     private val articleDao = AppDatabase.getInstance(context).articleDao()
     private val legalBasisDao = AppDatabase.getInstance(context).legalBasisDao()
+    private val legalTypeDao = AppDatabase.getInstance(context).legalTypeDao()
+    private val supervisionTypeDao = AppDatabase.getInstance(context).supervisionTypeDao()
 
     // ==================== 法律法规 ====================
 
@@ -108,6 +112,22 @@ class LawRepository(private val context: Context) {
      */
     suspend fun getLegalBasisById(basisId: Long): LegalBasisEntity? {
         return legalBasisDao.getLegalBasisById(basisId)
+    }
+
+    // ==================== 字典查询 ====================
+
+    /**
+     * 获取所有法律类型
+     */
+    fun getAllLegalTypes(): Flow<List<LegalTypeEntity>> {
+        return legalTypeDao.getAllLegalTypes()
+    }
+
+    /**
+     * 获取所有监管类型
+     */
+    fun getAllSupervisionTypes(): Flow<List<SupervisionTypeEntity>> {
+        return supervisionTypeDao.getAllSupervisionTypes()
     }
 
     // ==================== 同步方法 ====================
