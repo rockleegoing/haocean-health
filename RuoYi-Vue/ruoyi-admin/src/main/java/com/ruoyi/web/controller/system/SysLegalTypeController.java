@@ -2,6 +2,8 @@ package com.ruoyi.web.controller.system;
 
 import java.util.List;
 import com.ruoyi.common.annotation.Anonymous;
+import com.ruoyi.common.core.controller.BaseController;
+import com.ruoyi.common.core.page.TableDataInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.system.domain.dict.SysLegalType;
@@ -12,7 +14,7 @@ import com.ruoyi.system.service.ISysLegalTypeService;
  */
 @RestController
 @RequestMapping("/system/legal/type")
-public class SysLegalTypeController {
+public class SysLegalTypeController extends BaseController {
 
     @Autowired
     private ISysLegalTypeService legalTypeService;
@@ -22,8 +24,10 @@ public class SysLegalTypeController {
      */
     @Anonymous
     @GetMapping("/list")
-    public List<SysLegalType> list(SysLegalType legalType) {
-        return legalTypeService.selectLegalTypeList(legalType);
+    public TableDataInfo list(SysLegalType legalType) {
+        startPage();
+        List<SysLegalType> list = legalTypeService.selectLegalTypeList(legalType);
+        return getDataTable(list);
     }
 
     /**

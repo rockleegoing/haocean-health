@@ -2,6 +2,8 @@ package com.ruoyi.web.controller.system;
 
 import java.util.List;
 import com.ruoyi.common.annotation.Anonymous;
+import com.ruoyi.common.core.controller.BaseController;
+import com.ruoyi.common.core.page.TableDataInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.system.domain.dict.SysSupervisionType;
@@ -12,7 +14,7 @@ import com.ruoyi.system.service.ISysSupervisionTypeService;
  */
 @RestController
 @RequestMapping("/system/supervision/type")
-public class SysSupervisionTypeController {
+public class SysSupervisionTypeController extends BaseController {
 
     @Autowired
     private ISysSupervisionTypeService supervisionTypeService;
@@ -22,8 +24,10 @@ public class SysSupervisionTypeController {
      */
     @Anonymous
     @GetMapping("/list")
-    public List<SysSupervisionType> list(SysSupervisionType supervisionType) {
-        return supervisionTypeService.selectSupervisionTypeList(supervisionType);
+    public TableDataInfo list(SysSupervisionType supervisionType) {
+        startPage();
+        List<SysSupervisionType> list = supervisionTypeService.selectSupervisionTypeList(supervisionType);
+        return getDataTable(list);
     }
 
     /**
