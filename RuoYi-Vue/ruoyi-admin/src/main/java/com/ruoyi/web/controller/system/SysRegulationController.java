@@ -37,9 +37,10 @@ public class SysRegulationController extends BaseController {
      */
     @Anonymous
     @GetMapping("/list")
-    public AjaxResult list(SysRegulation sysRegulation) {
+    public TableDataInfo list(SysRegulation sysRegulation) {
+        startPage();
         List<SysRegulation> list = sysRegulationService.selectSysRegulationList(sysRegulation);
-        return AjaxResult.success(list);
+        return getDataTable(list);
     }
 
     /**

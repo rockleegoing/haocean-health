@@ -5,6 +5,7 @@ import java.util.List;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.system.domain.SysLegalBasis;
 import com.ruoyi.system.service.ISysLegalBasisService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +26,10 @@ public class SysLegalBasisController extends BaseController {
      */
     @Anonymous
     @GetMapping("/list")
-    public AjaxResult list(SysLegalBasis sysLegalBasis) {
+    public TableDataInfo list(SysLegalBasis sysLegalBasis) {
+        startPage();
         List<SysLegalBasis> list = sysLegalBasisService.selectSysLegalBasisList(sysLegalBasis);
-        return AjaxResult.success(list);
+        return getDataTable(list);
     }
 
     /**
