@@ -293,3 +293,23 @@ fun com.ruoyi.app.feature.law.model.LegalBasis.toEntity(): LegalBasisEntity {
         updateTime = updateTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } }
     )
 }
+
+fun com.ruoyi.app.feature.law.api.LegalTypeResponse.toEntity(): com.ruoyi.app.feature.law.db.entity.LegalTypeEntity {
+    return com.ruoyi.app.feature.law.db.entity.LegalTypeEntity(
+        typeId = typeId,
+        typeCode = typeCode,
+        typeName = typeName,
+        sortOrder = sortOrder,
+        status = status
+    )
+}
+
+fun com.ruoyi.app.feature.law.api.SupervisionTypeResponse.toEntity(): com.ruoyi.app.feature.law.db.entity.SupervisionTypeEntity {
+    return com.ruoyi.app.feature.law.db.entity.SupervisionTypeEntity(
+        typeId = typeId,
+        typeCode = typeCode,
+        typeName = typeName,
+        sortOrder = sortOrder,
+        status = status
+    )
+}

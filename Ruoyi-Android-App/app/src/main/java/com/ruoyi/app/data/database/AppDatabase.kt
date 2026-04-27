@@ -52,11 +52,15 @@ import com.ruoyi.app.data.database.entity.DocumentTemplateIndustryEntity
 import com.ruoyi.app.feature.law.db.dao.ArticleDao
 import com.ruoyi.app.feature.law.db.dao.ChapterDao
 import com.ruoyi.app.feature.law.db.dao.LegalBasisDao
+import com.ruoyi.app.feature.law.db.dao.LegalTypeDao
 import com.ruoyi.app.feature.law.db.dao.RegulationDao
+import com.ruoyi.app.feature.law.db.dao.SupervisionTypeDao
 import com.ruoyi.app.feature.law.db.entity.LegalBasisEntity
+import com.ruoyi.app.feature.law.db.entity.LegalTypeEntity
 import com.ruoyi.app.feature.law.db.entity.RegulationArticleEntity
 import com.ruoyi.app.feature.law.db.entity.RegulationChapterEntity
 import com.ruoyi.app.feature.law.db.entity.RegulationEntity
+import com.ruoyi.app.feature.law.db.entity.SupervisionTypeEntity
 
 /**
  * App 数据库
@@ -79,6 +83,8 @@ import com.ruoyi.app.feature.law.db.entity.RegulationEntity
         RegulationChapterEntity::class,
         RegulationArticleEntity::class,
         LegalBasisEntity::class,
+        LegalTypeEntity::class,
+        SupervisionTypeEntity::class,
         PhraseBookEntity::class,
         PhraseBookFtsEntity::class,
         PhraseItemEntity::class,
@@ -93,7 +99,7 @@ import com.ruoyi.app.feature.law.db.entity.RegulationEntity
         DocumentGroupEntity::class,
         DocumentTemplateIndustryEntity::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -113,6 +119,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun chapterDao(): ChapterDao
     abstract fun articleDao(): ArticleDao
     abstract fun legalBasisDao(): LegalBasisDao
+    abstract fun legalTypeDao(): LegalTypeDao
+    abstract fun supervisionTypeDao(): SupervisionTypeDao
     abstract fun phraseBookDao(): PhraseBookDao
     abstract fun phraseItemDao(): PhraseItemDao
     abstract fun phraseDetailDao(): PhraseDetailDao

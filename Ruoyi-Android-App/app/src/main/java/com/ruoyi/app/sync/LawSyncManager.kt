@@ -4,6 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.ruoyi.app.data.database.AppDatabase
 import com.ruoyi.app.feature.law.api.LawApi
+import com.ruoyi.app.feature.law.api.LegalTypeResponse
+import com.ruoyi.app.feature.law.api.SupervisionTypeResponse
+import com.ruoyi.app.feature.law.db.entity.LegalTypeEntity
+import com.ruoyi.app.feature.law.db.entity.SupervisionTypeEntity
 import com.ruoyi.app.feature.law.repository.toEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,6 +22,8 @@ class LawSyncManager(private val context: Context) {
     private val chapterDao = AppDatabase.getInstance(context).chapterDao()
     private val articleDao = AppDatabase.getInstance(context).articleDao()
     private val legalBasisDao = AppDatabase.getInstance(context).legalBasisDao()
+    private val legalTypeDao = AppDatabase.getInstance(context).legalTypeDao()
+    private val supervisionTypeDao = AppDatabase.getInstance(context).supervisionTypeDao()
 
     companion object {
         private const val PREFS_NAME = "law_sync_prefs"
@@ -71,6 +77,12 @@ class LawSyncManager(private val context: Context) {
             legalBasisDao.insertLegalBasises(entities)
         }
 
+        // 同步法律类型
+        syncLegalTypes()
+
+        // 同步监管类型
+        syncSupervisionTypes()
+
         // 更新同步时间
         prefs.edit().putLong(KEY_LAST_SYNC_TIME, System.currentTimeMillis()).apply()
     }
@@ -110,6 +122,12 @@ class LawSyncManager(private val context: Context) {
             legalBasisDao.insertLegalBasises(entities)
         }
 
+        // 增量同步法律类型
+        syncLegalTypes()
+
+        // 增量同步监管类型
+        syncSupervisionTypes()
+
         // 更新同步时间
         prefs.edit().putLong(KEY_LAST_SYNC_TIME, System.currentTimeMillis()).apply()
     }
@@ -128,6 +146,28 @@ class LawSyncManager(private val context: Context) {
         if (articleResponse.code == 200) {
             val articleEntities = articleResponse.rows.map { it.toEntity() }
             articleDao.insertArticles(articleEntities)
+        }
+    }
+
+    /**
+     * 同步法律类型
+     */
+    private suspend fun syncLegalTypes() {
+        val responses = LawApi.getLegalTypeList()
+        if (responses.isNotEmpty()) {
+            val entities = responses.map { it.toEntity() }
+            legalTypeDao.insertAll(entities)
+        }
+    }
+
+    /**
+     * 同步监管类型
+     */
+    private suspend fun syncSupervisionTypes() {
+        val responses = LawApi.getSupervisionTypeList()
+        if (responses.isNotEmpty()) {
+            val entities = responses.map { it.toEntity() }
+            supervisionTypeDao.insertAll(entities)
         }
     }
 
