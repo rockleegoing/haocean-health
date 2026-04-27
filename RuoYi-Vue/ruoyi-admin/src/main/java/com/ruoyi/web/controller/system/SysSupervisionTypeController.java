@@ -4,7 +4,11 @@ import java.util.List;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.common.annotation.Log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.system.domain.dict.SysSupervisionType;
 import com.ruoyi.system.service.ISysSupervisionTypeService;
@@ -44,8 +48,8 @@ public class SysSupervisionTypeController extends BaseController {
      */
     @Anonymous
     @GetMapping("/{typeId}")
-    public SysSupervisionType getInfo(@PathVariable("typeId") Long typeId) {
-        return supervisionTypeService.selectSupervisionTypeById(typeId);
+    public com.ruoyi.common.core.domain.AjaxResult getInfo(@PathVariable("typeId") Long typeId) {
+        return success(supervisionTypeService.selectSupervisionTypeById(typeId));
     }
 
     /**
@@ -53,8 +57,9 @@ public class SysSupervisionTypeController extends BaseController {
      */
     @Anonymous
     @PostMapping
-    public int add(@RequestBody SysSupervisionType supervisionType) {
-        return supervisionTypeService.insertSupervisionType(supervisionType);
+    public com.ruoyi.common.core.domain.AjaxResult add(@RequestBody SysSupervisionType supervisionType) {
+        supervisionType.setCreateBy(getUsername());
+        return toAjax(supervisionTypeService.insertSupervisionType(supervisionType));
     }
 
     /**
@@ -62,8 +67,9 @@ public class SysSupervisionTypeController extends BaseController {
      */
     @Anonymous
     @PutMapping
-    public int edit(@RequestBody SysSupervisionType supervisionType) {
-        return supervisionTypeService.updateSupervisionType(supervisionType);
+    public com.ruoyi.common.core.domain.AjaxResult edit(@RequestBody SysSupervisionType supervisionType) {
+        supervisionType.setUpdateBy(getUsername());
+        return toAjax(supervisionTypeService.updateSupervisionType(supervisionType));
     }
 
     /**
@@ -71,7 +77,7 @@ public class SysSupervisionTypeController extends BaseController {
      */
     @Anonymous
     @DeleteMapping("/{typeIds}")
-    public int remove(@PathVariable Long[] typeIds) {
-        return supervisionTypeService.deleteSupervisionTypeByIds(typeIds);
+    public com.ruoyi.common.core.domain.AjaxResult remove(@PathVariable Long[] typeIds) {
+        return toAjax(supervisionTypeService.deleteSupervisionTypeByIds(typeIds));
     }
 }

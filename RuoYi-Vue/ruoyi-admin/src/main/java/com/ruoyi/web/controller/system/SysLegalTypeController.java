@@ -44,8 +44,8 @@ public class SysLegalTypeController extends BaseController {
      */
     @Anonymous
     @GetMapping("/{typeId}")
-    public SysLegalType getInfo(@PathVariable("typeId") Long typeId) {
-        return legalTypeService.selectLegalTypeById(typeId);
+    public com.ruoyi.common.core.domain.AjaxResult getInfo(@PathVariable("typeId") Long typeId) {
+        return success(legalTypeService.selectLegalTypeById(typeId));
     }
 
     /**
@@ -53,8 +53,9 @@ public class SysLegalTypeController extends BaseController {
      */
     @Anonymous
     @PostMapping
-    public int add(@RequestBody SysLegalType legalType) {
-        return legalTypeService.insertLegalType(legalType);
+    public com.ruoyi.common.core.domain.AjaxResult add(@RequestBody SysLegalType legalType) {
+        legalType.setCreateBy(getUsername());
+        return toAjax(legalTypeService.insertLegalType(legalType));
     }
 
     /**
@@ -62,8 +63,9 @@ public class SysLegalTypeController extends BaseController {
      */
     @Anonymous
     @PutMapping
-    public int edit(@RequestBody SysLegalType legalType) {
-        return legalTypeService.updateLegalType(legalType);
+    public com.ruoyi.common.core.domain.AjaxResult edit(@RequestBody SysLegalType legalType) {
+        legalType.setUpdateBy(getUsername());
+        return toAjax(legalTypeService.updateLegalType(legalType));
     }
 
     /**
@@ -71,7 +73,7 @@ public class SysLegalTypeController extends BaseController {
      */
     @Anonymous
     @DeleteMapping("/{typeIds}")
-    public int remove(@PathVariable Long[] typeIds) {
-        return legalTypeService.deleteLegalTypeByIds(typeIds);
+    public com.ruoyi.common.core.domain.AjaxResult remove(@PathVariable Long[] typeIds) {
+        return toAjax(legalTypeService.deleteLegalTypeByIds(typeIds));
     }
 }
