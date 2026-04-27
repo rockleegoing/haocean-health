@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ruoyi.app.databinding.ActivityRegulationDetailBinding
+import com.ruoyi.app.databinding.ItemCatalogBinding
 import com.ruoyi.app.feature.law.db.entity.RegulationArticleEntity
 import com.ruoyi.app.feature.law.db.entity.RegulationChapterEntity
 import com.ruoyi.app.feature.law.db.entity.RegulationEntity
@@ -84,10 +85,14 @@ class RegulationDetailActivity : AppCompatActivity() {
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
+
+        // 设置目录 RecyclerView
+        binding.rvCatalog.layoutManager = LinearLayoutManager(this)
     }
 
     private var chaptersCache: List<RegulationChapterEntity> = emptyList()
     private var articlesCache: List<RegulationArticleEntity> = emptyList()
+    private var articleBasisCounts: MutableMap<Long, Pair<Int, Int>> = mutableMapOf() // articleId to (legalCount, processingCount)
 
     private fun loadData(regulationId: Long) {
         lifecycleScope.launch {
@@ -97,7 +102,18 @@ class RegulationDetailActivity : AppCompatActivity() {
             chaptersCache = chaptersDeferred.await()
             articlesCache = articlesDeferred.await()
 
+            // 加载关联统计
+            loadArticleBasisCounts()
+
             rebuildTreeItems()
+        }
+    }
+
+    private suspend fun loadArticleBasisCounts() {
+        for (article in articlesCache) {
+            val legalCount = repository.getLegalBasisCountByArticle(article.articleId)
+            val processingCount = repository.getProcessingBasisCountByArticle(article.articleId)
+            articleBasisCounts[article.articleId] = Pair(legalCount, processingCount)
         }
     }
 
@@ -117,12 +133,15 @@ class RegulationDetailActivity : AppCompatActivity() {
             if (expandedChapters.contains(chapter.chapterId)) {
                 val chapterArticles = articlesCache.filter { it.chapterId == chapter.chapterId }
                 for (article in chapterArticles) {
+                    val counts = articleBasisCounts[article.articleId] ?: Pair(0, 0)
                     treeItems.add(
                         ChapterTreeItem.Article(
                             articleId = article.articleId,
                             chapterId = article.chapterId,
                             articleNo = article.articleNo,
-                            content = article.content
+                            content = article.content,
+                            legalBasisCount = counts.first,
+                            processingBasisCount = counts.second
                         )
                     )
                 }
@@ -130,5 +149,59 @@ class RegulationDetailActivity : AppCompatActivity() {
         }
 
         adapter.submitList(treeItems)
+
+        // 显示目录
+        if (chaptersCache.isNotEmpty()) {
+            binding.tvChaptersLabel.visibility = View.VISIBLE
+            binding.rvCatalog.visibility = View.VISIBLE
+            setupCatalog()
+        }
+    }
+
+    private fun setupCatalog() {
+        val catalogItems = chaptersCache.map { chapter ->
+            CatalogItem(chapter.chapterId, "${chapter.chapterNo ?: ""} ${chapter.chapterTitle ?: ""}")
+        }
+        binding.rvCatalog.adapter = CatalogAdapter(catalogItems) { chapterId ->
+            // 点击目录项，滚动到对应章节并展开
+            if (!expandedChapters.contains(chapterId)) {
+                expandedChapters.add(chapterId)
+            }
+            rebuildTreeItems()
+            // 滚动到对应位置
+            val position = adapter.currentList.indexOfFirst {
+                it is ChapterTreeItem.Chapter && it.chapterId == chapterId
+            }
+            if (position >= 0) {
+                binding.recyclerView.scrollToPosition(position)
+            }
+        }
     }
 }
+
+data class CatalogItem(
+    val chapterId: Long,
+    val title: String
+)
+
+class CatalogAdapter(
+    private val items: List<CatalogItem>,
+    private val onItemClick: (Long) -> Unit
+) : androidx.recyclerview.widget.RecyclerView.Adapter<CatalogAdapter.ViewHolder>() {
+
+    class ViewHolder(val binding: ItemCatalogBinding) : androidx.recyclerview.widget.RecyclerView.ViewHolder(binding.root)
+
+    override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): ViewHolder {
+        val binding = ItemCatalogBinding.inflate(android.view.LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = items[position]
+        holder.binding.tvCatalogTitle.text = item.title
+        holder.binding.root.setOnClickListener {
+            onItemClick(item.chapterId)
+        }
+    }
+
+    override fun getItemCount() = items.size
