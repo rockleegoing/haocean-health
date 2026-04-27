@@ -7,23 +7,22 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.ruoyi.app.databinding.ActivityLegalBasisDetailBinding
-import com.ruoyi.app.feature.law.db.entity.LegalBasisEntity
+import com.ruoyi.app.databinding.ActivityProcessingBasisDetailBinding
+import com.ruoyi.app.feature.law.db.entity.ProcessingBasisEntity
 import com.ruoyi.app.feature.law.repository.LawRepository
-import com.therouter.TheRouter
 import com.therouter.router.Route
 import kotlinx.coroutines.launch
 
-@Route(path = "/law/legalBasis/detail")
-class LegalBasisDetailActivity : AppCompatActivity() {
+@Route(path = "/law/processingBasis/detail")
+class ProcessingBasisDetailActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityLegalBasisDetailBinding
+    private lateinit var binding: ActivityProcessingBasisDetailBinding
     private lateinit var repository: LawRepository
     private var basisId: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLegalBasisDetailBinding.inflate(layoutInflater)
+        binding = ActivityProcessingBasisDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         repository = LawRepository(this)
@@ -79,26 +78,26 @@ class LegalBasisDetailActivity : AppCompatActivity() {
 
     private fun loadDetail() {
         lifecycleScope.launch {
-            val legalBasis = repository.getLegalBasisById(basisId)
-            legalBasis?.let { displayDetail(it) }
+            val processingBasis = repository.getProcessingBasisById(basisId)
+            processingBasis?.let { displayDetail(it) }
         }
     }
 
-    private fun displayDetail(legalBasis: LegalBasisEntity) {
-        binding.tvTitle.text = legalBasis.title
+    private fun displayDetail(processingBasis: ProcessingBasisEntity) {
+        binding.tvTitle.text = processingBasis.title
 
         // 格式化编号：001 -> 1.
-        val formattedBasisNo = formatBasisNo(legalBasis.basisNo)
-        binding.tvSubtitle.text = if (formattedBasisNo.isNotEmpty()) "[$formattedBasisNo] ${legalBasis.violationType ?: ""} ${legalBasis.effectiveDate ?: ""}"
+        val formattedBasisNo = formatBasisNo(processingBasis.basisNo)
+        binding.tvSubtitle.text = if (formattedBasisNo.isNotEmpty()) "[$formattedBasisNo] ${processingBasis.violationType ?: ""} ${processingBasis.effectiveDate ?: ""}"
 
-        binding.tvBasisNo.text = legalBasis.basisNo ?: "无"
-        binding.tvViolationType.text = legalBasis.violationType ?: "无"
-        binding.tvIssuingAuthority.text = legalBasis.issuingAuthority ?: "无"
-        binding.tvEffectiveDate.text = legalBasis.effectiveDate ?: "无"
-        binding.tvLegalLevel.text = legalBasis.legalLevel ?: "无"
-        binding.tvClauses.text = legalBasis.clauses ?: "暂无条款内容"
-        binding.tvLegalLiability.text = legalBasis.legalLiability ?: "暂无法律责任"
-        binding.tvDiscretionStandard.text = legalBasis.discretionStandard ?: "暂无裁量标准"
+        binding.tvBasisNo.text = processingBasis.basisNo ?: "无"
+        binding.tvViolationType.text = processingBasis.violationType ?: "无"
+        binding.tvIssuingAuthority.text = processingBasis.issuingAuthority ?: "无"
+        binding.tvEffectiveDate.text = processingBasis.effectiveDate ?: "无"
+        binding.tvLegalLevel.text = processingBasis.legalLevel ?: "无"
+        binding.tvClauses.text = processingBasis.clauses ?: "暂无条款内容"
+        binding.tvLegalLiability.text = processingBasis.legalLiability ?: "暂无法律责任"
+        binding.tvDiscretionStandard.text = processingBasis.discretionStandard ?: "暂无裁量标准"
     }
 
     private fun formatBasisNo(basisNo: String?): String {

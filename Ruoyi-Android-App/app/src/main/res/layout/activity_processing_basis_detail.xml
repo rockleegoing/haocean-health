@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:background="@color/white"
         app:navigationIcon="@drawable/ic_back"
-        app:title="定性依据详情"/>
+        app:title="处理依据详情"/>
 
     <ScrollView
         android:layout_width="match_parent"
