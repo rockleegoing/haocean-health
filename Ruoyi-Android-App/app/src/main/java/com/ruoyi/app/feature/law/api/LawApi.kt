@@ -4,6 +4,8 @@ import com.ruoyi.app.api.ConfigApi
 import com.ruoyi.app.feature.law.model.*
 import com.ruoyi.app.feature.law.model.LegalBasisListResponse
 import com.ruoyi.app.feature.law.model.LegalBasisDetailResponse
+import com.ruoyi.app.feature.law.model.ProcessingBasisListResponse
+import com.ruoyi.app.feature.law.model.ProcessingBasisDetailResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -29,6 +31,17 @@ data class SupervisionTypeResponse(
     val typeName: String,
     val sortOrder: Int,
     val status: String
+)
+
+// 依据关联响应
+data class BasisLinkResponse(
+    val linkId: Long,
+    val basisType: String,
+    val basisId: Long,
+    val chapterId: Long,
+    val articleId: Long?,
+    val createBy: String?,
+    val createTime: Long?
 )
 
 /**
@@ -444,5 +457,142 @@ object LawApi {
         } catch (e: Exception) {
             emptyList()
         }
+    }
+
+    // ==================== 处理依据API ====================
+
+    /**
+     * 获取处理依据列表（支持增量同步）
+     */
+    suspend fun getProcessingBasisList(
+        pageNum: Int = 1,
+        pageSize: Int = 20,
+        title: String? = null,
+        violationType: String? = null,
+        status: String? = null,
+        updateTimeFrom: String? = null
+    ): ProcessingBasisListResponse = withContext(Dispatchers.IO) {
+        val urlBuilder = StringBuilder("${ConfigApi.baseUrl}/system/processingBasis/list?")
+            .append("pageNum=$pageNum")
+            .append("&pageSize=$pageSize")
+        title?.let { urlBuilder.append("&title=$it") }
+        violationType?.let { urlBuilder.append("&violationType=$it") }
+        status?.let { urlBuilder.append("&status=$it") }
+        updateTimeFrom?.let { urlBuilder.append("&updateTimeFrom=$it") }
+
+        val request = Request.Builder()
+            .url(urlBuilder.toString())
+            .get()
+            .build()
+
+        val response = client.newCall(request).execute()
+        parseProcessingBasisListResponse(response.body?.string() ?: "")
+    }
+
+    /**
+     * 获取处理依据详情
+     */
+    suspend fun getProcessingBasisDetail(basisId: Long): ProcessingBasisDetailResponse = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url("${ConfigApi.baseUrl}/system/processingBasis/$basisId")
+            .get()
+            .build()
+
+        val response = client.newCall(request).execute()
+        parseProcessingBasisDetailResponse(response.body?.string() ?: "")
+    }
+
+    /**
+     * 获取某法规关联的处理依据
+     */
+    suspend fun getProcessingBasisByRegulation(regulationId: Long): ProcessingBasisListResponse = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url("${ConfigApi.baseUrl}/system/processingBasis/regulation/$regulationId")
+            .get()
+            .build()
+
+        val response = client.newCall(request).execute()
+        parseProcessingBasisListResponse(response.body?.string() ?: "")
+    }
+
+    /**
+     * 获取所有依据关联（用于同步）
+     */
+    suspend fun getBasisLinkListAll(): List<BasisLinkResponse> = withContext(Dispatchers.IO) {
+        // 这个接口需要后端支持，暂时返回空列表
+        // TODO: 后端需要提供 /system/basisLink/listAll 接口
+        emptyList()
+    }
+
+    /**
+     * 获取某条款关联的定性依据（用于同步）
+     */
+    suspend fun getLegalBasisByArticleAll(): List<BasisLinkResponse> = withContext(Dispatchers.IO) {
+        // 通过 /system/basisLink/legalBasis/{articleId} 获取，但需要先知道所有条款ID
+        // 暂时通过遍历所有法规的所有条款来获取
+        emptyList()
+    }
+
+    /**
+     * 获取某条款关联的处理依据（用于同步）
+     */
+    suspend fun getProcessingBasisByArticleAll(): List<BasisLinkResponse> = withContext(Dispatchers.IO) {
+        emptyList()
+    }
+
+    private fun parseProcessingBasisListResponse(json: String): ProcessingBasisListResponse {
+        return try {
+            val obj = JSONObject(json)
+            val dataArray = obj.optJSONArray("data") ?: JSONArray()
+            val rows = mutableListOf<ProcessingBasis>()
+            for (i in 0 until dataArray.length()) {
+                val item = dataArray.getJSONObject(i)
+                rows.add(parseProcessingBasis(item))
+            }
+            ProcessingBasisListResponse(
+                rows = rows,
+                total = rows.size,
+                code = obj.optInt("code", 0),
+                msg = obj.optString("msg", null)
+            )
+        } catch (e: Exception) {
+            ProcessingBasisListResponse(rows = emptyList(), total = 0, code = 500, msg = e.message)
+        }
+    }
+
+    private fun parseProcessingBasisDetailResponse(json: String): ProcessingBasisDetailResponse {
+        return try {
+            val obj = JSONObject(json)
+            val data = obj.optJSONObject("data")?.let { parseProcessingBasis(it) }
+            ProcessingBasisDetailResponse(
+                data = data,
+                code = obj.optInt("code", 0),
+                msg = obj.optString("msg", null)
+            )
+        } catch (e: Exception) {
+            ProcessingBasisDetailResponse(data = null, code = 500, msg = e.message)
+        }
+    }
+
+    private fun parseProcessingBasis(obj: JSONObject): ProcessingBasis {
+        return ProcessingBasis(
+            basisId = obj.optLong("basisId", 0),
+            basisNo = obj.optString("basisNo", null),
+            title = obj.optString("title", ""),
+            violationType = obj.optString("violationType", null),
+            issuingAuthority = obj.optString("issuingAuthority", null),
+            effectiveDate = obj.optString("effectiveDate", null),
+            legalLevel = obj.optString("legalLevel", null),
+            clauses = obj.optString("clauses", null),
+            legalLiability = obj.optString("legalLiability", null),
+            discretionStandard = obj.optString("discretionStandard", null),
+            regulationId = if (obj.has("regulationId") && !obj.isNull("regulationId")) obj.optLong("regulationId") else null,
+            status = obj.optString("status", "0"),
+            delFlag = obj.optString("delFlag", "0"),
+            createBy = obj.optString("createBy", null),
+            createTime = obj.optString("createTime", null),
+            updateBy = obj.optString("updateBy", null),
+            updateTime = obj.optString("updateTime", null)
+        )
     }
 }

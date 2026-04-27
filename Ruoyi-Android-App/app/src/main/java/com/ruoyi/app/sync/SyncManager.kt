@@ -241,6 +241,20 @@ class SyncManager private constructor() {
                 return false
             }
 
+            // 同步处理依据
+            val processingResult = repository.syncProcessingBasisesFromServer()
+            if (processingResult.isFailure) {
+                Log.e("SyncManager", "处理依据同步失败: ${processingResult.exceptionOrNull()?.message}", processingResult.exceptionOrNull())
+                return false
+            }
+
+            // 同步依据关联
+            val linkResult = repository.syncBasisChapterLinksFromServer()
+            if (linkResult.isFailure) {
+                Log.e("SyncManager", "依据关联同步失败: ${linkResult.exceptionOrNull()?.message}", linkResult.exceptionOrNull())
+                return false
+            }
+
             true
         } catch (e: Exception) {
             Log.e("SyncManager", "法律法规同步异常: ${e.message}", e)
