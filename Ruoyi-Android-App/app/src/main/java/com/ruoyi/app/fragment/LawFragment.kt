@@ -2,16 +2,20 @@ package com.ruoyi.app.fragment
 
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.ruoyi.app.databinding.FragmentLawBinding
-import com.ruoyi.app.feature.law.model.LegalType
-import com.ruoyi.app.feature.law.model.SupervisionType
+import com.ruoyi.app.feature.law.repository.LawRepository
 import com.ruoyi.app.feature.law.ui.regulation.RegulationListActivity
 import com.ruoyi.app.model.Constant
 import com.ruoyi.code.base.BaseBindingFragment
 import com.therouter.TheRouter
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class LawFragment : BaseBindingFragment<FragmentLawBinding>() {
+
+    private lateinit var repository: LawRepository
 
     companion object {
         @JvmStatic
@@ -19,6 +23,7 @@ class LawFragment : BaseBindingFragment<FragmentLawBinding>() {
     }
 
     override fun initView() {
+        repository = LawRepository(requireContext())
         setupLegalTypesGrid()
         setupSupervisionTypesGrid()
         setupSearch()
@@ -28,31 +33,41 @@ class LawFragment : BaseBindingFragment<FragmentLawBinding>() {
     }
 
     private fun setupLegalTypesGrid() {
-        val adapter = LawTypeAdapter(LegalType.ALL) { legalType ->
-            // 点击法律类型，跳转到法规列表
-            val bundle = Bundle().apply {
-                putString("filter_type", "legal_type")
-                putString("filter_value", legalType)
-                putString("title", legalType)
+        lifecycleScope.launch {
+            repository.getAllLegalTypes().collectLatest { legalTypes ->
+                val typeNames = legalTypes.map { it.typeName }
+                val adapter = LawTypeAdapter(typeNames) { legalTypeName ->
+                    // 点击法律类型，跳转到法规列表
+                    val bundle = Bundle().apply {
+                        putString("filter_type", "legal_type")
+                        putString("filter_value", legalTypeName)
+                        putString("title", legalTypeName)
+                    }
+                    TheRouter.build(Constant.regulationListRoute).with(bundle).navigation()
+                }
+                binding.rvLegalTypes.layoutManager = GridLayoutManager(requireContext(), 3)
+                binding.rvLegalTypes.adapter = adapter
             }
-            TheRouter.build(Constant.regulationListRoute).with(bundle).navigation()
         }
-        binding.rvLegalTypes.layoutManager = GridLayoutManager(requireContext(), 3)
-        binding.rvLegalTypes.adapter = adapter
     }
 
     private fun setupSupervisionTypesGrid() {
-        val adapter = LawTypeAdapter(SupervisionType.ALL) { supervisionType ->
-            // 点击监管类型，跳转到法规列表
-            val bundle = Bundle().apply {
-                putString("filter_type", "supervision_type")
-                putString("filter_value", supervisionType)
-                putString("title", supervisionType)
+        lifecycleScope.launch {
+            repository.getAllSupervisionTypes().collectLatest { supervisionTypes ->
+                val typeNames = supervisionTypes.map { it.typeName }
+                val adapter = LawTypeAdapter(typeNames) { supervisionTypeName ->
+                    // 点击监管类型，跳转到法规列表
+                    val bundle = Bundle().apply {
+                        putString("filter_type", "supervision_type")
+                        putString("filter_value", supervisionTypeName)
+                        putString("title", supervisionTypeName)
+                    }
+                    TheRouter.build(Constant.regulationListRoute).with(bundle).navigation()
+                }
+                binding.rvSupervisionTypes.layoutManager = GridLayoutManager(requireContext(), 3)
+                binding.rvSupervisionTypes.adapter = adapter
             }
-            TheRouter.build(Constant.regulationListRoute).with(bundle).navigation()
         }
-        binding.rvSupervisionTypes.layoutManager = GridLayoutManager(requireContext(), 3)
-        binding.rvSupervisionTypes.adapter = adapter
     }
 
     private fun setupSearch() {

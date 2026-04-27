@@ -11,12 +11,12 @@
       </el-form-item>
       <el-form-item label="法律类型" prop="legalType">
         <el-select v-model="queryParams.legalType" placeholder="请选择法律类型" clearable>
-          <el-option label="法律" value="法律" />
-          <el-option label="法规" value="法规" />
-          <el-option label="规章" value="规章" />
-          <el-option label="规范性文件" value="规范性文件" />
-          <el-option label="批复文件" value="批复文件" />
-          <el-option label="标准" value="标准" />
+          <el-option
+            v-for="item in legalTypeOptions"
+            :key="item.typeId"
+            :label="item.typeName"
+            :value="item.typeName"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="颁发机构" prop="issuingAuthority">
@@ -147,12 +147,12 @@
           <el-col :span="12">
             <el-form-item label="法律类型" prop="legalType">
               <el-select v-model="form.legalType" placeholder="请选择法律类型" style="width: 100%">
-                <el-option label="法律" value="法律" />
-                <el-option label="法规" value="法规" />
-                <el-option label="规章" value="规章" />
-                <el-option label="规范性文件" value="规范性文件" />
-                <el-option label="批复文件" value="批复文件" />
-                <el-option label="标准" value="标准" />
+                <el-option
+                  v-for="item in legalTypeOptions"
+                  :key="item.typeId"
+                  :label="item.typeName"
+                  :value="item.typeName"
+                />
               </el-select>
             </el-form-item>
           </el-col>
@@ -253,6 +253,7 @@
 
 <script>
 import { listRegulation, getRegulation, delRegulation, addRegulation, updateRegulation } from "@/api/system/regulation"
+import { allLegalType } from "@/api/system/legalType"
 
 export default {
   name: "Regulation",
@@ -260,6 +261,8 @@ export default {
     return {
       // 遮罩层
       loading: true,
+      // 法律类型选项
+      legalTypeOptions: [],
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -304,6 +307,7 @@ export default {
   },
   created() {
     this.getList()
+    this.getLegalTypeOptions()
   },
   methods: {
     /** 查询法律法规列表 */
@@ -313,6 +317,12 @@ export default {
         this.regulationList = response.rows || []
         this.total = response.total || 0
         this.loading = false
+      })
+    },
+    /** 获取法律类型选项 */
+    getLegalTypeOptions() {
+      allLegalType().then(response => {
+        this.legalTypeOptions = response.rows || []
       })
     },
     // 取消按钮

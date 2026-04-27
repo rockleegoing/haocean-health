@@ -3,10 +3,14 @@ package com.ruoyi.app.feature.law.repository
 import android.content.Context
 import com.ruoyi.app.data.database.AppDatabase
 import com.ruoyi.app.feature.law.api.LawApi
+import com.ruoyi.app.feature.law.db.entity.BasisChapterLinkEntity
 import com.ruoyi.app.feature.law.db.entity.LegalBasisEntity
+import com.ruoyi.app.feature.law.db.entity.LegalTypeEntity
+import com.ruoyi.app.feature.law.db.entity.ProcessingBasisEntity
 import com.ruoyi.app.feature.law.db.entity.RegulationArticleEntity
 import com.ruoyi.app.feature.law.db.entity.RegulationChapterEntity
 import com.ruoyi.app.feature.law.db.entity.RegulationEntity
+import com.ruoyi.app.feature.law.db.entity.SupervisionTypeEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -21,6 +25,10 @@ class LawRepository(private val context: Context) {
     private val chapterDao = AppDatabase.getInstance(context).chapterDao()
     private val articleDao = AppDatabase.getInstance(context).articleDao()
     private val legalBasisDao = AppDatabase.getInstance(context).legalBasisDao()
+    private val legalTypeDao = AppDatabase.getInstance(context).legalTypeDao()
+    private val supervisionTypeDao = AppDatabase.getInstance(context).supervisionTypeDao()
+    private val processingBasisDao = AppDatabase.getInstance(context).processingBasisDao()
+    private val basisChapterLinkDao = AppDatabase.getInstance(context).basisChapterLinkDao()
 
     // ==================== 法律法规 ====================
 
@@ -110,6 +118,80 @@ class LawRepository(private val context: Context) {
         return legalBasisDao.getLegalBasisById(basisId)
     }
 
+    /**
+     * 获取某条款关联的定性依据数量
+     */
+    suspend fun getLegalBasisCountByArticle(articleId: Long): Int {
+        return basisChapterLinkDao.getLegalBasisCountByArticle(articleId)
+    }
+
+    /**
+     * 获取某条款关联的处理依据数量
+     */
+    suspend fun getProcessingBasisCountByArticle(articleId: Long): Int {
+        return basisChapterLinkDao.getProcessingBasisCountByArticle(articleId)
+    }
+
+    /**
+     * 获取某条款关联的定性依据列表
+     */
+    fun getLegalBasisesByArticle(articleId: Long): Flow<List<LegalBasisEntity>> {
+        return basisChapterLinkDao.getLegalBasisesByArticle(articleId)
+    }
+
+    /**
+     * 获取某条款关联的处理依据列表
+     */
+    fun getProcessingBasisesByArticle(articleId: Long): Flow<List<ProcessingBasisEntity>> {
+        return basisChapterLinkDao.getProcessingBasisesByArticle(articleId)
+    }
+
+    // ==================== 处理依据 ====================
+
+    /**
+     * 获取所有处理依据
+     */
+    fun getAllProcessingBasises(): Flow<List<ProcessingBasisEntity>> {
+        return processingBasisDao.getAllProcessingBasises()
+    }
+
+    /**
+     * 按法规ID获取处理依据
+     */
+    fun getProcessingBasisesByRegulationId(regulationId: Long): Flow<List<ProcessingBasisEntity>> {
+        return processingBasisDao.getProcessingBasisesByRegulationId(regulationId)
+    }
+
+    /**
+     * 搜索处理依据
+     */
+    fun searchProcessingBasises(keyword: String): Flow<List<ProcessingBasisEntity>> {
+        return processingBasisDao.searchProcessingBasises(keyword)
+    }
+
+    /**
+     * 获取处理依据详情
+     */
+    suspend fun getProcessingBasisById(basisId: Long): ProcessingBasisEntity? {
+        return processingBasisDao.getProcessingBasisById(basisId)
+    }
+
+    // ==================== 字典查询 ====================
+
+    /**
+     * 获取所有法律类型
+     */
+    fun getAllLegalTypes(): Flow<List<LegalTypeEntity>> {
+        return legalTypeDao.getAllLegalTypes()
+    }
+
+    /**
+     * 获取所有监管类型
+     */
+    fun getAllSupervisionTypes(): Flow<List<SupervisionTypeEntity>> {
+        return supervisionTypeDao.getAllSupervisionTypes()
+    }
+
     // ==================== 同步方法 ====================
 
     /**
@@ -168,6 +250,39 @@ class LawRepository(private val context: Context) {
             } else {
                 Result.failure(Exception(response.msg ?: "同步失败"))
             }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 从服务器同步处理依据
+     */
+    suspend fun syncProcessingBasisesFromServer(): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val response = LawApi.getProcessingBasisList(pageNum = 1, pageSize = 1000)
+            if (response.code == 200) {
+                val entities = response.rows.map { it.toEntity() }
+                processingBasisDao.insertProcessingBasises(entities)
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception(response.msg ?: "同步失败"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 从服务器同步依据关联
+     */
+    suspend fun syncBasisChapterLinksFromServer(): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val legalLinks = LawApi.getLegalBasisByArticleAll()
+            val processingLinks = LawApi.getProcessingBasisByArticleAll()
+            val allLinks = (legalLinks + processingLinks).map { it.toEntity() }
+            basisChapterLinkDao.insertLinks(allLinks)
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -291,5 +406,60 @@ fun com.ruoyi.app.feature.law.model.LegalBasis.toEntity(): LegalBasisEntity {
         createTime = createTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
         updateBy = updateBy,
         updateTime = updateTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } }
+    )
+}
+
+fun com.ruoyi.app.feature.law.api.LegalTypeResponse.toEntity(): com.ruoyi.app.feature.law.db.entity.LegalTypeEntity {
+    return com.ruoyi.app.feature.law.db.entity.LegalTypeEntity(
+        typeId = typeId,
+        typeCode = typeCode,
+        typeName = typeName,
+        sortOrder = sortOrder,
+        status = status
+    )
+}
+
+fun com.ruoyi.app.feature.law.api.SupervisionTypeResponse.toEntity(): com.ruoyi.app.feature.law.db.entity.SupervisionTypeEntity {
+    return com.ruoyi.app.feature.law.db.entity.SupervisionTypeEntity(
+        typeId = typeId,
+        typeCode = typeCode,
+        typeName = typeName,
+        sortOrder = sortOrder,
+        status = status
+    )
+}
+
+fun com.ruoyi.app.feature.law.model.ProcessingBasis.toEntity(): ProcessingBasisEntity {
+    val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.CHINA)
+    return ProcessingBasisEntity(
+        basisId = basisId,
+        basisNo = basisNo,
+        title = title,
+        violationType = violationType,
+        issuingAuthority = issuingAuthority,
+        effectiveDate = effectiveDate,
+        legalLevel = legalLevel,
+        clauses = clauses,
+        legalLiability = legalLiability,
+        discretionStandard = discretionStandard,
+        regulationId = regulationId,
+        status = status,
+        delFlag = delFlag,
+        createBy = createBy,
+        createTime = createTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
+        updateBy = updateBy,
+        updateTime = updateTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } }
+    )
+}
+
+fun com.ruoyi.app.feature.law.api.BasisLinkResponse.toEntity(): BasisChapterLinkEntity {
+    return BasisChapterLinkEntity(
+        linkId = linkId,
+        basisType = basisType,
+        basisId = basisId,
+        chapterId = chapterId,
+        articleId = articleId,
+        createBy = createBy,
+        createTime = createTime
     )
 }

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysBasisChapterLinkMapper">
+
+    <resultMap type="SysBasisChapterLink" id="SysBasisChapterLinkResult">
+        <result property="linkId" column="link_id"/>
+        <result property="basisType" column="basis_type"/>
+        <result property="basisId" column="basis_id"/>
+        <result property="chapterId" column="chapter_id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="selectSysBasisChapterLinkVo">
+        select link_id, basis_type, basis_id, chapter_id, article_id, create_by, create_time
+        from sys_basis_chapter_link
+    </sql>
+
+    <select id="selectBasisChapterLinkList" parameterType="SysBasisChapterLink" resultMap="SysBasisChapterLinkResult">
+        <include refid="selectSysBasisChapterLinkVo"/>
+        <where>
+            <if test="basisType != null and basisType != ''">and basis_type = #{basisType}</if>
+            <if test="basisId != null">and basis_id = #{basisId}</if>
+            <if test="chapterId != null">and chapter_id = #{chapterId}</if>
+            <if test="articleId != null">and article_id = #{articleId}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <!-- 根据条款ID查询关联的定性依据 -->
+    <select id="selectLegalBasisByArticle" resultType="map">
+        SELECT
+            lb.basis_id as basisId,
+            lb.basis_no as basisNo,
+            lb.title as title,
+            lb.violation_type as violationType,
+            lb.issuing_authority as issuingAuthority,
+            lb.effective_date as effectiveDate,
+            lb.legal_level as legalLevel,
+            lb.clauses as clauses,
+            lb.legal_liability as legalLiability,
+            lb.discretion_standard as discretionStandard
+        FROM sys_legal_basis lb
+        INNER JOIN sys_basis_chapter_link bcl ON lb.basis_id = bcl.basis_id
+        WHERE bcl.article_id = #{articleId} AND bcl.basis_type = 'legal' AND lb.del_flag = '0'
+        ORDER BY lb.basis_no ASC
+    </select>
+
+    <!-- 根据条款ID查询关联的处理依据 -->
+    <select id="selectProcessingBasisByArticle" resultType="map">
+        SELECT
+            pb.basis_id as basisId,
+            pb.basis_no as basisNo,
+            pb.title as title,
+            pb.violation_type as violationType,
+            pb.issuing_authority as issuingAuthority,
+            pb.effective_date as effectiveDate,
+            pb.legal_level as legalLevel,
+            pb.clauses as clauses,
+            pb.legal_liability as legalLiability,
+            pb.discretion_standard as discretionStandard
+        FROM sys_processing_basis pb
+        INNER JOIN sys_basis_chapter_link bcl ON pb.basis_id = bcl.basis_id
+        WHERE bcl.article_id = #{articleId} AND bcl.basis_type = 'processing' AND pb.del_flag = '0'
+        ORDER BY pb.basis_no ASC
+    </select>
+
+    <insert id="insertBasisChapterLink" parameterType="SysBasisChapterLink" useGeneratedKeys="true" keyProperty="linkId">
+        insert into sys_basis_chapter_link
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="basisType != null and basisType != ''">basis_type,</if>
+            <if test="basisId != null">basis_id,</if>
+            <if test="chapterId != null">chapter_id,</if>
+            <if test="articleId != null">article_id,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="basisType != null and basisType != ''">#{basisType},</if>
+            <if test="basisId != null">#{basisId},</if>
+            <if test="chapterId != null">#{chapterId},</if>
+            <if test="articleId != null">#{articleId},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <delete id="deleteBasisChapterLinkById" parameterType="Long">
+        delete from sys_basis_chapter_link where link_id = #{linkId}
+    </delete>
+
+    <delete id="deleteBasisChapterLinkByIds" parameterType="String">
+        delete from sys_basis_chapter_link where link_id in
+        <foreach item="linkId" collection="array" open="(" separator="," close=")">
+            #{linkId}
+        </foreach>
+    </delete>
+
+    <!-- 获取章节下条目的关联依据统计 -->
+    <select id="selectArticleBasisCountByRegulation" resultType="map">
+        SELECT
+            c.chapter_id as chapterId,
+            c.chapter_no as chapterNo,
+            c.chapter_title as chapterTitle,
+            a.article_id as articleId,
+            a.article_no as articleNo,
+            a.content as content,
+            COALESCE(lb.legal_count, 0) as legalBasisCount,
+            COALESCE(pb.processing_count, 0) as processingBasisCount
+        FROM sys_regulation_chapter c
+        INNER JOIN sys_regulation_article a ON c.chapter_id = a.chapter_id
+        LEFT JOIN (
+            SELECT article_id, COUNT(*) as legal_count
+            FROM sys_basis_chapter_link
+            WHERE basis_type = 'legal' AND article_id IS NOT NULL
+            GROUP BY article_id
+        ) lb ON a.article_id = lb.article_id
+        LEFT JOIN (
+            SELECT article_id, COUNT(*) as processing_count
+            FROM sys_basis_chapter_link
+            WHERE basis_type = 'processing' AND article_id IS NOT NULL
+            GROUP BY article_id
+        ) pb ON a.article_id = pb.article_id
+        WHERE c.regulation_id = #{regulationId}
+        ORDER BY c.chapter_no ASC, a.article_no ASC
+    </select>
+
+</mapper>

@@ -10,11 +10,11 @@ import androidx.lifecycle.lifecycleScope
 import com.ruoyi.app.databinding.ActivityLegalBasisDetailBinding
 import com.ruoyi.app.feature.law.db.entity.LegalBasisEntity
 import com.ruoyi.app.feature.law.repository.LawRepository
-import com.ruoyi.app.model.Constant
+import com.therouter.TheRouter
 import com.therouter.router.Route
 import kotlinx.coroutines.launch
 
-@Route(path = Constant.legalBasisDetailRoute)
+@Route(path = "/law/legalBasis/detail")
 class LegalBasisDetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLegalBasisDetailBinding
@@ -28,24 +28,53 @@ class LegalBasisDetailActivity : AppCompatActivity() {
 
         repository = LawRepository(this)
         basisId = intent.getLongExtra("basis_id", 0)
+
+        setupToolbar()
+        setupCopyButtons()
+
         if (basisId > 0) {
             loadDetail()
+        } else {
+            finish()
         }
-        setupCopyButton()
     }
 
-    private fun setupCopyButton() {
+    private fun setupToolbar() {
+        binding.toolbar.setNavigationOnClickListener { finish() }
+    }
+
+    private fun setupCopyButtons() {
+        binding.btnCopyBasisNo.setOnClickListener {
+            copyToClipboard(binding.tvBasisNo.text.toString())
+        }
+        binding.btnCopyViolationType.setOnClickListener {
+            copyToClipboard(binding.tvViolationType.text.toString())
+        }
+        binding.btnCopyIssuingAuthority.setOnClickListener {
+            copyToClipboard(binding.tvIssuingAuthority.text.toString())
+        }
+        binding.btnCopyEffectiveDate.setOnClickListener {
+            copyToClipboard(binding.tvEffectiveDate.text.toString())
+        }
+        binding.btnCopyLegalLevel.setOnClickListener {
+            copyToClipboard(binding.tvLegalLevel.text.toString())
+        }
         binding.btnCopyClauses.setOnClickListener {
-            val clauses = binding.tvClauses.text.toString()
-            copyToClipboard(clauses)
-            Toast.makeText(this, "条款内容已复制", Toast.LENGTH_SHORT).show()
+            copyToClipboard(binding.tvClauses.text.toString())
+        }
+        binding.btnCopyLegalLiability.setOnClickListener {
+            copyToClipboard(binding.tvLegalLiability.text.toString())
+        }
+        binding.btnCopyDiscretionStandard.setOnClickListener {
+            copyToClipboard(binding.tvDiscretionStandard.text.toString())
         }
     }
 
     private fun copyToClipboard(text: String) {
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("条款内容", text)
+        val clip = ClipData.newPlainText("依据内容", text)
         clipboard.setPrimaryClip(clip)
+        Toast.makeText(this, "已复制", Toast.LENGTH_SHORT).show()
     }
 
     private fun loadDetail() {
@@ -57,13 +86,24 @@ class LegalBasisDetailActivity : AppCompatActivity() {
 
     private fun displayDetail(legalBasis: LegalBasisEntity) {
         binding.tvTitle.text = legalBasis.title
-        binding.tvBasisNo.text = "编号: ${legalBasis.basisNo ?: "无"}"
-        binding.tvViolationType.text = "违法类型: ${legalBasis.violationType ?: "无"}"
-        binding.tvIssuingAuthority.text = "颁发机构: ${legalBasis.issuingAuthority ?: "未知"}"
-        binding.tvEffectiveDate.text = "实施时间: ${legalBasis.effectiveDate ?: "未知"}"
-        binding.tvLegalLevel.text = "效级: ${legalBasis.legalLevel ?: "无"}"
+
+        // 格式化编号：001 -> 1.
+        val formattedBasisNo = formatBasisNo(legalBasis.basisNo)
+        binding.tvSubtitle.text = if (formattedBasisNo.isNotEmpty()) "[$formattedBasisNo] ${legalBasis.violationType ?: ""} ${legalBasis.effectiveDate ?: ""}"
+
+        binding.tvBasisNo.text = legalBasis.basisNo ?: "无"
+        binding.tvViolationType.text = legalBasis.violationType ?: "无"
+        binding.tvIssuingAuthority.text = legalBasis.issuingAuthority ?: "无"
+        binding.tvEffectiveDate.text = legalBasis.effectiveDate ?: "无"
+        binding.tvLegalLevel.text = legalBasis.legalLevel ?: "无"
         binding.tvClauses.text = legalBasis.clauses ?: "暂无条款内容"
         binding.tvLegalLiability.text = legalBasis.legalLiability ?: "暂无法律责任"
         binding.tvDiscretionStandard.text = legalBasis.discretionStandard ?: "暂无裁量标准"
+    }
+
+    private fun formatBasisNo(basisNo: String?): String {
+        if (basisNo.isNullOrBlank()) return ""
+        val num = basisNo.toLongOrNull() ?: return basisNo
+        return "$num."
     }
 }

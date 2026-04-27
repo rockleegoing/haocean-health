@@ -68,6 +68,22 @@ class ChapterTreeAdapter(
             binding.tvArticleNo.text = item.articleNo
             binding.tvArticleContent.text = item.content
 
+            // 设置定性依据徽章
+            if (item.legalBasisCount > 0) {
+                binding.tvLegalBasisCount.text = "定性依据 ${item.legalBasisCount}"
+                binding.layoutLegalBasis.visibility = View.VISIBLE
+            } else {
+                binding.layoutLegalBasis.visibility = View.GONE
+            }
+
+            // 设置处理依据徽章
+            if (item.processingBasisCount > 0) {
+                binding.tvProcessingBasisCount.text = "处理依据 ${item.processingBasisCount}"
+                binding.layoutProcessingBasis.visibility = View.VISIBLE
+            } else {
+                binding.layoutProcessingBasis.visibility = View.GONE
+            }
+
             binding.root.setOnClickListener {
                 onArticleClick(item)
             }
@@ -104,6 +120,8 @@ sealed class ChapterTreeItem {
         val articleId: Long,
         val chapterId: Long?,
         val articleNo: String?,
-        val content: String?
+        val content: String?,
+        val legalBasisCount: Int = 0,
+        val processingBasisCount: Int = 0
     ) : ChapterTreeItem()
 }

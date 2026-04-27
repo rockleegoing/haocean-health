@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <!-- Toolbar -->
+    <com.ruoyi.app.widget.TitleBar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="处理依据详情"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- 标题 -->
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/tv_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="13sp"
+                android:textColor="@color/color_9"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="#EEEEEE"/>
+
+            <!-- 基本信息 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="基本信息"
+                android:textSize="15sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"/>
+
+            <!-- 编号 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="编号"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_9"/>
+
+                <TextView
+                    android:id="@+id/tv_basis_no"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_6"/>
+
+                <Button
+                    android:id="@+id/btn_copy_basis_no"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="复制"
+                    android:textSize="12sp"
+                    android:paddingHorizontal="12dp"
+                    android:background="@drawable/bg_btn_outline"/>
+            </LinearLayout>
+
+            <!-- 违法类型 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="违法类型"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_9"/>
+
+                <TextView
+                    android:id="@+id/tv_violation_type"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_6"/>
+
+                <Button
+                    android:id="@+id/btn_copy_violation_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="复制"
+                    android:textSize="12sp"
+                    android:paddingHorizontal="12dp"
+                    android:background="@drawable/bg_btn_outline"/>
+            </LinearLayout>
+
+            <!-- 颁发机构 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="颁发机构"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_9"/>
+
+                <TextView
+                    android:id="@+id/tv_issuing_authority"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_6"/>
+
+                <Button
+                    android:id="@+id/btn_copy_issuing_authority"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="复制"
+                    android:textSize="12sp"
+                    android:paddingHorizontal="12dp"
+                    android:background="@drawable/bg_btn_outline"/>
+            </LinearLayout>
+
+            <!-- 实施时间 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="实施时间"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_9"/>
+
+                <TextView
+                    android:id="@+id/tv_effective_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_6"/>
+
+                <Button
+                    android:id="@+id/btn_copy_effective_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="复制"
+                    android:textSize="12sp"
+                    android:paddingHorizontal="12dp"
+                    android:background="@drawable/bg_btn_outline"/>
+            </LinearLayout>
+
+            <!-- 法律层级 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="法律层级"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_9"/>
+
+                <TextView
+                    android:id="@+id/tv_legal_level"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_6"/>
+
+                <Button
+                    android:id="@+id/btn_copy_legal_level"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="复制"
+                    android:textSize="12sp"
+                    android:paddingHorizontal="12dp"
+                    android:background="@drawable/bg_btn_outline"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginVertical="16dp"
+                android:background="@color/background_gray"/>
+
+            <!-- 裁量信息 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="裁量信息"
+                android:textSize="15sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"/>
+
+            <!-- 条款内容 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="top">
+
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="条款内容"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_9"/>
+
+                <TextView
+                    android:id="@+id/tv_clauses"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_6"
+                    android:lineSpacingExtra="4dp"/>
+
+                <Button
+                    android:id="@+id/btn_copy_clauses"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="复制"
+                    android:textSize="12sp"
+                    android:paddingHorizontal="12dp"
+                    android:background="@drawable/bg_btn_outline"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <!-- 法律责任 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="top">
+
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="法律责任"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_9"/>
+
+                <TextView
+                    android:id="@+id/tv_legal_liability"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_6"
+                    android:lineSpacingExtra="4dp"/>
+
+                <Button
+                    android:id="@+id/btn_copy_legal_liability"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="复制"
+                    android:textSize="12sp"
+                    android:paddingHorizontal="12dp"
+                    android:background="@drawable/bg_btn_outline"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <!-- 裁量标准 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="top">
+
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="裁量标准"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_9"/>
+
+                <TextView
+                    android:id="@+id/tv_discretion_standard"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:textColor="@color/color_6"
+                    android:lineSpacingExtra="4dp"/>
+
+                <Button
+                    android:id="@+id/btn_copy_discretion_standard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="复制"
+                    android:textSize="12sp"
+                    android:paddingHorizontal="12dp"
+                    android:background="@drawable/bg_btn_outline"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

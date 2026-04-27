@@ -100,6 +100,15 @@
             android:layout_marginTop="8dp"
             android:visibility="gone"/>
 
+        <!-- 目录列表 -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_catalog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:nestedScrollingEnabled="false"
+            android:visibility="gone"/>
+
         <TextView
             android:id="@+id/tv_chapters"
             android:layout_width="match_parent"

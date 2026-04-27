@@ -39,6 +39,8 @@ object Constant {
     const val articleDetailRoute = "/law/regulation/article"
     const val legalBasisListRoute = "/law/legalBasis/list"
     const val legalBasisDetailRoute = "/law/legalBasis/detail"
+    const val processingBasisListRoute = "/law/processingBasis/list"
+    const val processingBasisDetailRoute = "/law/processingBasis/detail"
 
     // 规范用模块路由
     const val phraseFragmentRoute = "http://com.ruoyi/phrase/fragment"
