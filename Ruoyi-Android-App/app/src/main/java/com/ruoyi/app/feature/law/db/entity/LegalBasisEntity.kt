@@ -1,5 +1,6 @@
 package com.ruoyi.app.feature.law.db.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -8,22 +9,15 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "sys_legal_basis")
 data class LegalBasisEntity(
-    @PrimaryKey val basisId: Long,
-    val basisNo: String?,
+    @PrimaryKey @ColumnInfo(name = "basis_id") val basisId: Long,
     val title: String,
-    val violationType: String?,
-    val issuingAuthority: String?,
-    val effectiveDate: String?,
-    val legalLevel: String?,
-    val clauses: String?,
-    val legalLiability: String?,
-    val discretionStandard: String?,
-    val regulationId: Long?,
+    @ColumnInfo(name = "regulation_id") val regulationId: Long?,
     val status: String,
-    val delFlag: String,
-    val createBy: String?,
-    val createTime: Long?,
-    val updateBy: String?,
-    val updateTime: Long?,
+    @ColumnInfo(name = "del_flag") val delFlag: String,
+    @ColumnInfo(name = "create_by") val createBy: String?,
+    @ColumnInfo(name = "create_time") val createTime: Long?,
+    @ColumnInfo(name = "update_by") val updateBy: String?,
+    @ColumnInfo(name = "update_time") val updateTime: Long?,
+    val remark: String?,
     val syncStatus: String = "SYNCED"
 )
