@@ -25,9 +25,6 @@ interface LegalBasisDao {
     @Query("SELECT * FROM sys_legal_basis WHERE title LIKE '%' || :keyword || '%' AND del_flag = '0' ORDER BY basis_id DESC")
     fun searchLegalBasises(keyword: String): Flow<List<LegalBasisEntity>>
 
-    @Query("SELECT * FROM sys_legal_basis WHERE violation_type LIKE '%' || :violationType || '%' AND del_flag = '0' ORDER BY basis_id DESC")
-    fun getLegalBasisesByViolationType(violationType: String): Flow<List<LegalBasisEntity>>
-
     @Query("SELECT * FROM sys_legal_basis WHERE del_flag = '0' ORDER BY basis_id DESC")
     suspend fun getAllLegalBasisesList(): List<LegalBasisEntity>
 

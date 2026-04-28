@@ -602,11 +602,31 @@ object LawApi {
     private fun parseProcessingBasisDetailResponse(json: String): ProcessingBasisDetailResponse {
         return try {
             val obj = JSONObject(json)
-            val data = obj.optJSONObject("data")?.let { parseProcessingBasis(it) }
+            val dataObj = obj.optJSONObject("data")
+            val basisObj = dataObj?.optJSONObject("basis")
+            val contentsArray = dataObj?.optJSONArray("contents") ?: JSONArray()
+
+            val contents = mutableListOf<ProcessingBasisContent>()
+            for (i in 0 until contentsArray.length()) {
+                val item = contentsArray.getJSONObject(i)
+                contents.add(
+                    ProcessingBasisContent(
+                        contentId = item.optLong("contentId", 0),
+                        basisId = item.optLong("basisId", 0),
+                        label = item.optString("label", ""),
+                        content = item.optString("content", null),
+                        sortOrder = item.optInt("sortOrder", 0)
+                    )
+                )
+            }
+
             ProcessingBasisDetailResponse(
-                data = data,
                 code = obj.optInt("code", 0),
-                msg = obj.optString("msg", null)
+                msg = obj.optString("msg", null),
+                data = if (basisObj != null) ProcessingBasisDetailData(
+                    basis = parseProcessingBasis(basisObj),
+                    contents = contents
+                ) else null
             )
         } catch (e: Exception) {
             ProcessingBasisDetailResponse(data = null, code = 500, msg = e.message)

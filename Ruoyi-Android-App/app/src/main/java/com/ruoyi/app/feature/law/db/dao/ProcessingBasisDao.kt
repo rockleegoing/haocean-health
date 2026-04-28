@@ -16,7 +16,7 @@ interface ProcessingBasisDao {
     @Query("SELECT * FROM sys_processing_basis WHERE regulation_id = :regulationId AND del_flag = '0' ORDER BY basis_id ASC")
     fun getProcessingBasisesByRegulationId(regulationId: Long): Flow<List<ProcessingBasisEntity>>
 
-    @Query("SELECT * FROM sys_processing_basis WHERE (title LIKE '%' || :keyword || '%' OR violation_type LIKE '%' || :keyword || '%') AND del_flag = '0' ORDER BY basis_id ASC")
+    @Query("SELECT * FROM sys_processing_basis WHERE title LIKE '%' || :keyword || '%' AND del_flag = '0' ORDER BY basis_id ASC")
     fun searchProcessingBasises(keyword: String): Flow<List<ProcessingBasisEntity>>
 
     @Query("""

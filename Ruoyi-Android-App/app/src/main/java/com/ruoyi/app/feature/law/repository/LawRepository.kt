@@ -345,15 +345,15 @@ fun RegulationEntity.toModel(): com.ruoyi.app.feature.law.model.Regulation {
 fun LegalBasisEntity.toModel(): com.ruoyi.app.feature.law.model.LegalBasis {
     return com.ruoyi.app.feature.law.model.LegalBasis(
         basisId = basisId,
-        basisNo = basisNo,
+        basisNo = null,  // 已在内容表中，不再存储在主表
         title = title,
-        violationType = violationType,
-        issuingAuthority = issuingAuthority,
-        effectiveDate = effectiveDate,
-        legalLevel = legalLevel,
-        clauses = clauses,
-        legalLiability = legalLiability,
-        discretionStandard = discretionStandard,
+        violationType = null,  // 已在内容表中，不再存储在主表
+        issuingAuthority = null,  // 已在内容表中，不再存储在主表
+        effectiveDate = null,  // 已在内容表中，不再存储在主表
+        legalLevel = null,  // 已在内容表中，不再存储在主表
+        clauses = null,  // 已在内容表中，不再存储在主表
+        legalLiability = null,  // 已在内容表中，不再存储在主表
+        discretionStandard = null,  // 已在内容表中，不再存储在主表
         regulationId = regulationId,
         status = status,
         delFlag = delFlag,
@@ -371,15 +371,7 @@ fun com.ruoyi.app.feature.law.model.ProcessingBasis.toEntity(): ProcessingBasisE
     val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.CHINA)
     return ProcessingBasisEntity(
         basisId = basisId,
-        basisNo = basisNo,
         title = title,
-        violationType = violationType,
-        issuingAuthority = issuingAuthority,
-        effectiveDate = effectiveDate,
-        legalLevel = legalLevel,
-        clauses = clauses,
-        legalLiability = legalLiability,
-        discretionStandard = discretionStandard,
         regulationId = regulationId,
         status = status,
         delFlag = delFlag,
@@ -453,22 +445,15 @@ fun com.ruoyi.app.feature.law.model.LegalBasis.toEntity(): LegalBasisEntity {
     val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.CHINA)
     return LegalBasisEntity(
         basisId = basisId,
-        basisNo = basisNo,
         title = title,
-        violationType = violationType,
-        issuingAuthority = issuingAuthority,
-        effectiveDate = effectiveDate,
-        legalLevel = legalLevel,
-        clauses = clauses,
-        legalLiability = legalLiability,
-        discretionStandard = discretionStandard,
         regulationId = regulationId,
         status = status,
         delFlag = delFlag,
         createBy = createBy,
         createTime = createTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
         updateBy = updateBy,
-        updateTime = updateTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } }
+        updateTime = updateTime?.let { try { dateFormat.parse(it)?.time } catch (e: Exception) { null } },
+        remark = null
     )
 }
 

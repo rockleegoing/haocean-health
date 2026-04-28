@@ -38,10 +38,43 @@ data class ProcessingBasisListResponse(
  * 处理依据详情响应
  */
 data class ProcessingBasisDetailResponse(
-    val data: ProcessingBasis?,
+    val data: ProcessingBasisDetailData?,
     val code: Int,
     val msg: String?
 )
+
+data class ProcessingBasisDetailData(
+    val basis: ProcessingBasis,
+    val contents: List<ProcessingBasisContent>
+)
+
+/**
+ * 处理依据内容
+ */
+data class ProcessingBasisContent(
+    val contentId: Long,
+    val basisId: Long,
+    val label: String,
+    val content: String?,
+    val sortOrder: Int
+)
+
+/**
+ * ProcessingBasisContent 转换为 ProcessingBasisContentEntity
+ */
+fun ProcessingBasisContent.toEntity(): com.ruoyi.app.feature.law.db.entity.ProcessingBasisContentEntity {
+    return com.ruoyi.app.feature.law.db.entity.ProcessingBasisContentEntity(
+        contentId = contentId,
+        basisId = basisId,
+        label = label,
+        content = content,
+        sortOrder = sortOrder,
+        createBy = null,
+        createTime = null,
+        updateBy = null,
+        updateTime = null
+    )
+}
 
 /**
  * 章节-依据关联数据模型

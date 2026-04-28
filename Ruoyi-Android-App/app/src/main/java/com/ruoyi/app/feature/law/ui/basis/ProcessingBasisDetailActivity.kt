@@ -13,6 +13,7 @@ import com.ruoyi.app.databinding.ActivityProcessingBasisDetailBinding
 import com.ruoyi.app.feature.law.db.entity.ProcessingBasisContentEntity
 import com.ruoyi.app.feature.law.db.entity.ProcessingBasisEntity
 import com.ruoyi.app.feature.law.repository.LawRepository
+import com.ruoyi.app.R
 import com.ruoyi.app.model.Constant
 import com.therouter.router.Route
 import kotlinx.coroutines.launch

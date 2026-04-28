@@ -41,10 +41,11 @@ class LegalBasisAdapter(
 
         fun bind(legalBasis: LegalBasisEntity) {
             binding.tvTitle.text = legalBasis.title
-            binding.tvBasisNo.text = "编号: ${legalBasis.basisNo ?: "无"}"
-            binding.tvViolationType.text = "违法类型: ${legalBasis.violationType ?: "无"}"
-            binding.tvIssuingAuthority.text = "发布机构: ${legalBasis.issuingAuthority ?: "未知"}"
-            binding.tvEffectiveDate.text = "实施时间: ${legalBasis.effectiveDate ?: "未知"}"
+            // 内容详情已移至内容表，列表只显示标题
+            binding.tvBasisNo.visibility = android.view.View.GONE
+            binding.tvViolationType.visibility = android.view.View.GONE
+            binding.tvIssuingAuthority.visibility = android.view.View.GONE
+            binding.tvEffectiveDate.visibility = android.view.View.GONE
         }
     }
 

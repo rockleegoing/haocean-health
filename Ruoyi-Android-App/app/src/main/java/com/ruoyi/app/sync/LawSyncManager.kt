@@ -9,6 +9,7 @@ import com.ruoyi.app.feature.law.api.SupervisionTypeResponse
 import com.ruoyi.app.feature.law.db.entity.LegalTypeEntity
 import com.ruoyi.app.feature.law.db.entity.SupervisionTypeEntity
 import com.ruoyi.app.feature.law.repository.toEntity
+import com.ruoyi.app.feature.law.model.toEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
