@@ -114,6 +114,16 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
             ButtomItemEntity(
                 Constant.theme_default_color,
                 Constant.theme_select_color,
+                Frame.getString(R.string.phrase_nav_index),
+                "",
+                "",
+                Frame.getDrawable(R.drawable.phrase_selector)
+            )
+        )
+        add(
+            ButtomItemEntity(
+                Constant.theme_default_color,
+                Constant.theme_select_color,
                 Frame.getString(R.string.supervision_nav_index),
                 "",
                 "",
@@ -128,16 +138,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
                 "",
                 "",
                 Frame.getDrawable(R.drawable.mine_selector)
-            )
-        )
-        add(
-            ButtomItemEntity(
-                Constant.theme_default_color,
-                Constant.theme_select_color,
-                Frame.getString(R.string.phrase_nav_index),
-                "",
-                "",
-                Frame.getDrawable(R.drawable.phrase_selector)
             )
         )
     }
@@ -175,9 +175,9 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
             addFragment(HomeFragment.newInstance())
             addFragment(WorkFragment.newInstance())
             addFragment(LawFragment.newInstance())
+            addFragment(PhraseFragment.newInstance())
             addFragment(SupervisionFragment.newInstance())
             addFragment(MineFragment.newInstance())
-            addFragment(PhraseFragment.newInstance())
             binding.vpHomePager.adapter = this
         }
     }
