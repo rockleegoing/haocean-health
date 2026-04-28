@@ -38,7 +38,7 @@ public class SysLegalBasisController extends BaseController {
     @Anonymous
     @GetMapping("/{basisId}")
     public AjaxResult getInfo(@PathVariable("basisId") Long basisId) {
-        return AjaxResult.success(sysLegalBasisService.selectSysLegalBasisById(basisId));
+        return AjaxResult.success(sysLegalBasisService.selectLegalBasisDetail(basisId));
     }
 
     /**
