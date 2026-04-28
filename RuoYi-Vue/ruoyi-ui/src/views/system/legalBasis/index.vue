@@ -137,38 +137,8 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="100px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="编号" prop="basisNo">
-              <el-input v-model="form.basisNo" placeholder="请输入编号" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
             <el-form-item label="标题" prop="title">
               <el-input v-model="form.title" placeholder="请输入标题" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="违法类型" prop="violationType">
-              <el-input v-model="form.violationType" placeholder="请输入违法类型" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="颁发机构" prop="issuingAuthority">
-              <el-input v-model="form.issuingAuthority" placeholder="请输入颁发机构" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="实施时间" prop="effectiveDate">
-              <el-date-picker
-                v-model="form.effectiveDate"
-                type="date"
-                placeholder="选择日期"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="效级" prop="legalLevel">
-              <el-input v-model="form.legalLevel" placeholder="请输入效级" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -192,18 +162,13 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="条款内容" prop="clauses">
-              <el-input v-model="form.clauses" type="textarea" :rows="3" placeholder="请输入条款内容" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="法律责任" prop="legalLiability">
-              <el-input v-model="form.legalLiability" type="textarea" :rows="3" placeholder="请输入法律责任" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="裁量标准" prop="discretionStandard">
-              <el-input v-model="form.discretionStandard" type="textarea" :rows="3" placeholder="请输入裁量标准" />
+            <el-form-item label="内容">
+              <div v-for="(row, index) in form.contents" :key="index" class="content-row">
+                <el-input v-model="row.label" placeholder="标签" style="width: 120px; margin-right: 10px;" />
+                <el-input v-model="row.content" type="textarea" placeholder="内容" style="flex: 1; margin-right: 10px;" />
+                <el-button @click="removeContent(index)" type="danger" icon="el-icon-delete">删除</el-button>
+              </div>
+              <el-button @click="addContent" type="primary" icon="el-icon-plus">新增内容行</el-button>
             </el-form-item>
           </el-col>
         </el-row>
@@ -281,7 +246,23 @@ export default {
         status: null,
       },
       // 表单参数
-      form: {},
+      form: {
+        basisId: undefined,
+        title: '',
+        regulationId: null,
+        status: '0',
+        remark: '',
+        contents: [
+          { label: '编号', content: '' },
+          { label: '违法类型', content: '' },
+          { label: '颁发机构', content: '' },
+          { label: '实施时间', content: '' },
+          { label: '效级', content: '' },
+          { label: '条款内容', content: '' },
+          { label: '法律责任', content: '' },
+          { label: '裁量标准', content: '' }
+        ]
+      },
       // 表单校验
       rules: {
         title: [
@@ -318,23 +299,21 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        basisId: null,
-        basisNo: null,
-        title: null,
-        violationType: null,
-        issuingAuthority: null,
-        effectiveDate: null,
-        legalLevel: null,
-        clauses: null,
-        legalLiability: null,
-        discretionStandard: null,
+        basisId: undefined,
+        title: '',
         regulationId: null,
-        status: "0",
-        delFlag: null,
-        createBy: null,
-        createTime: null,
-        updateBy: null,
-        updateTime: null,
+        status: '0',
+        remark: '',
+        contents: [
+          { label: '编号', content: '' },
+          { label: '违法类型', content: '' },
+          { label: '颁发机构', content: '' },
+          { label: '实施时间', content: '' },
+          { label: '效级', content: '' },
+          { label: '条款内容', content: '' },
+          { label: '法律责任', content: '' },
+          { label: '裁量标准', content: '' }
+        ]
       }
       this.resetForm("form")
     },
@@ -342,6 +321,14 @@ export default {
     handleQuery() {
       this.queryParams.pageNum = 1
       this.getList()
+    },
+    /** 新增内容行 */
+    addContent() {
+      this.form.contents.push({ label: '', content: '' })
+    },
+    /** 删除内容行 */
+    removeContent(index) {
+      this.form.contents.splice(index, 1)
     },
     /** 重置按钮操作 */
     resetQuery() {
