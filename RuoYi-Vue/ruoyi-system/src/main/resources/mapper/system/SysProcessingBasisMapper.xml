@@ -6,15 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <resultMap type="SysProcessingBasis" id="SysProcessingBasisResult">
         <result property="basisId" column="basis_id"/>
-        <result property="basisNo" column="basis_no"/>
         <result property="title" column="title"/>
-        <result property="violationType" column="violation_type"/>
-        <result property="issuingAuthority" column="issuing_authority"/>
-        <result property="effectiveDate" column="effective_date"/>
-        <result property="legalLevel" column="legal_level"/>
-        <result property="clauses" column="clauses"/>
-        <result property="legalLiability" column="legal_liability"/>
-        <result property="discretionStandard" column="discretion_standard"/>
         <result property="regulationId" column="regulation_id"/>
         <result property="status" column="status"/>
         <result property="delFlag" column="del_flag"/>
@@ -26,9 +18,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSysProcessingBasisVo">
-        select basis_id, basis_no, title, violation_type, issuing_authority, effective_date,
-               legal_level, clauses, legal_liability, discretion_standard, regulation_id,
-               status, del_flag, create_by, create_time, update_by, update_time, remark
+        select basis_id, title, regulation_id, status, del_flag,
+               create_by, create_time, update_by, update_time, remark
         from sys_processing_basis
     </sql>
 
@@ -36,8 +27,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectSysProcessingBasisVo"/>
         <where>
             <if test="title != null and title != ''">and title like concat('%', #{title}, '%')</if>
-            <if test="violationType != null and violationType != ''">and violation_type = #{violationType}</if>
-            <if test="basisNo != null and basisNo != ''">and basis_no = #{basisNo}</if>
             <if test="regulationId != null">and regulation_id = #{regulationId}</if>
             <if test="status != null and status != ''">and status = #{status}</if>
             <if test="delFlag != null and delFlag != ''">and del_flag = #{delFlag}</if>
@@ -54,21 +43,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectSysProcessingBasisListByRegulationId" resultMap="SysProcessingBasisResult">
         <include refid="selectSysProcessingBasisVo"/>
         where regulation_id = #{regulationId} and del_flag = '0'
-        order by basis_no asc
+        order by basis_id asc
     </select>
 
     <insert id="insertSysProcessingBasis" parameterType="SysProcessingBasis" useGeneratedKeys="true" keyProperty="basisId">
         insert into sys_processing_basis
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="basisNo != null and basisNo != ''">basis_no,</if>
             <if test="title != null and title != ''">title,</if>
-            <if test="violationType != null">violation_type,</if>
-            <if test="issuingAuthority != null">issuing_authority,</if>
-            <if test="effectiveDate != null">effective_date,</if>
-            <if test="legalLevel != null">legal_level,</if>
-            <if test="clauses != null">clauses,</if>
-            <if test="legalLiability != null">legal_liability,</if>
-            <if test="discretionStandard != null">discretion_standard,</if>
             <if test="regulationId != null">regulation_id,</if>
             <if test="status != null">status,</if>
             <if test="delFlag != null">del_flag,</if>
@@ -77,15 +58,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="remark != null">remark,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="basisNo != null and basisNo != ''">#{basisNo},</if>
             <if test="title != null and title != ''">#{title},</if>
-            <if test="violationType != null">#{violationType},</if>
-            <if test="issuingAuthority != null">#{issuingAuthority},</if>
-            <if test="effectiveDate != null">#{effectiveDate},</if>
-            <if test="legalLevel != null">#{legalLevel},</if>
-            <if test="clauses != null">#{clauses},</if>
-            <if test="legalLiability != null">#{legalLiability},</if>
-            <if test="discretionStandard != null">#{discretionStandard},</if>
             <if test="regulationId != null">#{regulationId},</if>
             <if test="status != null">#{status},</if>
             <if test="delFlag != null">#{delFlag},</if>
@@ -98,15 +71,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateSysProcessingBasis" parameterType="SysProcessingBasis">
         update sys_processing_basis
         <trim prefix="SET" suffixOverrides=",">
-            <if test="basisNo != null">basis_no = #{basisNo},</if>
             <if test="title != null">title = #{title},</if>
-            <if test="violationType != null">violation_type = #{violationType},</if>
-            <if test="issuingAuthority != null">issuing_authority = #{issuingAuthority},</if>
-            <if test="effectiveDate != null">effective_date = #{effectiveDate},</if>
-            <if test="legalLevel != null">legal_level = #{legalLevel},</if>
-            <if test="clauses != null">clauses = #{clauses},</if>
-            <if test="legalLiability != null">legal_liability = #{legalLiability},</if>
-            <if test="discretionStandard != null">discretion_standard = #{discretionStandard},</if>
             <if test="regulationId != null">regulation_id = #{regulationId},</if>
             <if test="status != null">status = #{status},</if>
             <if test="delFlag != null">del_flag = #{delFlag},</if>

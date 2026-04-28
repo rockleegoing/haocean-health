@@ -47,24 +47,22 @@ ALTER TABLE `sys_processing_basis_content`
     FOREIGN KEY (`basis_id`) REFERENCES `sys_processing_basis` (`basis_id`)
     ON DELETE CASCADE;
 
--- 3. 修改定性依据主表 - 删除冗余字段
-ALTER TABLE `sys_legal_basis`
-    DROP COLUMN IF EXISTS `basis_no`,
-    DROP COLUMN IF EXISTS `violation_type`,
-    DROP COLUMN IF EXISTS `issuing_authority`,
-    DROP COLUMN IF EXISTS `effective_date`,
-    DROP COLUMN IF EXISTS `legal_level`,
-    DROP COLUMN IF EXISTS `clauses`,
-    DROP COLUMN IF EXISTS `legal_liability`,
-    DROP COLUMN IF EXISTS `discretion_standard`;
+-- 3. 修改定性依据主表 - 删除冗余字段（MySQL 5.7 不支持 DROP COLUMN IF EXISTS，逐列删除）
+ALTER TABLE `sys_legal_basis` DROP COLUMN IF EXISTS `basis_no`;
+ALTER TABLE `sys_legal_basis` DROP COLUMN IF EXISTS `violation_type`;
+ALTER TABLE `sys_legal_basis` DROP COLUMN IF EXISTS `issuing_authority`;
+ALTER TABLE `sys_legal_basis` DROP COLUMN IF EXISTS `effective_date`;
+ALTER TABLE `sys_legal_basis` DROP COLUMN IF EXISTS `legal_level`;
+ALTER TABLE `sys_legal_basis` DROP COLUMN IF EXISTS `clauses`;
+ALTER TABLE `sys_legal_basis` DROP COLUMN IF EXISTS `legal_liability`;
+ALTER TABLE `sys_legal_basis` DROP COLUMN IF EXISTS `discretion_standard`;
 
 -- 4. 修改处理依据主表 - 删除冗余字段
-ALTER TABLE `sys_processing_basis`
-    DROP COLUMN IF EXISTS `basis_no`,
-    DROP COLUMN IF EXISTS `violation_type`,
-    DROP COLUMN IF EXISTS `issuing_authority`,
-    DROP COLUMN IF EXISTS `effective_date`,
-    DROP COLUMN IF EXISTS `legal_level`,
-    DROP COLUMN IF EXISTS `clauses`,
-    DROP COLUMN IF EXISTS `legal_liability`,
-    DROP COLUMN IF EXISTS `discretion_standard`;
+ALTER TABLE `sys_processing_basis` DROP COLUMN IF EXISTS `basis_no`;
+ALTER TABLE `sys_processing_basis` DROP COLUMN IF EXISTS `violation_type`;
+ALTER TABLE `sys_processing_basis` DROP COLUMN IF EXISTS `issuing_authority`;
+ALTER TABLE `sys_processing_basis` DROP COLUMN IF EXISTS `effective_date`;
+ALTER TABLE `sys_processing_basis` DROP COLUMN IF EXISTS `legal_level`;
+ALTER TABLE `sys_processing_basis` DROP COLUMN IF EXISTS `clauses`;
+ALTER TABLE `sys_processing_basis` DROP COLUMN IF EXISTS `legal_liability`;
+ALTER TABLE `sys_processing_basis` DROP COLUMN IF EXISTS `discretion_standard`;
