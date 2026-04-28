@@ -140,7 +140,81 @@ data class LegalBasisContentEntity(
 )
 ```
 
-### 3.2 API 响应
+#### ProcessingBasisEntity（主表 - 精简版）
+```kotlin
+@Entity(tableName = "sys_processing_basis")
+data class ProcessingBasisEntity(
+    @PrimaryKey val basisId: Long,
+    val title: String,
+    val regulationId: Long?,
+    val status: String,
+    val delFlag: String,
+    val createBy: String?,
+    val createTime: Long?,
+    val updateBy: String?,
+    val updateTime: Long?,
+    val remark: String?,
+    val syncStatus: String = "SYNCED"
+)
+```
+
+#### ProcessingBasisContentEntity（内容表）
+```kotlin
+@Entity(
+    tableName = "sys_processing_basis_content",
+    foreignKeys = [ForeignKey(
+        entity = ProcessingBasisEntity::class,
+        parentColumns = ["basis_id"],
+        childColumns = ["basis_id"],
+        onDelete = ForeignKey.CASCADE
+    )]
+)
+data class ProcessingBasisContentEntity(
+    @PrimaryKey val contentId: Long,
+    val basisId: Long,
+    val label: String,
+    val content: String,
+    val sortOrder: Int,
+    val createBy: String?,
+    val createTime: Long?
+)
+```
+
+### 3.2 DAO 接口
+
+#### LegalBasisContentDao
+```kotlin
+@Dao
+interface LegalBasisContentDao {
+    @Query("SELECT * FROM sys_legal_basis_content WHERE basis_id = :basisId ORDER BY sort_order ASC")
+    fun getContentsByBasisId(basisId: Long): Flow<List<LegalBasisContentEntity>>
+
+    @Query("SELECT * FROM sys_legal_basis_content WHERE basis_id = :basisId ORDER BY sort_order ASC")
+    suspend fun getContentsByBasisIdList(basisId: Long): List<LegalBasisContentEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertContents(contents: List<LegalBasisContentEntity>)
+
+    @Query("DELETE FROM sys_legal_basis_content WHERE basis_id = :basisId")
+    suspend fun deleteByBasisId(basisId: Long)
+
+    @Query("DELETE FROM sys_legal_basis_content")
+    suspend fun deleteAll()
+}
+```
+
+#### ProcessingBasisContentDao
+同上，替换表名和类名
+
+### 3.3 Repository 层
+
+LawRepository 新增方法：
+```kotlin
+fun getLegalBasisContents(basisId: Long): Flow<List<LegalBasisContentEntity>>
+fun getProcessingBasisContents(basisId: Long): Flow<List<ProcessingBasisContentEntity>>
+```
+
+### 3.4 API 响应
 
 #### 列表接口
 返回主表数据（不含内容）
@@ -208,13 +282,35 @@ data class LegalBasisContentEntity(
 - 创建 `sys_legal_basis_content` 表
 - 创建 `sys_processing_basis_content` 表
 - 添加外键约束（级联删除）
+- 修改旧表 `sys_legal_basis`，删除 `basis_no`、`violation_type`、`issuing_authority`、`effective_date`、`legal_level`、`clauses`、`legal_liability`、`discretion_standard` 字段
+- 修改旧表 `sys_processing_basis`，删除 `basis_no`、`violation_type`、`issuing_authority`、`effective_date`、`legal_level`、`clauses`、`legal_liability`、`discretion_standard` 字段
 
 ### 4.2 初始数据脚本 V1.2.7__legal_basis_mock_data.sql
 
+#### 定性依据 Mock 数据
+
+每条定性依据 8 行内容，sort_order 1-8：
+
+| sort_order | label |
+|------------|-------|
+| 1 | 编号 |
+| 2 | 违法类型 |
+| 3 | 颁发机构 |
+| 4 | 实施时间 |
+| 5 | 效级 |
+| 6 | 条款内容 |
+| 7 | 法律责任 |
+| 8 | 裁量标准 |
+
 - 插入定性依据主表数据（10条）
-- 插入定性依据内容表数据（每条依据3-5行内容）
+- 插入定性依据内容表数据（每条依据8行内容，共80条）
+
+#### 处理依据 Mock 数据
+
+每条处理依据 8 行内容，sort_order 1-8（标签同上）
+
 - 插入处理依据主表数据（10条）
-- 插入处理依据内容表数据（每条依据3-5行内容）
+- 插入处理依据内容表数据（每条依据8行内容，共80条）
 
 ## 五、实现顺序
 
@@ -236,7 +332,8 @@ data class LegalBasisContentEntity(
 
 ## 六、注意事项
 
-1. 旧表 `sys_legal_basis` 和 `sys_processing_basis` 中的 `clauses`、`legal_liability`、`discretion_standard` 字段**删除**
+1. 旧表 `sys_legal_basis` 和 `sys_processing_basis` 中的 `basis_no`、`violation_type`、`issuing_authority`、`effective_date`、`legal_level`、`clauses`、`legal_liability`、`discretion_standard` 字段**删除**
 2. 新接口返回数据时使用新表结构
 3. Android 详情页重构，**全部从内容表读取数据**
 4. 主表只保留基础字段（title, regulation_id, status, del_flag 等）
+5. Android 端同步时需同步主表+内容表数据（定性依据和处理依据都要同步内容表）
