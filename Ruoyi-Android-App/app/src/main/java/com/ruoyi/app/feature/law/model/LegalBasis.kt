@@ -59,20 +59,3 @@ data class LegalBasisContent(
     val content: String?,
     val sortOrder: Int
 )
-
-/**
- * LegalBasisContent 转换为 LegalBasisContentEntity
- */
-fun LegalBasisContent.toEntity(): LegalBasisContentEntity {
-    return LegalBasisContentEntity(
-        contentId = contentId,
-        basisId = basisId,
-        label = label,
-        content = content,
-        sortOrder = sortOrder,
-        createBy = null,
-        createTime = null,
-        updateBy = null,
-        updateTime = null
-    )
-}

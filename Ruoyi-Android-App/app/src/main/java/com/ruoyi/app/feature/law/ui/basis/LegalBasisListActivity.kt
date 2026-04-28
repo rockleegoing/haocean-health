@@ -1,6 +1,8 @@
 package com.ruoyi.app.feature.law.ui.basis
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AppCompatActivity
@@ -112,6 +114,19 @@ class LegalBasisListActivity : AppCompatActivity() {
                 false
             }
         }
+
+        // 监听搜索框文本变化，清空时恢复原始列表
+        binding.etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val keyword = s?.toString()?.trim() ?: ""
+                if (keyword.isEmpty()) {
+                    // 搜索框清空时，恢复原始列表
+                    initData()
+                }
+            }
+        })
     }
 
     private fun loadAll() {

@@ -111,7 +111,7 @@ import com.ruoyi.app.feature.law.db.entity.SupervisionTypeEntity
         DocumentGroupEntity::class,
         DocumentTemplateIndustryEntity::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

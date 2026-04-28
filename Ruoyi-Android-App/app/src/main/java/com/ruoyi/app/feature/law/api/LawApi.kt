@@ -6,7 +6,6 @@ import com.ruoyi.app.feature.law.model.LegalBasisListResponse
 import com.ruoyi.app.feature.law.model.LegalBasisDetailResponse
 import com.ruoyi.app.feature.law.model.LegalBasisDetailData
 import com.ruoyi.app.feature.law.model.LegalBasisContent
-import com.ruoyi.app.feature.law.model.toEntity
 import com.ruoyi.app.feature.law.model.ProcessingBasisListResponse
 import com.ruoyi.app.feature.law.model.ProcessingBasisDetailResponse
 import com.ruoyi.app.feature.law.model.BasisChapterLinkListResponse

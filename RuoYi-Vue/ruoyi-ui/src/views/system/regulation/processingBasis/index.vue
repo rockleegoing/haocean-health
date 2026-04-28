@@ -1,26 +1,10 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="88px">
-      <el-form-item label="编号" prop="basisNo">
-        <el-input
-          v-model="queryParams.basisNo"
-          placeholder="请输入编号"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="标题" prop="title">
         <el-input
           v-model="queryParams.title"
           placeholder="请输入标题"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="违法类型" prop="violationType">
-        <el-input
-          v-model="queryParams.violationType"
-          placeholder="请输入违法类型"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -75,11 +59,13 @@
 
     <el-table v-loading="loading" :data="basisList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="编号" align="center" prop="basisNo" width="100" />
+      <el-table-column label="处理依据ID" align="center" prop="basisId" />
       <el-table-column label="标题" align="center" prop="title" :show-overflow-tooltip="true" />
-      <el-table-column label="违法类型" align="center" prop="violationType" width="150" />
-      <el-table-column label="颁发机构" align="center" prop="issuingAuthority" width="150" />
-      <el-table-column label="效级" align="center" prop="legalLevel" width="100" />
+      <el-table-column label="关联法规" align="center">
+        <template slot-scope="scope">
+          {{ getRegulationName(scope.row.regulationId) }}
+        </template>
+      </el-table-column>
       <el-table-column label="状态" align="center" prop="status" width="80">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.status === '0'" type="success">正常</el-tag>
@@ -122,48 +108,63 @@
     />
 
     <!-- 添加或修改处理依据对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
+    <el-dialog :title="title" :visible.sync="open" width="700px" append-to-body @opened="onDialogOpened">
       <el-form ref="form" :model="form" :rules="rules" label-width="100px">
-        <el-form-item label="编号" prop="basisNo">
-          <el-input v-model="form.basisNo" placeholder="请输入编号" />
-        </el-form-item>
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="form.title" placeholder="请输入标题" />
-        </el-form-item>
-        <el-form-item label="违法类型" prop="violationType">
-          <el-input v-model="form.violationType" placeholder="请输入违法类型" />
-        </el-form-item>
-        <el-form-item label="颁发机构" prop="issuingAuthority">
-          <el-input v-model="form.issuingAuthority" placeholder="请输入颁发机构" />
-        </el-form-item>
-        <el-form-item label="实施时间" prop="effectiveDate">
-          <el-input v-model="form.effectiveDate" placeholder="请输入实施时间" />
-        </el-form-item>
-        <el-form-item label="效级" prop="legalLevel">
-          <el-input v-model="form.legalLevel" placeholder="请输入效级" />
-        </el-form-item>
-        <el-form-item label="条款内容" prop="clauses">
-          <el-input v-model="form.clauses" type="textarea" placeholder="请输入条款内容" />
-        </el-form-item>
-        <!-- 动态内容行 -->
-        <el-form-item label="内容行" prop="contents">
-          <div v-for="(content, index) in form.contents" :key="index" class="content-row">
-            <el-input v-model="content.clause" placeholder="条款" style="width: 200px; margin-right: 10px" />
-            <el-input v-model="content.legalLiability" placeholder="法律责任" style="width: 200px; margin-right: 10px" />
-            <el-input v-model="content.discretionStandard" placeholder="裁量标准" style="width: 200px; margin-right: 10px" />
-            <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeContent(index)">删除</el-button>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="标题" prop="title">
+              <el-input v-model="form.title" placeholder="请输入标题" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="关联法规" prop="regulationId">
+              <el-select v-model="form.regulationId" placeholder="请选择关联法规" filterable style="width: 100%">
+                <el-option
+                  v-for="item in regulationOptions"
+                  :key="item.regulationId"
+                  :label="item.title"
+                  :value="item.regulationId"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="状态" prop="status">
+              <el-radio-group v-model="form.status">
+                <el-radio label="0">正常</el-radio>
+                <el-radio label="1">停用</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-divider content-position="left">内容明细</el-divider>
+        <div class="content-table">
+          <el-table ref="contentTable" :data="form.contents" border size="small">
+            <el-table-column label="排序" width="100" align="center">
+              <template slot-scope="scope">
+                <el-input-number v-model="scope.row.sortOrder" :min="1" :max="99" size="mini" controls-position="right" style="width: 80px;" />
+              </template>
+            </el-table-column>
+            <el-table-column label="标签" width="150">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.label" placeholder="如：编号、违法类型" maxlength="50" />
+              </template>
+            </el-table-column>
+            <el-table-column label="内容">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.content" type="textarea" :rows="2" placeholder="请输入内容" maxlength="500" show-word-limit />
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="60" align="center">
+              <template slot-scope="scope">
+                <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeContent(scope.$index)" circle />
+              </template>
+            </el-table-column>
+          </el-table>
+          <div class="content-add-btn">
+            <el-button type="primary" plain icon="el-icon-plus" size="small" @click="addContent">新增内容行</el-button>
           </div>
-          <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="addContent">添加内容行</el-button>
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="form.status">
-            <el-radio label="0">正常</el-radio>
-            <el-radio label="1">停用</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入备注" />
-        </el-form-item>
+        </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -172,34 +173,22 @@
     </el-dialog>
 
     <!-- 处理依据详情对话框 -->
-    <el-dialog title="处理依据详情" :visible.sync="detailOpen" width="600px" append-to-body>
+    <el-dialog title="处理依据详情" :visible.sync="detailOpen" width="800px" append-to-body>
       <el-descriptions :column="2" border>
-        <el-descriptions-item label="编号">{{ detailData.basisNo }}</el-descriptions-item>
-        <el-descriptions-item label="违法类型">{{ detailData.violationType }}</el-descriptions-item>
         <el-descriptions-item label="标题">{{ detailData.title }}</el-descriptions-item>
-        <el-descriptions-item label="颁发机构">{{ detailData.issuingAuthority }}</el-descriptions-item>
-        <el-descriptions-item label="实施时间">{{ detailData.effectiveDate }}</el-descriptions-item>
-        <el-descriptions-item label="效级">{{ detailData.legalLevel }}</el-descriptions-item>
+        <el-descriptions-item label="关联法规">{{ getRegulationName(detailData.regulationId) }}</el-descriptions-item>
         <el-descriptions-item label="状态">
           <el-tag v-if="detailData.status === '0'" type="success">正常</el-tag>
           <el-tag v-else type="danger">停用</el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="创建时间">{{ detailData.createTime }}</el-descriptions-item>
-        <el-descriptions-item label="条款内容" :span="2">{{ detailData.clauses }}</el-descriptions-item>
-        <el-descriptions-item label="法律责任" :span="2">{{ detailData.legalLiability }}</el-descriptions-item>
-        <el-descriptions-item label="裁量标准" :span="2">{{ detailData.discretionStandard }}</el-descriptions-item>
-        <el-descriptions-item label="内容行" :span="2">
-          <div v-if="detailData.contents && detailData.contents.length > 0">
-            <div v-for="(content, index) in detailData.contents" :key="index" style="margin-bottom: 5px;">
-              <span>条款: {{ content.clause }}</span> |
-              <span>法律责任: {{ content.legalLiability }}</span> |
-              <span>裁量标准: {{ content.discretionStandard }}</span>
-            </div>
-          </div>
-          <span v-else>-</span>
-        </el-descriptions-item>
-        <el-descriptions-item label="备注" :span="2">{{ detailData.remark }}</el-descriptions-item>
+        <el-descriptions-item label="备注">{{ detailData.remark }}</el-descriptions-item>
       </el-descriptions>
+      <el-divider content-position="left">内容</el-divider>
+      <el-table :data="detailData.contents || []" border>
+        <el-table-column label="标签" prop="label" width="150" />
+        <el-table-column label="内容" prop="content" show-overflow-tooltip />
+        <el-table-column label="排序" prop="sortOrder" width="80" align="center" />
+      </el-table>
       <div slot="footer" class="dialog-footer">
         <el-button @click="detailOpen = false">关 闭</el-button>
       </div>
@@ -208,7 +197,9 @@
 </template>
 
 <script>
+import Sortable from 'sortablejs'
 import { listProcessingBasis, getProcessingBasis, delProcessingBasis, addProcessingBasis, updateProcessingBasis } from "@/api/system/processingBasis"
+import { listRegulation } from "@/api/system/regulation"
 
 export default {
   name: "ProcessingBasis",
@@ -221,6 +212,8 @@ export default {
       showSearch: true,
       total: 0,
       basisList: [],
+      sortable: null,
+      regulationOptions: [],
       title: "",
       open: false,
       detailOpen: false,
@@ -228,16 +221,11 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        basisNo: null,
         title: null,
-        violationType: null,
         status: null
       },
       form: {},
       rules: {
-        basisNo: [
-          { required: true, message: "编号不能为空", trigger: "blur" }
-        ],
         title: [
           { required: true, message: "标题不能为空", trigger: "blur" }
         ]
@@ -246,8 +234,42 @@ export default {
   },
   created() {
     this.getList()
+    this.getRegulationOptions()
   },
   methods: {
+    /** 对话框打开后初始化拖拽 */
+    onDialogOpened() {
+      this.initSortable()
+    },
+    /** 初始化表格拖拽 */
+    initSortable() {
+      if (this.sortable) {
+        this.sortable.destroy()
+      }
+      const table = this.$refs.contentTable
+      if (!table) return
+      const el = table.$el.querySelector('.el-table__body-wrapper tbody')
+      if (!el) return
+      this.sortable = Sortable.create(el, {
+        handle: '.el-table__row',
+        animation: 150,
+        onEnd: ({ oldIndex, newIndex }) => {
+          if (oldIndex === newIndex) return
+          // 复制数组并重新排序
+          const contents = [...this.form.contents]
+          const row = contents.splice(oldIndex, 1)[0]
+          contents.splice(newIndex, 0, row)
+          // 更新 sortOrder
+          contents.forEach((item, index) => {
+            item.sortOrder = index + 1
+          })
+          this.form.contents = contents
+          this.$nextTick(() => {
+            this.$refs.contentTable.doLayout()
+          })
+        }
+      })
+    },
     getList() {
       this.loading = true
       listProcessingBasis(this.queryParams).then(response => {
@@ -256,25 +278,43 @@ export default {
         this.loading = false
       })
     },
+    /** 获取关联法规选项 */
+    getRegulationOptions() {
+      listRegulation({ pageNum: 1, pageSize: 1000 }).then(response => {
+        this.regulationOptions = response.rows || []
+      })
+    },
+    /** 根据ID获取法规名称 */
+    getRegulationName(regulationId) {
+      if (!regulationId || !this.regulationOptions.length) return ''
+      const regulation = this.regulationOptions.find(r => r.regulationId === regulationId)
+      return regulation ? regulation.title : ''
+    },
     cancel() {
+      if (this.sortable) {
+        this.sortable.destroy()
+        this.sortable = null
+      }
       this.open = false
       this.reset()
     },
     reset() {
       this.form = {
         basisId: null,
-        basisNo: null,
         title: null,
-        violationType: null,
-        issuingAuthority: null,
-        effectiveDate: null,
-        legalLevel: null,
-        clauses: null,
-        legalLiability: null,
-        discretionStandard: null,
+        regulationId: null,
         status: "0",
         remark: null,
-        contents: []
+        contents: [
+          { sortOrder: 1, label: '编号', content: '' },
+          { sortOrder: 2, label: '违法类型', content: '' },
+          { sortOrder: 3, label: '颁发机构', content: '' },
+          { sortOrder: 4, label: '实施时间', content: '' },
+          { sortOrder: 5, label: '效级', content: '' },
+          { sortOrder: 6, label: '条款内容', content: '' },
+          { sortOrder: 7, label: '法律责任', content: '' },
+          { sortOrder: 8, label: '裁量标准', content: '' }
+        ]
       }
       this.resetForm("form")
     },
@@ -297,54 +337,44 @@ export default {
       this.title = "添加处理依据"
     },
     handleUpdate(row) {
-      this.reset()
       const basisId = row.basisId || this.ids
       getProcessingBasis(basisId).then(response => {
-        this.form = response.data || {}
-        // 将内容行JSON字符串解析为数组
-        if (this.form.contents && typeof this.form.contents === 'string') {
-          try {
-            this.form.contents = JSON.parse(this.form.contents)
-          } catch (e) {
-            this.form.contents = []
-          }
-        } else if (!this.form.contents) {
-          this.form.contents = []
+        const result = response.data  // {basis: {...}, contents: [...]}
+        const formData = result.basis || {}  // 主表数据
+        formData.contents = result.contents || []  // 合并内容
+
+        // 确保 contents 每项都有 sortOrder
+        if (formData.contents.length > 0) {
+          formData.contents = formData.contents.map((c, index) => ({
+            ...c,
+            sortOrder: c.sortOrder ?? (index + 1)
+          }))
         }
+
+        this.form = formData
         this.open = true
         this.title = "修改处理依据"
       })
     },
     handleDetail(row) {
       getProcessingBasis(row.basisId).then(response => {
-        this.detailData = response.data || {}
-        // 将内容行JSON字符串解析为数组以便显示
-        if (this.detailData.contents && typeof this.detailData.contents === 'string') {
-          try {
-            this.detailData.contents = JSON.parse(this.detailData.contents)
-          } catch (e) {
-            // 保持原样
-          }
-        }
+        const result = response.data  // {basis: {...}, contents: [...]}
+        this.detailData = result.basis || {}
+        this.detailData.contents = result.contents || []
         this.detailOpen = true
       })
     },
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          // 将内容行数组转换为JSON字符串
-          const data = { ...this.form }
-          if (Array.isArray(data.contents)) {
-            data.contents = JSON.stringify(data.contents)
-          }
           if (this.form.basisId != null) {
-            updateProcessingBasis(data).then(response => {
+            updateProcessingBasis(this.form).then(response => {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
             })
           } else {
-            addProcessingBasis(data).then(response => {
+            addProcessingBasis(this.form).then(response => {
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
@@ -367,10 +397,13 @@ export default {
       if (!this.form.contents) {
         this.form.contents = []
       }
+      const newSortOrder = this.form.contents.length > 0
+        ? Math.max(...this.form.contents.map(c => c.sortOrder || 0)) + 1
+        : 1
       this.form.contents.push({
-        clause: null,
-        legalLiability: null,
-        discretionStandard: null
+        sortOrder: newSortOrder,
+        label: '',
+        content: ''
       })
     },
     /** 删除内容行 */
@@ -380,3 +413,13 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.content-table {
+  margin-top: 10px;
+}
+.content-add-btn {
+  margin-top: 12px;
+  text-align: left;
+}
+</style>

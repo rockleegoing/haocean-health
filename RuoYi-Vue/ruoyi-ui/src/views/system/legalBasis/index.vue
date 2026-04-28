@@ -9,22 +9,6 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="违法类型" prop="violationType">
-        <el-input
-          v-model="queryParams.violationType"
-          placeholder="请输入违法类型"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="颁发机构" prop="issuingAuthority">
-        <el-input
-          v-model="queryParams.issuingAuthority"
-          placeholder="请输入颁发机构"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
           <el-option label="正常" value="0" />
@@ -86,12 +70,12 @@
     <el-table v-loading="loading" :data="legalBasisList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="定性依据ID" align="center" prop="basisId" />
-      <el-table-column label="编号" align="center" prop="basisNo" width="80" />
       <el-table-column label="标题" align="center" prop="title" show-overflow-tooltip />
-      <el-table-column label="违法类型" align="center" prop="violationType" />
-      <el-table-column label="颁发机构" align="center" prop="issuingAuthority" show-overflow-tooltip />
-      <el-table-column label="实施时间" align="center" prop="effectiveDate" width="120" />
-      <el-table-column label="效级" align="center" prop="legalLevel" width="80" />
+      <el-table-column label="关联法规" align="center">
+        <template slot-scope="scope">
+          {{ getRegulationName(scope.row.regulationId) }}
+        </template>
+      </el-table-column>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.status === '0'" type="success">正常</el-tag>
@@ -133,12 +117,12 @@
     />
 
     <!-- 添加或修改定性依据对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="700px" append-to-body>
+    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body @opened="onDialogOpened">
       <el-form ref="form" :model="form" :rules="rules" label-width="100px">
-        <el-row>
+        <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="标题" prop="title">
-              <el-input v-model="form.title" placeholder="请输入标题" />
+              <el-input v-model="form.title" placeholder="请输入标题" maxlength="100" show-word-limit />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -153,6 +137,8 @@
               </el-select>
             </el-form-item>
           </el-col>
+        </el-row>
+        <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="状态" prop="status">
               <el-radio-group v-model="form.status">
@@ -161,17 +147,35 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
-          <el-col :span="24">
-            <el-form-item label="内容">
-              <div v-for="(row, index) in form.contents" :key="index" class="content-row">
-                <el-input v-model="row.label" placeholder="标签" style="width: 120px; margin-right: 10px;" />
-                <el-input v-model="row.content" type="textarea" placeholder="内容" style="flex: 1; margin-right: 10px;" />
-                <el-button @click="removeContent(index)" type="danger" icon="el-icon-delete">删除</el-button>
-              </div>
-              <el-button @click="addContent" type="primary" icon="el-icon-plus">新增内容行</el-button>
-            </el-form-item>
-          </el-col>
         </el-row>
+        <el-divider content-position="left">内容明细</el-divider>
+        <div class="content-table">
+          <el-table ref="contentTable" :data="form.contents" border size="small">
+            <el-table-column label="排序" width="100" align="center">
+              <template slot-scope="scope">
+                <el-input-number v-model="scope.row.sortOrder" :min="1" :max="99" size="mini" controls-position="right" style="width: 80px;" />
+              </template>
+            </el-table-column>
+            <el-table-column label="标签" width="150">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.label" placeholder="如：编号、违法类型" maxlength="50" />
+              </template>
+            </el-table-column>
+            <el-table-column label="内容">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.content" type="textarea" :rows="2" placeholder="请输入内容" maxlength="500" show-word-limit />
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="60" align="center">
+              <template slot-scope="scope">
+                <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeContent(scope.$index)" circle />
+              </template>
+            </el-table-column>
+          </el-table>
+          <div class="content-add-btn">
+            <el-button type="primary" plain icon="el-icon-plus" size="small" @click="addContent">新增内容行</el-button>
+          </div>
+        </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -182,21 +186,20 @@
     <!-- 定性依据详情对话框 -->
     <el-dialog title="定性依据详情" :visible.sync="detailOpen" width="800px" append-to-body>
       <el-descriptions :column="2" border>
-        <el-descriptions-item label="编号">{{ detailData.basisNo }}</el-descriptions-item>
         <el-descriptions-item label="标题">{{ detailData.title }}</el-descriptions-item>
-        <el-descriptions-item label="违法类型">{{ detailData.violationType }}</el-descriptions-item>
-        <el-descriptions-item label="颁发机构">{{ detailData.issuingAuthority }}</el-descriptions-item>
-        <el-descriptions-item label="实施时间">{{ detailData.effectiveDate }}</el-descriptions-item>
-        <el-descriptions-item label="效级">{{ detailData.legalLevel }}</el-descriptions-item>
-        <el-descriptions-item label="关联法规ID">{{ detailData.regulationId }}</el-descriptions-item>
+        <el-descriptions-item label="关联法规">{{ getRegulationName(detailData.regulationId) }}</el-descriptions-item>
         <el-descriptions-item label="状态">
           <el-tag v-if="detailData.status === '0'" type="success">正常</el-tag>
           <el-tag v-else type="danger">停用</el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="条款内容" :span="2">{{ detailData.clauses }}</el-descriptions-item>
-        <el-descriptions-item label="法律责任" :span="2">{{ detailData.legalLiability }}</el-descriptions-item>
-        <el-descriptions-item label="裁量标准" :span="2">{{ detailData.discretionStandard }}</el-descriptions-item>
+        <el-descriptions-item label="备注">{{ detailData.remark }}</el-descriptions-item>
       </el-descriptions>
+      <el-divider content-position="left">内容</el-divider>
+      <el-table :data="detailData.contents || []" border>
+        <el-table-column label="标签" prop="label" width="150" />
+        <el-table-column label="内容" prop="content" show-overflow-tooltip />
+        <el-table-column label="排序" prop="sortOrder" width="80" align="center" />
+      </el-table>
       <div slot="footer" class="dialog-footer">
         <el-button @click="detailOpen = false">关 闭</el-button>
       </div>
@@ -205,6 +208,7 @@
 </template>
 
 <script>
+import Sortable from 'sortablejs'
 import { listLegalBasis, getLegalBasis, delLegalBasis, addLegalBasis, updateLegalBasis, getLegalBasisByRegulation } from "@/api/system/regulation"
 import { listRegulation } from "@/api/system/regulation"
 
@@ -236,13 +240,13 @@ export default {
       detailOpen: false,
       // 详情数据
       detailData: {},
+      // 表格拖拽实例
+      sortable: null,
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
         title: null,
-        violationType: null,
-        issuingAuthority: null,
         status: null,
       },
       // 表单参数
@@ -276,6 +280,39 @@ export default {
     this.getRegulationOptions()
   },
   methods: {
+    /** 对话框打开后初始化拖拽 */
+    onDialogOpened() {
+      this.initSortable()
+    },
+    /** 初始化表格拖拽 */
+    initSortable() {
+      if (this.sortable) {
+        this.sortable.destroy()
+      }
+      const table = this.$refs.contentTable
+      if (!table) return
+      const el = table.$el.querySelector('.el-table__body-wrapper tbody')
+      if (!el) return
+      this.sortable = Sortable.create(el, {
+        handle: '.el-table__row',
+        animation: 150,
+        onEnd: ({ oldIndex, newIndex }) => {
+          if (oldIndex === newIndex) return
+          // 复制数组并重新排序
+          const contents = [...this.form.contents]
+          const row = contents.splice(oldIndex, 1)[0]
+          contents.splice(newIndex, 0, row)
+          // 更新 sortOrder
+          contents.forEach((item, index) => {
+            item.sortOrder = index + 1
+          })
+          this.form.contents = contents
+          this.$nextTick(() => {
+            this.$refs.contentTable.doLayout()
+          })
+        }
+      })
+    },
     /** 查询定性依据列表 */
     getList() {
       this.loading = true
@@ -291,8 +328,18 @@ export default {
         this.regulationOptions = response.rows || []
       })
     },
+    /** 根据ID获取法规名称 */
+    getRegulationName(regulationId) {
+      if (!regulationId || !this.regulationOptions.length) return ''
+      const regulation = this.regulationOptions.find(r => r.regulationId === regulationId)
+      return regulation ? regulation.title : ''
+    },
     // 取消按钮
     cancel() {
+      if (this.sortable) {
+        this.sortable.destroy()
+        this.sortable = null
+      }
       this.open = false
       this.reset()
     },
@@ -305,14 +352,14 @@ export default {
         status: '0',
         remark: '',
         contents: [
-          { label: '编号', content: '' },
-          { label: '违法类型', content: '' },
-          { label: '颁发机构', content: '' },
-          { label: '实施时间', content: '' },
-          { label: '效级', content: '' },
-          { label: '条款内容', content: '' },
-          { label: '法律责任', content: '' },
-          { label: '裁量标准', content: '' }
+          { sortOrder: 1, label: '编号', content: '' },
+          { sortOrder: 2, label: '违法类型', content: '' },
+          { sortOrder: 3, label: '颁发机构', content: '' },
+          { sortOrder: 4, label: '实施时间', content: '' },
+          { sortOrder: 5, label: '效级', content: '' },
+          { sortOrder: 6, label: '条款内容', content: '' },
+          { sortOrder: 7, label: '法律责任', content: '' },
+          { sortOrder: 8, label: '裁量标准', content: '' }
         ]
       }
       this.resetForm("form")
@@ -324,7 +371,10 @@ export default {
     },
     /** 新增内容行 */
     addContent() {
-      this.form.contents.push({ label: '', content: '' })
+      const newSortOrder = this.form.contents.length > 0
+        ? Math.max(...this.form.contents.map(c => c.sortOrder || 0)) + 1
+        : 1
+      this.form.contents.push({ sortOrder: newSortOrder, label: '', content: '' })
     },
     /** 删除内容行 */
     removeContent(index) {
@@ -349,10 +399,21 @@ export default {
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
-      this.reset()
       const basisId = row.basisId || this.ids
       getLegalBasis(basisId).then(response => {
-        this.form = response.data
+        const result = response.data  // {basis: {...}, contents: [...]}
+        const formData = result.basis || {}  // 主表数据
+        formData.contents = result.contents || []  // 合并内容
+
+        // 确保 contents 每项都有 sortOrder
+        if (formData.contents.length > 0) {
+          formData.contents = formData.contents.map((c, index) => ({
+            ...c,
+            sortOrder: c.sortOrder ?? (index + 1)
+          }))
+        }
+
+        this.form = formData
         this.open = true
         this.title = "修改定性依据"
       })
@@ -360,7 +421,9 @@ export default {
     /** 详情按钮操作 */
     handleDetail(row) {
       getLegalBasis(row.basisId).then(response => {
-        this.detailData = response.data || {}
+        const result = response.data  // {basis: {...}, contents: [...]}
+        this.detailData = result.basis || {}
+        this.detailData.contents = result.contents || []
         this.detailOpen = true
       })
     },
@@ -403,3 +466,13 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.content-table {
+  margin-top: 10px;
+}
+.content-add-btn {
+  margin-top: 12px;
+  text-align: left;
+}
+</style>

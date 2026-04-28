@@ -8,8 +8,6 @@ import com.ruoyi.app.feature.law.api.LegalTypeResponse
 import com.ruoyi.app.feature.law.api.SupervisionTypeResponse
 import com.ruoyi.app.feature.law.db.entity.LegalTypeEntity
 import com.ruoyi.app.feature.law.db.entity.SupervisionTypeEntity
-import com.ruoyi.app.feature.law.repository.toEntity
-import com.ruoyi.app.feature.law.model.toEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -28,6 +26,7 @@ class LawSyncManager(private val context: Context) {
     private val legalTypeDao = AppDatabase.getInstance(context).legalTypeDao()
     private val supervisionTypeDao = AppDatabase.getInstance(context).supervisionTypeDao()
     private val processingBasisDao = AppDatabase.getInstance(context).processingBasisDao()
+    private val basisChapterLinkDao = AppDatabase.getInstance(context).basisChapterLinkDao()
 
     companion object {
         private const val PREFS_NAME = "law_sync_prefs"
@@ -104,6 +103,9 @@ class LawSyncManager(private val context: Context) {
         // 同步监管类型
         syncSupervisionTypes()
 
+        // 同步依据关联表
+        syncBasisChapterLinks()
+
         // 更新同步时间
         prefs.edit().putLong(KEY_LAST_SYNC_TIME, System.currentTimeMillis()).apply()
     }
@@ -149,6 +151,9 @@ class LawSyncManager(private val context: Context) {
         // 增量同步监管类型
         syncSupervisionTypes()
 
+        // 增量同步依据关联表
+        syncBasisChapterLinks()
+
         // 更新同步时间
         prefs.edit().putLong(KEY_LAST_SYNC_TIME, System.currentTimeMillis()).apply()
     }
@@ -189,6 +194,21 @@ class LawSyncManager(private val context: Context) {
         if (responses.isNotEmpty()) {
             val entities = responses.map { it.toEntity() }
             supervisionTypeDao.insertAll(entities)
+        }
+    }
+
+    /**
+     * 同步依据关联表（章节-依据关联）
+     */
+    private suspend fun syncBasisChapterLinks() {
+        android.util.Log.d("LawSyncManager", "syncBasisChapterLinks: starting")
+        val response = LawApi.getBasisChapterLinkList(pageNum = 1, pageSize = 5000)
+        android.util.Log.d("LawSyncManager", "syncBasisChapterLinks: code=${response.code}, rows=${response.rows.size}")
+        if (response.code == 200) {
+            val entities = response.rows.map { it.toEntity() }
+            android.util.Log.d("LawSyncManager", "syncBasisChapterLinks: inserting ${entities.size} links")
+            basisChapterLinkDao.insertLinks(entities)
+            android.util.Log.d("LawSyncManager", "syncBasisChapterLinks: done")
         }
     }
 

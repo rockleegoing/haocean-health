@@ -60,23 +60,6 @@ data class ProcessingBasisContent(
 )
 
 /**
- * ProcessingBasisContent 转换为 ProcessingBasisContentEntity
- */
-fun ProcessingBasisContent.toEntity(): com.ruoyi.app.feature.law.db.entity.ProcessingBasisContentEntity {
-    return com.ruoyi.app.feature.law.db.entity.ProcessingBasisContentEntity(
-        contentId = contentId,
-        basisId = basisId,
-        label = label,
-        content = content,
-        sortOrder = sortOrder,
-        createBy = null,
-        createTime = null,
-        updateBy = null,
-        updateTime = null
-    )
-}
-
-/**
  * 章节-依据关联数据模型
  */
 data class BasisChapterLink(

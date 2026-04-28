@@ -15,6 +15,8 @@ import com.ruoyi.app.feature.law.db.dao.LegalBasisContentDao
 import com.ruoyi.app.feature.law.db.dao.ProcessingBasisContentDao
 import com.ruoyi.app.feature.law.db.entity.LegalBasisContentEntity
 import com.ruoyi.app.feature.law.db.entity.ProcessingBasisContentEntity
+import com.ruoyi.app.feature.law.model.LegalBasisContent
+import com.ruoyi.app.feature.law.model.ProcessingBasisContent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -231,6 +233,22 @@ class LawRepository(private val context: Context) {
             if (response.code == 200) {
                 val entities = response.rows.map { it.toEntity() }
                 legalBasisDao.insertLegalBasises(entities)
+
+                // 同步每个定性依据的内容
+                for (basis in response.rows) {
+                    try {
+                        val detailResponse = LawApi.getLegalBasisDetail(basis.basisId)
+                        android.util.Log.d("LawRepository", "syncLegalBasisesFromServer: basisId=${basis.basisId}, code=${detailResponse.code}, contents=${detailResponse.data?.contents?.size}")
+                        if (detailResponse.code == 200 && detailResponse.data != null) {
+                            val contentEntities = detailResponse.data.contents.map { it.toEntity() }
+                            legalBasisContentDao.insertContents(contentEntities)
+                        }
+                    } catch (e: Exception) {
+                        android.util.Log.e("LawRepository", "syncLegalBasisesFromServer: error=${e.message}")
+                        // 单个详情同步失败不影响整体
+                    }
+                }
+
                 Result.success(Unit)
             } else {
                 Result.failure(Exception(response.msg ?: "同步失败"))
@@ -249,6 +267,20 @@ class LawRepository(private val context: Context) {
             if (response.code == 200) {
                 val entities = response.rows.map { it.toEntity() }
                 processingBasisDao.insertProcessingBasises(entities)
+
+                // 同步每个处理依据的内容
+                for (basis in response.rows) {
+                    try {
+                        val detailResponse = LawApi.getProcessingBasisDetail(basis.basisId)
+                        if (detailResponse.code == 200 && detailResponse.data != null) {
+                            val contentEntities = detailResponse.data.contents.map { it.toEntity() }
+                            processingBasisContentDao.insertContents(contentEntities)
+                        }
+                    } catch (e: Exception) {
+                        // 单个详情同步失败不影响整体
+                    }
+                }
+
                 Result.success(Unit)
             } else {
                 Result.failure(Exception(response.msg ?: "同步失败"))
@@ -263,15 +295,24 @@ class LawRepository(private val context: Context) {
      */
     suspend fun syncBasisChapterLinksFromServer(): Result<Unit> = withContext(Dispatchers.IO) {
         try {
+            android.util.Log.d("LawRepository", "syncBasisChapterLinksFromServer: starting")
             val response = LawApi.getBasisChapterLinkList(pageNum = 1, pageSize = 5000)
+            android.util.Log.d("LawRepository", "syncBasisChapterLinksFromServer: code=${response.code}, rows=${response.rows.size}")
             if (response.code == 200) {
+                // 先删除所有现有关联，再插入新数据（确保孤立记录被清理）
+                android.util.Log.d("LawRepository", "syncBasisChapterLinksFromServer: deleting all existing links")
+                basisChapterLinkDao.deleteAllLinks()
                 val entities = response.rows.map { it.toEntity() }
+                android.util.Log.d("LawRepository", "syncBasisChapterLinksFromServer: inserting ${entities.size} links")
                 basisChapterLinkDao.insertLinks(entities)
+                android.util.Log.d("LawRepository", "syncBasisChapterLinksFromServer: done")
                 Result.success(Unit)
             } else {
+                android.util.Log.e("LawRepository", "syncBasisChapterLinksFromServer: failed - ${response.msg}")
                 Result.failure(Exception(response.msg ?: "同步失败"))
             }
         } catch (e: Exception) {
+            android.util.Log.e("LawRepository", "syncBasisChapterLinksFromServer: exception - ${e.message}")
             Result.failure(e)
         }
     }
@@ -474,5 +515,35 @@ fun com.ruoyi.app.feature.law.api.SupervisionTypeResponse.toEntity(): com.ruoyi.
         typeName = typeName,
         sortOrder = sortOrder,
         status = status
+    )
+}
+
+// LegalBasisContent toEntity
+fun com.ruoyi.app.feature.law.model.LegalBasisContent.toEntity(): com.ruoyi.app.feature.law.db.entity.LegalBasisContentEntity {
+    return com.ruoyi.app.feature.law.db.entity.LegalBasisContentEntity(
+        contentId = contentId,
+        basisId = basisId,
+        label = label,
+        content = content,
+        sortOrder = sortOrder,
+        createBy = null,
+        createTime = null,
+        updateBy = null,
+        updateTime = null
+    )
+}
+
+// ProcessingBasisContent toEntity
+fun com.ruoyi.app.feature.law.model.ProcessingBasisContent.toEntity(): com.ruoyi.app.feature.law.db.entity.ProcessingBasisContentEntity {
+    return com.ruoyi.app.feature.law.db.entity.ProcessingBasisContentEntity(
+        contentId = contentId,
+        basisId = basisId,
+        label = label,
+        content = content,
+        sortOrder = sortOrder,
+        createBy = null,
+        createTime = null,
+        updateBy = null,
+        updateTime = null
     )
 }

@@ -96,22 +96,29 @@ class LegalBasisDetailActivity : AppCompatActivity() {
     }
 
     private fun loadDetail() {
+        android.util.Log.d("LegalBasisDetail", "loadDetail: start, basisId=$basisId")
         lifecycleScope.launch {
             val legalBasis = repository.getLegalBasisById(basisId)
-            legalBasis?.let { displayDetail(it) }
+            android.util.Log.d("LegalBasisDetail", "loadDetail: legalBasis=$legalBasis")
+            legalBasis?.let {
+                displayDetail(it)
+            }
 
             // 从内容表加载内容
             repository.getLegalBasisContents(basisId).collect { contents ->
+                android.util.Log.d("LegalBasisDetail", "loadDetail: contents size=${contents.size}")
                 displayContents(contents)
             }
         }
     }
 
     private fun displayDetail(legalBasis: LegalBasisEntity) {
+        android.util.Log.d("LegalBasisDetail", "displayDetail: title=${legalBasis.title}")
         binding.tvTitle.text = legalBasis.title
     }
 
     private fun displayContents(contents: List<LegalBasisContentEntity>) {
+        android.util.Log.d("LegalBasisDetail", "displayContents: size=${contents.size}")
         binding.contentContainer.removeAllViews()
         for (content in contents) {
             val itemView = layoutInflater.inflate(R.layout.item_basis_content, binding.contentContainer, false)

@@ -235,6 +235,7 @@ class SyncManager private constructor() {
                 Log.e("SyncManager", "法律法规同步失败: ${regulationResult.exceptionOrNull()?.message}", regulationResult.exceptionOrNull())
                 return false
             }
+            Log.d("SyncManager", "syncLaw: 法规主表同步成功")
 
             // 同步章节和条款
             try {
@@ -255,6 +256,7 @@ class SyncManager private constructor() {
                 Log.e("SyncManager", "定性依据同步失败: ${basisResult.exceptionOrNull()?.message}", basisResult.exceptionOrNull())
                 return false
             }
+            Log.d("SyncManager", "syncLaw: 定性依据同步成功")
 
             // 同步处理依据
             val processingBasisResult = repository.syncProcessingBasisesFromServer()
@@ -262,13 +264,16 @@ class SyncManager private constructor() {
                 Log.e("SyncManager", "处理依据同步失败: ${processingBasisResult.exceptionOrNull()?.message}", processingBasisResult.exceptionOrNull())
                 return false
             }
+            Log.d("SyncManager", "syncLaw: 处理依据同步成功")
 
             // 同步章节-依据关联
+            Log.d("SyncManager", "syncLaw: 开始同步依据关联表")
             val basisLinkResult = repository.syncBasisChapterLinksFromServer()
             if (basisLinkResult.isFailure) {
                 Log.e("SyncManager", "依据关联同步失败: ${basisLinkResult.exceptionOrNull()?.message}", basisLinkResult.exceptionOrNull())
                 return false
             }
+            Log.d("SyncManager", "syncLaw: 依据关联同步成功")
 
             // 同步法律类型
             try {
@@ -294,6 +299,7 @@ class SyncManager private constructor() {
                 Log.e("SyncManager", "监管类型同步异常: ${e.message}", e)
             }
 
+            Log.d("SyncManager", "syncLaw: 全部法律数据同步完成")
             true
         } catch (e: Exception) {
             Log.e("SyncManager", "法律法规同步异常: ${e.message}", e)
