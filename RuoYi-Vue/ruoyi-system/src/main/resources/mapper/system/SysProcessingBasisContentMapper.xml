@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysProcessingBasisContentMapper">
+
+    <resultMap type="com.ruoyi.system.domain.SysProcessingBasisContent" id="SysProcessingBasisContentResult">
+        <result property="contentId" column="content_id"/>
+        <result property="basisId" column="basis_id"/>
+        <result property="label" column="label"/>
+        <result property="content" column="content"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectSysProcessingBasisContentVo">
+        SELECT content_id, basis_id, label, content, sort_order, create_by, create_time, update_by, update_time
+        FROM sys_processing_basis_content
+    </sql>
+
+    <select id="selectSysProcessingBasisContentList" resultMap="SysProcessingBasisContentResult">
+        <include refid="selectSysProcessingBasisContentVo"/>
+        <where>
+            <if test="basisId != null">AND basis_id = #{basisId}</if>
+            <if test="label != null and label != ''">AND label LIKE '%' || #{label} || '%'</if>
+        </where>
+        ORDER BY sort_order ASC
+    </select>
+
+    <select id="selectSysProcessingBasisContentById" resultMap="SysProcessingBasisContentResult">
+        <include refid="selectSysProcessingBasisContentVo"/>
+        WHERE content_id = #{contentId}
+    </select>
+
+    <select id="selectSysProcessingBasisContentByBasisId" resultMap="SysProcessingBasisContentResult">
+        <include refid="selectSysProcessingBasisContentVo"/>
+        WHERE basis_id = #{basisId}
+        ORDER BY sort_order ASC
+    </select>
+
+    <insert id="insertSysProcessingBasisContent" parameterType="com.ruoyi.system.domain.SysProcessingBasisContent" useGeneratedKeys="true" keyProperty="contentId">
+        INSERT INTO sys_processing_basis_content
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="basisId != null">basis_id,</if>
+            <if test="label != null">label,</if>
+            <if test="content != null">content,</if>
+            <if test="sortOrder != null">sort_order,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="basisId != null">#{basisId},</if>
+            <if test="label != null">#{label},</if>
+            <if test="content != null">#{content},</if>
+            <if test="sortOrder != null">#{sortOrder},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <insert id="batchInsertSysProcessingBasisContent">
+        INSERT INTO sys_processing_basis_content (basis_id, label, content, sort_order, create_by, create_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.basisId}, #{item.label}, #{item.content}, #{item.sortOrder}, #{item.createBy}, #{item.createTime})
+        </foreach>
+    </insert>
+
+    <update id="updateSysProcessingBasisContent" parameterType="com.ruoyi.system.domain.SysProcessingBasisContent">
+        UPDATE sys_processing_basis_content
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="label != null">label = #{label},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        WHERE content_id = #{contentId}
+    </update>
+
+    <delete id="deleteSysProcessingBasisContentById">
+        DELETE FROM sys_processing_basis_content WHERE content_id = #{contentId}
+    </delete>
+
+    <delete id="deleteSysProcessingBasisContentByBasisId">
+        DELETE FROM sys_processing_basis_content WHERE basis_id = #{basisId}
+    </delete>
+
+    <delete id="deleteSysProcessingBasisContentByIds">
+        DELETE FROM sys_processing_basis_content WHERE content_id IN
+        <foreach item="contentId" collection="array" open="(" separator="," close=")">
+            #{contentId}
+        </foreach>
+    </delete>
+</mapper>
