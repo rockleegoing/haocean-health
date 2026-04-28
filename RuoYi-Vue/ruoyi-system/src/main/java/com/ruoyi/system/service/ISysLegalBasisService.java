@@ -1,6 +1,7 @@
 package com.ruoyi.system.service;
 
 import java.util.List;
+import java.util.Map;
 import com.ruoyi.system.domain.SysLegalBasis;
 
 /**
@@ -65,4 +66,9 @@ public interface ISysLegalBasisService {
      * @return 结果
      */
     public int deleteSysLegalBasisById(Long basisId);
+
+    /**
+     * 查询定性依据详情（含内容列表）
+     */
+    Map<String, Object> selectLegalBasisDetail(Long basisId);
 }

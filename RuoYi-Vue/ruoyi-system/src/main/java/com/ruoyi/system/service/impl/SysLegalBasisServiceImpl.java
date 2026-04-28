@@ -1,12 +1,16 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SysLegalBasisMapper;
 import com.ruoyi.system.domain.SysLegalBasis;
+import com.ruoyi.system.domain.SysLegalBasisContent;
 import com.ruoyi.system.service.ISysLegalBasisService;
+import com.ruoyi.system.service.ISysLegalBasisContentService;
 
 /**
  * 定性依据Service业务层处理
@@ -18,6 +22,9 @@ import com.ruoyi.system.service.ISysLegalBasisService;
 public class SysLegalBasisServiceImpl implements ISysLegalBasisService {
     @Autowired
     private SysLegalBasisMapper sysLegalBasisMapper;
+
+    @Autowired
+    private ISysLegalBasisContentService sysLegalBasisContentService;
 
     /**
      * 查询定性依据
@@ -94,5 +101,18 @@ public class SysLegalBasisServiceImpl implements ISysLegalBasisService {
     @Override
     public int deleteSysLegalBasisById(Long basisId) {
         return sysLegalBasisMapper.deleteSysLegalBasisById(basisId);
+    }
+
+    /**
+     * 查询定性依据详情（含内容列表）
+     */
+    @Override
+    public Map<String, Object> selectLegalBasisDetail(Long basisId) {
+        SysLegalBasis legalBasis = sysLegalBasisMapper.selectSysLegalBasisById(basisId);
+        List<SysLegalBasisContent> contents = sysLegalBasisContentMapper.selectSysLegalBasisContentByBasisId(basisId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("basis", legalBasis);
+        result.put("contents", contents);
+        return result;
     }
 }
