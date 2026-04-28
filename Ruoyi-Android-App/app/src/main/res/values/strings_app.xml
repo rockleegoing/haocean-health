@@ -30,6 +30,7 @@
     <string name="mine_help">常见问题</string>
     <string name="mine_about">关于我们</string>
     <string name="mine_setting">应用设置</string>
+    <string name="mine_add_unit">添加单位</string>
     <string name="mine_edit_pwd">修改密码</string>
     <string name="setting_updates">检测更新</string>
     <string name="setting_clear_cache">清除缓存</string>

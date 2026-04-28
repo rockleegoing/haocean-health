@@ -9,7 +9,7 @@ object ConfigApi {
     const val API_ERROR: String = "500"
     // var baseUrl = "http://192.168.1.138:8080"
     // const val baseUrl = "http://192.168.31.164:8080"
-    const val baseUrl = "http://10.64.90.68:8080"
+    const val baseUrl = "http://192.168.31.164:8080"
     const val blogUrl = "https://ruoyi-go.qiqjia.com"
 
     const val login = "/login";// 登录

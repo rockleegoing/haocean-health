@@ -89,8 +89,11 @@ public class LogAspect
     {
         try
         {
-            // 获取当前的用户
-            LoginUser loginUser = SecurityUtils.getLoginUser();
+            // 获取当前的用户（兼容匿名接口）
+            LoginUser loginUser = null;
+            if (SecurityUtils.getAuthentication() != null) {
+                loginUser = SecurityUtils.getLoginUser();
+            }
 
             // *========数据库日志=========*//
             SysOperLog operLog = new SysOperLog();

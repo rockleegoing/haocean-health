@@ -25,6 +25,7 @@ import com.ruoyi.code.dialog.BubbleDialog
 import com.ruoyi.code.dialog.CProgressDialogUtils
 import com.ruoyi.code.utils.clickDelay
 import com.ruoyi.code.witget.toast
+import com.therouter.TheRouter
 import com.therouter.router.Route
 
 @Route(path = Constant.mineFragment)
@@ -55,6 +56,9 @@ class MineFragment : BaseBindingFragment<FragmentMineBinding>() {
         }
         binding.llSetting.clickDelay {
             SettingActivity.startActivity(this.requireActivity())
+        }
+        binding.llAddUnit.clickDelay {
+            TheRouter.build(Constant.addUnitRoute).navigation()
         }
         binding.llJiaoliuqun.clickDelay {
             ToastUtils.show(Frame.getString(R.string.mine_qq_line))
