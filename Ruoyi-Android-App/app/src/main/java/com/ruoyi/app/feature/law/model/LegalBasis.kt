@@ -1,5 +1,7 @@
 package com.ruoyi.app.feature.law.model
 
+import com.ruoyi.app.feature.law.db.entity.LegalBasisContentEntity
+
 /**
  * 定性依据数据模型
  */
@@ -37,7 +39,40 @@ data class LegalBasisListResponse(
  * 定性依据详情响应
  */
 data class LegalBasisDetailResponse(
-    val data: LegalBasis?,
     val code: Int,
-    val msg: String?
+    val msg: String?,
+    val data: LegalBasisDetailData?
 )
+
+data class LegalBasisDetailData(
+    val basis: LegalBasis,
+    val contents: List<LegalBasisContent>
+)
+
+/**
+ * 定性依据内容
+ */
+data class LegalBasisContent(
+    val contentId: Long,
+    val basisId: Long,
+    val label: String,
+    val content: String?,
+    val sortOrder: Int
+)
+
+/**
+ * LegalBasisContent 转换为 LegalBasisContentEntity
+ */
+fun LegalBasisContent.toEntity(): LegalBasisContentEntity {
+    return LegalBasisContentEntity(
+        contentId = contentId,
+        basisId = basisId,
+        label = label,
+        content = content,
+        sortOrder = sortOrder,
+        createBy = null,
+        createTime = null,
+        updateBy = null,
+        updateTime = null
+    )
+}
