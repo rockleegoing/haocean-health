@@ -266,8 +266,8 @@ public class GenTableServiceImpl implements IGenTableService
         List<String> templates = VelocityUtils.getTemplateList(table);
         for (String template : templates)
         {
-            if (!StringUtils.containsAny(template, "sql.vm", "api.js.vm", "api.ts.vm", "type.ts.vm", "index.ts.vm", "index.vue.vm", "index-tree.vue.vm", "view.vue.vm"))
-            {
+//            if (!StringUtils.containsAny(template, "sql.vm"))
+//            {
                 // 渲染模板
                 StringWriter sw = new StringWriter();
                 Template tpl = Velocity.getTemplate(template, Constants.UTF8);
@@ -281,7 +281,7 @@ public class GenTableServiceImpl implements IGenTableService
                 {
                     throw new ServiceException("渲染模板失败，表名：" + table.getTableName());
                 }
-            }
+//            }
         }
     }
 
@@ -557,7 +557,29 @@ public class GenTableServiceImpl implements IGenTableService
         String genPath = table.getGenPath();
         if (StringUtils.equals(genPath, "/"))
         {
-            return System.getProperty("user.dir") + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
+            if(template.contains("controller.java.vm"))
+            {
+                return System.getProperty("user.dir") + File.separator + "ruoyi-admin" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
+            }
+            else if(StringUtils.contains(template, "sql.vm"))
+            {
+                return System.getProperty("user.dir")+ File.separator + "sql" + File.separator + VelocityUtils.getFileName(template, table);
+            }
+            else if(StringUtils.containsAny(template, "api.js.vm", "api.ts.vm"))
+            {
+                return System.getProperty("user.dir")+ File.separator + "ruoyi-ui" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
+            }
+            else if(StringUtils.containsAny(template, "type.ts.vm", "index.ts.vm", "index.vue.vm", "index-tree.vue.vm", "view.vue.vm"))
+            {
+                return System.getProperty("user.dir")+ File.separator + "ruoyi-ui" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
+            }
+            else if(StringUtils.contains(template, "mapper.java.vm"))
+            {
+                return System.getProperty("user.dir")+ File.separator + "ruoyi-system" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
+            }
+            else{
+                return System.getProperty("user.dir") + File.separator + "ruoyi-system" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
+            }
         }
         return genPath + File.separator + VelocityUtils.getFileName(template, table);
     }

@@ -235,7 +235,7 @@ public class VelocityUtils
         }
         else if (template.contains("controller.java.vm"))
         {
-            fileName = StringUtils.format("{}/controller/{}Controller.java", javaPath, className);
+            fileName = StringUtils.format("{}/com/ruoyi/web/controller/{}/{}Controller.java",PROJECT_PATH,moduleName, className);
         }
         else if (template.contains("mapper.xml.vm"))
         {
@@ -243,35 +243,35 @@ public class VelocityUtils
         }
         else if (template.contains("sql.vm"))
         {
-            fileName = businessName + "Menu.sql";
+            fileName = className + "Menu.sql";
         }
         else if (template.contains("api.js.vm"))
         {
-            fileName = StringUtils.format("{}/api/{}/{}.js", vuePath, moduleName, businessName);
+            fileName = StringUtils.format("api/{}/{}.js", moduleName, businessName);
         }
         else if (template.contains("api.ts.vm"))
         {
-            fileName = StringUtils.format("{}/api/{}/{}.ts", vuePath, moduleName, businessName);
+            fileName = StringUtils.format("api/{}/{}.ts", moduleName, businessName);
         }
         else if (template.contains("type.ts.vm"))
         {
-            fileName = StringUtils.format("{}/types/api/{}/{}.ts", vuePath, moduleName, businessName);
+            fileName = StringUtils.format("types/api/{}/{}.ts", moduleName, businessName);
         }
         else if (template.contains("index.ts.vm"))
         {
-            fileName = StringUtils.format("{}/types/api/index-bak.ts", vuePath);
+            fileName = StringUtils.format("types/api/index-bak.ts");
         }
         else if (template.contains("index.vue.vm"))
         {
-            fileName = StringUtils.format("{}/views/{}/{}/index.vue", vuePath, moduleName, businessName);
+            fileName = StringUtils.format("views/{}/{}/index.vue", moduleName, businessName);
         }
         else if (template.contains("index-tree.vue.vm"))
         {
-            fileName = StringUtils.format("{}/views/{}/{}/index.vue", vuePath, moduleName, businessName);
+            fileName = StringUtils.format("views/{}/{}/index.vue", moduleName, businessName);
         }
         else if (template.contains("view.vue.vm"))
         {
-            fileName = StringUtils.format("{}/views/{}/{}/view.vue", vuePath, moduleName, businessName);
+            fileName = StringUtils.format("views/{}/{}/view.vue", moduleName, businessName);
         }
         return fileName;
     }

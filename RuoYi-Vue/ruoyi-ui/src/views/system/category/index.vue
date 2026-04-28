@@ -9,18 +9,10 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="分类编码" prop="categoryCode">
+      <el-form-item label="排序" prop="sort">
         <el-input
-          v-model="queryParams.categoryCode"
-          placeholder="请输入分类编码"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="显示顺序" prop="orderNum">
-        <el-input
-          v-model="queryParams.orderNum"
-          placeholder="请输入显示顺序"
+          v-model="queryParams.sort"
+          placeholder="请输入排序"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -81,12 +73,17 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="分类ID" align="center" prop="categoryId" />
       <el-table-column label="分类名称" align="center" prop="categoryName" />
-      <el-table-column label="分类编码" align="center" prop="categoryCode" />
-      <el-table-column label="显示顺序" align="center" prop="orderNum" />
-      <el-table-column label="状态(0=正常,1=停用)" align="center" prop="status" />
-      <el-table-column label="备注" align="center" prop="remark" />
+      <el-table-column label="排序" align="center" prop="sort" />
+      <el-table-column label="状态" align="center" prop="status" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-view"
+            @click="handleViewData(scope.row)"
+            v-hasPermi="['system:category:query']"
+          >详情</el-button>
           <el-button
             size="mini"
             type="text"
@@ -113,7 +110,9 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改行业分类对话框 -->
+    <!-- 用语分类详情抽屉 -->
+    <category-view-drawer ref="categoryViewRef" />
+    <!-- 添加或修改用语分类对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="100px">
         <el-row>
@@ -123,23 +122,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="分类编码" prop="categoryCode">
-              <el-input v-model="form.categoryCode" placeholder="请输入分类编码" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="显示顺序" prop="orderNum">
-              <el-input v-model="form.orderNum" placeholder="请输入显示顺序" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="删除标志(0=存在,1=删除)" prop="delFlag">
-              <el-input v-model="form.delFlag" placeholder="请输入删除标志(0=存在,1=删除)" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="备注" prop="remark">
-              <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
+            <el-form-item label="排序" prop="sort">
+              <el-input v-model="form.sort" placeholder="请输入排序" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -154,9 +138,11 @@
 
 <script>
 import { listCategory, getCategory, delCategory, addCategory, updateCategory } from "@/api/system/category"
+import CategoryViewDrawer from "./view"
 
 export default {
   name: "Category",
+  components: { CategoryViewDrawer },
   data() {
     return {
       // 遮罩层
@@ -171,7 +157,7 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 行业分类表格数据
+      // 用语分类表格数据
       categoryList: [],
       // 弹出层标题
       title: "",
@@ -182,8 +168,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         categoryName: null,
-        categoryCode: null,
-        orderNum: null,
+        sort: null,
         status: null,
       },
       // 表单参数
@@ -193,6 +178,18 @@ export default {
         categoryName: [
           { required: true, message: "分类名称不能为空", trigger: "blur" }
         ],
+        sort: [
+          { required: true, message: "排序不能为空", trigger: "blur" }
+        ],
+        status: [
+          { required: true, message: "状态不能为空", trigger: "change" }
+        ],
+        createTime: [
+          { required: true, message: "创建时间不能为空", trigger: "blur" }
+        ],
+        updateTime: [
+          { required: true, message: "更新时间不能为空", trigger: "blur" }
+        ]
       }
     }
   },
@@ -200,7 +197,7 @@ export default {
     this.getList()
   },
   methods: {
-    /** 查询行业分类列表 */
+    /** 查询用语分类列表 */
     getList() {
       this.loading = true
       listCategory(this.queryParams).then(response => {
@@ -219,15 +216,10 @@ export default {
       this.form = {
         categoryId: null,
         categoryName: null,
-        categoryCode: null,
-        orderNum: null,
+        sort: null,
         status: null,
-        delFlag: null,
-        createBy: null,
         createTime: null,
-        updateBy: null,
-        updateTime: null,
-        remark: null
+        updateTime: null
       }
       this.resetForm("form")
     },
@@ -251,7 +243,7 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = "添加行业分类"
+      this.title = "添加用语分类"
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -260,7 +252,7 @@ export default {
       getCategory(categoryId).then(response => {
         this.form = response.data
         this.open = true
-        this.title = "修改行业分类"
+        this.title = "修改用语分类"
       })
     },
     /** 提交按钮 */
@@ -286,12 +278,16 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const categoryIds = row.categoryId || this.ids
-      this.$modal.confirm('是否确认删除行业分类编号为"' + categoryIds + '"的数据项？').then(function() {
+      this.$modal.confirm('是否确认删除用语分类编号为"' + categoryIds + '"的数据项？').then(function() {
         return delCategory(categoryIds)
       }).then(() => {
         this.getList()
         this.$modal.msgSuccess("删除成功")
       }).catch(() => {})
+    },
+    /** 详情按钮操作 */
+    handleViewData(row) {
+      this.$refs["categoryViewRef"].open(row.categoryId)
     },
     /** 导出按钮操作 */
     handleExport() {

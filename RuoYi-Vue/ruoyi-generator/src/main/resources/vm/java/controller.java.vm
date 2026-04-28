@@ -1,4 +1,4 @@
-package ${packageName}.controller;
+package com.ruoyi.web.controller.${moduleName};
 
 import java.util.List;
 import jakarta.servlet.http.HttpServletResponse;
