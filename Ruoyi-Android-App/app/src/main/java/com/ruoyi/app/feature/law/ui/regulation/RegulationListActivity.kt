@@ -36,6 +36,8 @@ class RegulationListActivity : AppCompatActivity() {
         filterValue = intent.getStringExtra("filter_value") ?: ""
         title = intent.getStringExtra("title") ?: "法律法规"
 
+        android.util.Log.d("RegulationList", "onCreate: filterType=$filterType, filterValue=$filterValue, title=$title")
+
         setupRecyclerView()
         setupSearch()
         initData()
@@ -49,10 +51,8 @@ class RegulationListActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         adapter = RegulationAdapter { regulation ->
             // 跳转到法规详情
-            val bundle = Bundle().apply {
-                putLong("regulation_id", regulation.regulationId)
-            }
-            TheRouter.build(Constant.regulationDetailRoute).with(bundle).navigation()
+            val url = "${Constant.regulationDetailRoute}?regulation_id=${regulation.regulationId}"
+            TheRouter.build(url).navigation()
         }
         binding.recyclerview.layoutManager = LinearLayoutManager(this)
         binding.recyclerview.adapter = adapter
@@ -73,11 +73,24 @@ class RegulationListActivity : AppCompatActivity() {
     }
 
     private fun loadRegulations() {
+        android.util.Log.d("RegulationList", "loadRegulations: filterType=$filterType, filterValue=$filterValue")
         when (filterType) {
-            "legal_type" -> loadByLegalType(filterValue)
-            "supervision_type" -> loadBySupervisionType(filterValue)
-            "search" -> searchRegulations(filterValue)
-            else -> loadAll()
+            "legal_type" -> {
+                android.util.Log.d("RegulationList", "调用 loadByLegalType: $filterValue")
+                loadByLegalType(filterValue)
+            }
+            "supervision_type" -> {
+                android.util.Log.d("RegulationList", "调用 loadBySupervisionType: $filterValue")
+                loadBySupervisionType(filterValue)
+            }
+            "search" -> {
+                android.util.Log.d("RegulationList", "调用 searchRegulations: $filterValue")
+                searchRegulations(filterValue)
+            }
+            else -> {
+                android.util.Log.d("RegulationList", "调用 loadAll (未知 filterType)")
+                loadAll()
+            }
         }
     }
 
@@ -90,8 +103,13 @@ class RegulationListActivity : AppCompatActivity() {
     }
 
     private fun loadByLegalType(legalType: String) {
+        android.util.Log.d("RegulationList", "loadByLegalType 开始查询: legalType=$legalType")
         lifecycleScope.launch {
             repository.getRegulationsByLegalType(legalType).collectLatest { regulations ->
+                android.util.Log.d("RegulationList", "loadByLegalType 查询结果: ${regulations.size} 条")
+                regulations.forEach {
+                    android.util.Log.d("RegulationList", "  - ${it.title}, legalType=${it.legalType}")
+                }
                 updateUI(regulations)
             }
         }

@@ -1,0 +1,477 @@
+<h2>Android 法律法规详情页 - 章节关联依据功能 完整设计方案</h2>
+<p class="subtitle">包含：后端菜单维护 + 前端页面 + Android端功能 + 数据同步</p>
+
+<h3>一、系统架构</h3>
+
+<div class="mockup">
+  <div class="mockup-body" style="padding:16px;background:#f9f9f9;border-radius:8px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- 后端 -->
+      <div style="background:white;padding:16px;border-radius:8px">
+        <div style="font-weight:bold;margin-bottom:12px;color:#333">后端 RuoYi-Vue (Spring Boot)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <div style="background:#E3F2FD;padding:8px 12px;border-radius:4px;font-size:12px;color:#1565C0">📁 系统管理</div>
+          <div style="background:#E3F2FD;padding:8px 12px;border-radius:4px;font-size:12px;color:#1565C0">📁 法律法规</div>
+          <div style="background:#FFF3E0;padding:8px 12px;border-radius:4px;font-size:12px;color:#E65100">📁 处理依据管理 🆕</div>
+          <div style="background:#FFF3E0;padding:8px 12px;border-radius:4px;font-size:12px;color:#E65100">📁 依据关联管理 🆕</div>
+        </div>
+      </div>
+      <!-- 前端 -->
+      <div style="background:white;padding:16px;border-radius:8px">
+        <div style="font-weight:bold;margin-bottom:12px;color:#333">前端 RuoYi-Vue (Vue)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <div style="background:#E8F5E9;padding:8px 12px;border-radius:4px;font-size:12px;color:#2E7D32">📄 处理依据管理页面 🆕</div>
+          <div style="background:#E8F5E9;padding:8px 12px;border-radius:4px;font-size:12px;color:#2E7D32">📄 依据关联管理页面 🆕</div>
+        </div>
+      </div>
+      <!-- 数据库 -->
+      <div style="background:white;padding:16px;border-radius:8px">
+        <div style="font-weight:bold;margin-bottom:12px;color:#333">数据库 MySQL</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <div style="background:#f5f5f5;padding:8px 12px;border-radius:4px;font-size:12px;color:#666">sys_processing_basis 🆕</div>
+          <div style="background:#f5f5f5;padding:8px 12px;border-radius:4px;font-size:12px;color:#666">sys_basis_chapter_link 🆕</div>
+        </div>
+      </div>
+      <!-- Android -->
+      <div style="background:white;padding:16px;border-radius:8px">
+        <div style="font-weight:bold;margin-bottom:12px;color:#333">Android App</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <div style="background:#E3F2FD;padding:8px 12px;border-radius:4px;font-size:12px;color:#1565C0">法规详情页（目录+章节+条目+关联依据徽章）</div>
+          <div style="background:#E3F2FD;padding:8px 12px;border-radius:4px;font-size:12px;color:#1565C0">定性依据列表页 🆕</div>
+          <div style="background:#E3F2FD;padding:8px 12px;border-radius:4px;font-size:12px;color:#1565C0">定性依据详情页 🆕</div>
+          <div style="background:#E3F2FD;padding:8px 12px;border-radius:4px;font-size:12px;color:#1565C0">处理依据列表页 🆕</div>
+          <div style="background:#E3F2FD;padding:8px 12px;border-radius:4px;font-size:12px;color:#1565C0">处理依据详情页 🆕</div>
+          <div style="background:#E3F2FD;padding:8px 12px;border-radius:4px;font-size:12px;color:#1565C0">数据同步 🆕</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3>二、后端菜单维护</h3>
+
+<div class="section">
+  <h4>1. 菜单结构（放在"法律法规"下面）</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+📁 法律法规
+  ├── 📄 法律法规管理
+  ├── 📄 章节管理
+  ├── 📄 条款管理
+  ├── 📄 定性依据管理
+  ├── 📄 处理依据管理 🆕
+  └── 📄 依据关联管理 🆕
+  </pre>
+
+  <h4>2. 处理依据管理（CRUD）</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+请求路径: /system/processingBasis
+菜单名称: 处理依据管理
+按钮权限: 分页查询、新增、修改、删除、导出
+  </pre>
+
+  <h4>3. 依据关联管理（章节-条款-依据关联）</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+请求路径: /system/basisLink
+菜单名称: 依据关联管理
+功能:
+  - 查看关联关系列表
+  - 新增关联（选择依据类型、章节、条款、依据）
+  - 删除关联
+  </pre>
+</div>
+
+<h3>三、数据库改动</h3>
+
+<div class="section">
+  <h4>1. sys_processing_basis 表（处理依据）</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+CREATE TABLE sys_processing_basis (
+    basis_id             BIGINT PRIMARY KEY AUTO_INCREMENT,
+    basis_no             VARCHAR(20) COMMENT '编号',
+    title                VARCHAR(255) NOT NULL COMMENT '标题',
+    violation_type       VARCHAR(100) COMMENT '违法类型',
+    issuing_authority    VARCHAR(100) COMMENT '颁发机构',
+    effective_date       VARCHAR(20) COMMENT '实施时间',
+    legal_level          VARCHAR(20) COMMENT '法律层级',
+    clauses              TEXT COMMENT '条款内容(JSON数组)',
+    legal_liability      TEXT COMMENT '法律责任',
+    discretion_standard  TEXT COMMENT '裁量标准',
+    regulation_id        BIGINT COMMENT '关联法规ID',
+    status               CHAR(1) DEFAULT '0' COMMENT '状态',
+    del_flag             CHAR(1) DEFAULT '0' COMMENT '删除标志',
+    create_by            VARCHAR(64),
+    create_time          DATETIME,
+    update_by            VARCHAR(64),
+    update_time          DATETIME,
+    PRIMARY KEY (basis_id),
+    INDEX idx_regulation_id (regulation_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='处理依据表';</pre>
+
+  <h4>2. sys_basis_chapter_link 表（关联表）</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+CREATE TABLE sys_basis_chapter_link (
+    link_id      BIGINT PRIMARY KEY AUTO_INCREMENT,
+    basis_type   VARCHAR(20) NOT NULL COMMENT '关联类型：legal/processing',
+    basis_id     BIGINT NOT NULL COMMENT '依据ID',
+    chapter_id   BIGINT NOT NULL COMMENT '章节ID',
+    article_id   BIGINT COMMENT '条款ID',
+    create_time  DATETIME,
+    UNIQUE KEY uk_basis_chapter_article (basis_type, basis_id, chapter_id, article_id),
+    INDEX idx_chapter (chapter_id),
+    INDEX idx_article (article_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='依据章节关联表';</pre>
+
+  <h4>3. SQL菜单脚本</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+-- 菜单SQL（需在 sys_menu 表中插入）
+-- 处理依据管理（作为法律法规的子菜单）
+INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, menu_type, visible, status, perms, icon, create_by, create_time)
+VALUES ('处理依据管理', (SELECT menu_id FROM (SELECT menu_id FROM sys_menu WHERE menu_name='法律法规') t), 6, 'processingBasis', 'system/processingBasis/index', 'C', '0', '0', 'system:processingBasis:list', 'form', 'admin', sysdate());
+
+-- 依据关联管理
+INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, menu_type, visible, status, perms, icon, create_by, create_time)
+VALUES ('依据关联管理', (SELECT menu_id FROM (SELECT menu_id FROM sys_menu WHERE menu_name='法律法规') t), 7, 'basisLink', 'system/basisLink/index', 'C', '0', '0', 'system:basisLink:list', 'link', 'admin', sysdate());</pre>
+</div>
+
+<h3>四、后端API设计</h3>
+
+<div class="section">
+  <h4>1. 获取章节下条目的关联依据统计</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+GET /system/regulation/articleBasisCount/{regulationId}
+
+Response:
+{
+  "code": 200,
+  "data": [
+    {
+      "chapterId": 1,
+      "chapterNo": "第一章",
+      "chapterTitle": "总则",
+      "articles": [
+        {
+          "articleId": 1,
+          "articleNo": "第一条",
+          "legalBasisCount": 1,
+          "processingBasisCount": 0
+        }
+      ]
+    }
+  ]
+}</pre>
+
+  <h4>2. 获取某条目关联的定性依据列表</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+GET /system/regulation/{regulationId}/legalBasisByArticle/{articleId}
+
+Response:
+{
+  "code": 200,
+  "rows": [{ "basisId": 1, "basisNo": "001", "title": "xxx" }],
+  "total": 3
+}</pre>
+
+  <h4>3. 处理依据CRUD</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+GET    /system/processingBasis/list        -- 分页列表
+GET    /system/processingBasis/{basisId}  -- 详情
+POST   /system/processingBasis             -- 新增
+PUT    /system/processingBasis             -- 修改
+DELETE /system/processingBasis/{basisId}  -- 删除</pre>
+
+  <h4>4. 依据关联管理</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+GET    /system/basisLink/list             -- 关联列表
+POST   /system/basisLink                 -- 新增关联
+DELETE /system/basisLink/{linkId}         -- 删除关联
+GET    /system/basisLink/byArticle/{articleId}  -- 按条款查关联</pre>
+</div>
+
+<h3>五、前端实现步骤（Vue）</h3>
+
+<div class="section">
+  <h4>1. API接口定义</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+// src/api/system/processingBasis.js 🆕
+import request from '@/utils/request'
+export function listProcessingBasis(query) {
+  return request({ url: '/system/processingBasis/list', method: 'get', params: query })
+}
+export function getProcessingBasis(basisId) {
+  return request({ url: '/system/processingBasis/' + basisId, method: 'get' })
+}
+export function addProcessingBasis(data) {
+  return request({ url: '/system/processingBasis', method: 'post', data })
+}
+export function updateProcessingBasis(data) {
+  return request({ url: '/system/processingBasis', method: 'put', data })
+}
+export function delProcessingBasis(basisId) {
+  return request({ url: '/system/processingBasis/' + basisId, method: 'delete' })
+}</pre>
+
+  <h4>2. 处理依据管理页面</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+// src/views/system/processingBasis/index.vue 🆕
+功能：
+  - 表格展示处理依据列表
+  - 新增/编辑弹窗表单
+  - 删除确认
+  - 分页查询
+  表单字段：编号、标题、违法类型、颁发机构、实施时间、法律层级、条款内容、法律责任、裁量标准</pre>
+
+  <h4>3. 依据关联管理页面</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+// src/views/system/basisLink/index.vue 🆕
+功能：
+  - 左侧树：选择法规 → 章节 → 条款
+  - 右侧Tab：定性依据列表 / 处理依据列表
+  - 新增关联：选择依据（模糊搜索）绑定到当前条款
+  - 查看已有关联
+  - 删除关联</pre>
+
+  <h4>4. 路由配置</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+// src/router/index.js 或后端动态路由
+{
+  path: '/system/processingBasis',
+  component: Layout,
+  children: [{ path: 'index', component: () => import('@/views/system/processingBasis/index') }]
+}
+{
+  path: '/system/basisLink',
+  component: Layout,
+  children: [{ path: 'index', component: () => import('@/views/system/basisLink/index') }]
+}</pre>
+</div>
+
+<h3>六、Android端数据同步</h3>
+
+<div class="section">
+  <h4>1. 同步内容</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+数据同步时机：
+  - APP启动时全量同步
+  - 下拉刷新手动同步
+  - 增量同步（按 updateTimeFrom）
+
+同步数据：
+  - sys_processing_basis（处理依据表）🆕
+  - sys_basis_chapter_link（关联表）🆕
+  - sys_legal_basis（定性依据表）- 补充关联查询
+  - sys_regulation_chapter（章节表）
+  - sys_regulation_article（条款表）
+  </pre>
+
+  <h4>2. Android本地数据库</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+// ProcessingBasisEntity.kt 🆕
+@Entity(tableName = "sys_processing_basis")
+data class ProcessingBasisEntity(
+    @PrimaryKey val basisId: Long,
+    val basisNo: String?,
+    val title: String,
+    val violationType: String?,
+    val issuingAuthority: String?,
+    val effectiveDate: String?,
+    val legalLevel: String?,
+    val clauses: String?,
+    val legalLiability: String?,
+    val discretionStandard: String?,
+    val regulationId: Long?,
+    val status: String,
+    val delFlag: String,
+    val syncStatus: String = "SYNCED"
+)
+
+// BasisChapterLinkEntity.kt 🆕
+@Entity(tableName = "sys_basis_chapter_link")
+data class BasisChapterLinkEntity(
+    @PrimaryKey val linkId: Long,
+    val basisType: String,  // 'legal' 或 'processing'
+    val basisId: Long,
+    val chapterId: Long,
+    val articleId: Long?,
+    val syncStatus: String = "SYNCED"
+)</pre>
+
+  <h4>3. DAO方法</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+@Dao interface BasisChapterLinkDao {
+    @Query("SELECT COUNT(*) FROM sys_basis_chapter_link WHERE article_id = :articleId AND basis_type = 'legal'")
+    suspend fun getLegalBasisCountByArticle(articleId: Long): Int
+
+    @Query("SELECT COUNT(*) FROM sys_basis_chapter_link WHERE article_id = :articleId AND basis_type = 'processing'")
+    suspend fun getProcessingBasisCountByArticle(articleId: Long): Int
+
+    @Query("SELECT lb.* FROM sys_legal_basis lb INNER JOIN sys_basis_chapter_link l ON lb.basis_id = l.basis_id WHERE l.article_id = :articleId AND l.basis_type = 'legal'")
+    fun getLegalBasisesByArticle(articleId: Long): Flow<List<LegalBasisEntity>>
+
+    @Query("SELECT pb.* FROM sys_processing_basis pb INNER JOIN sys_basis_chapter_link l ON pb.basis_id = l.basis_id WHERE l.article_id = :articleId AND l.basis_type = 'processing'")
+    fun getProcessingBasisesByArticle(articleId: Long): Flow<List<ProcessingBasisEntity>>
+}</pre>
+</div>
+
+<h3>七、Android端UI原型</h3>
+
+<div class="section">
+  <h4>1. 法规详情页</h4>
+  <div class="mockup">
+    <div class="mockup-body" style="padding:8px;background:#f5f5f5;border-radius:8px;font-size:12px">
+      <div style="background:white;padding:12px;border-radius:4px;margin-bottom:8px">
+        <div style="font-size:16px;font-weight:bold;color:#333">中华人民共和国基本医疗卫生与健康促进法</div>
+      </div>
+      <div style="background:white;padding:12px 16px;border-radius:4px;margin-bottom:8px">
+        <div style="color:#999;font-size:11px;margin-bottom:8px">目 录</div>
+        <div style="line-height:2">
+          <div style="color:#333;font-size:12px">第一章 总则</div>
+          <div style="color:#333;font-size:12px">第二章 基本医疗卫生服务</div>
+        </div>
+      </div>
+      <div style="background:white;border-radius:4px;border-left:3px solid #1565C0">
+        <div style="padding:12px;font-weight:bold;color:#333;border-bottom:1px solid #f5f5f5">第一章 总则</div>
+        <div style="padding:12px;border-bottom:1px solid #f5f5f5">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <div style="font-weight:bold;color:#333">第一条</div>
+            <div style="display:flex;gap:6px">
+              <span style="background:#E3F2FD;color:#1565C0;padding:3px 8px;border-radius:4px;font-size:11px">定性依据 1</span>
+              <span style="background:#FFF3E0;color:#E65100;padding:3px 8px;border-radius:4px;font-size:11px">处理依据 0</span>
+            </div>
+          </div>
+          <div style="color:#666;font-size:12px;line-height:1.5">为了发展医疗卫生与健康事业...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h4>2. 定性依据列表页</h4>
+  <div class="mockup">
+    <div class="mockup-body" style="padding:8px;background:#f5f5f5;border-radius:8px;font-size:12px">
+      <div style="background:white;padding:12px;border-radius:4px;margin-bottom:8px">
+        <div style="font-weight:bold;color:#333">定性依据 - 第一条</div>
+      </div>
+      <div style="background:white;border-radius:4px;padding:12px;margin-bottom:8px;border-left:3px solid #1565C0">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><span style="font-weight:bold;margin-right:8px">1.</span><span>超出资质认可范围从事诊疗活动</span></div>
+          <div style="color:#1565C0">▶</div>
+        </div>
+      </div>
+      <div style="background:white;border-radius:4px;padding:12px;border-left:3px solid #1565C0">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><span style="font-weight:bold;margin-right:8px">2.</span><span>医疗卫生机构等未按规定报告传染病疫情</span></div>
+          <div style="color:#1565C0">▶</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h4>3. 定性依据详情页</h4>
+  <div class="mockup">
+    <div class="mockup-body" style="padding:8px;background:#f5f5f5;border-radius:8px;font-size:12px">
+      <div style="background:white;border-radius:4px;padding:16px;margin-bottom:8px">
+        <div style="font-size:17px;font-weight:bold;color:#333;margin-bottom:12px">超出资质认可范围从事诊疗活动</div>
+        <div style="display:flex;gap:8px">
+          <span style="background:#E3F2FD;color:#1565C0;padding:4px 10px;border-radius:4px;font-size:12px">001</span>
+          <span style="background:#E3F2FD;color:#1565C0;padding:4px 10px;border-radius:4px;font-size:12px">超出资质认可范围</span>
+        </div>
+      </div>
+      <div style="background:white;border-radius:4px;margin-bottom:8px">
+        <div style="padding:10px 16px;background:#f5f5f5;font-weight:bold;color:#999">基本信息</div>
+        <div style="padding:12px 16px;border-bottom:1px solid #f5f5f5">
+          <div style="color:#666;margin-bottom:6px">编号</div>
+          <div style="display:flex;justify-content:space-between">
+            <span>001</span><span style="color:#1565C0">📋 复制</span>
+          </div>
+        </div>
+        <div style="padding:12px 16px;border-bottom:1px solid #f5f5f5">
+          <div style="color:#666;margin-bottom:6px">标题</div>
+          <div style="display:flex;justify-content:space-between">
+            <span>超出资质认可范围从事诊疗活动</span><span style="color:#1565C0">📋 复制</span>
+          </div>
+        </div>
+        <div style="padding:12px 16px">
+          <div style="color:#666;margin-bottom:6px">违法类型</div>
+          <div style="display:flex;justify-content:space-between">
+            <span>超出资质认可范围</span><span style="color:#1565C0">📋 复制</span>
+          </div>
+        </div>
+      </div>
+      <div style="background:white;border-radius:4px">
+        <div style="padding:10px 16px;background:#f5f5f5;font-weight:bold;color:#999">裁量信息</div>
+        <div style="padding:12px 16px;border-bottom:1px solid #f5f5f5">
+          <div style="color:#666;margin-bottom:6px">条款内容</div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="flex:1;text-align:right">基本医疗卫生与健康促进法第三十八条</span>
+            <span style="color:#1565C0;margin-left:8px">📋 复制</span>
+          </div>
+        </div>
+        <div style="padding:12px 16px">
+          <div style="color:#666;margin-bottom:6px">法律责任</div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="flex:1;text-align:right">由县级以上人民政府...</span>
+            <span style="color:#1565C0;margin-left:8px">📋 复制</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3>八、完整实现步骤总结</h3>
+
+<table style="width:100%;border-collapse:collapse;font-size:11px">
+  <tr style="background:#f5f5f5">
+    <th style="padding:8px;border:1px solid #ddd;text-align:left">阶段</th>
+    <th style="padding:8px;border:1px solid #ddd;text-align:left">模块</th>
+    <th style="padding:8px;border:1px solid #ddd;text-align:left">实现内容</th>
+  </tr>
+  <tr>
+    <td rowspan="4" style="padding:8px;border:1px solid #ddd;background:#fff3e0;font-weight:bold">1. 后端</td>
+    <td style="padding:8px;border:1px solid #ddd">数据库</td>
+    <td style="padding:8px;border:1px solid #ddd">新建 sys_processing_basis、sys_basis_chapter_link 表</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd">菜单</td>
+    <td style="padding:8px;border:1px solid #ddd">在"法律法规"下添加处理依据管理、依据关联管理菜单</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd">Service/Mapper</td>
+    <td style="padding:8px;border:1px solid #ddd">ProcessingBasisService、ProcessingBasisMapper、BasisLinkService、BasisLinkMapper</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd">Controller</td>
+    <td style="padding:8px;border:1px solid #ddd">ProcessingBasisController（CRUD）、BasisLinkController（关联管理）、统计接口</td>
+  </tr>
+  <tr>
+    <td rowspan="3" style="padding:8px;border:1px solid #ddd;background:#e3f2fd;font-weight:bold">2. 前端 Vue</td>
+    <td style="padding:8px;border:1px solid #ddd">API</td>
+    <td style="padding:8px;border:1px solid #ddd">新建 processingBasis.js、basisLink.js</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd">页面</td>
+    <td style="padding:8px;border:1px solid #ddd">processingBasis/index.vue（处理依据CRUD）、basisLink/index.vue（关联管理）</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd">路由</td>
+    <td style="padding:8px;border:1px solid #ddd">配置 processingBasis、basisLink 路由</td>
+  </tr>
+  <tr>
+    <td rowspan="4" style="padding:8px;border:1px solid #ddd;background:#e8f5e9;font-weight:bold">3. Android</td>
+    <td style="padding:8px;border:1px solid #ddd">数据层</td>
+    <td style="padding:8px;border:1px solid #ddd">ProcessingBasisEntity、BasisChapterLinkEntity、DAO、同步逻辑</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd">Repository</td>
+    <td style="padding:8px;border:1px solid #ddd">新增 getLegalBasisCountByArticle、getProcessingBasisCountByArticle 等方法</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd">UI</td>
+    <td style="padding:8px;border:1px solid #ddd">法规详情页添加目录、条目关联徽章；新增依据列表页、详情页（含复制功能）</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border:1px solid #ddd">同步</td>
+    <td style="padding:8px;border:1px solid #ddd">SyncManager 添加 processingBasis、basis_chapter_link 同步</td>
+  </tr>
+</table>
+
+<p style="margin-top:16px">以上是完整设计方案，请确认。</p>

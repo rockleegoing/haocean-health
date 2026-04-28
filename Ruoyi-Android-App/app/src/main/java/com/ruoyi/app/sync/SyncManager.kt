@@ -5,8 +5,10 @@ import android.util.Log
 import com.ruoyi.app.api.repository.CategoryRepository
 import com.ruoyi.app.api.repository.PhraseRepository
 import com.ruoyi.app.api.repository.UnitRepository
+import com.ruoyi.app.feature.law.api.LawApi
 import com.ruoyi.app.data.database.entity.UnitEntity
 import com.ruoyi.app.feature.law.repository.LawRepository
+import com.ruoyi.app.feature.law.repository.toEntity
 import com.ruoyi.app.feature.document.repository.DocumentRepository
 import com.ruoyi.app.sync.model.SyncProgress
 import com.ruoyi.app.sync.model.SyncResult
@@ -234,11 +236,62 @@ class SyncManager private constructor() {
                 return false
             }
 
+            // 同步章节和条款
+            try {
+                val db = com.ruoyi.app.data.database.AppDatabase.getInstance(context)
+                val regulations = db.regulationDao().getAllRegulationIds()
+                Log.d("SyncManager", "需要同步章节条款的法规数量: ${regulations.size}")
+                for (regulationId in regulations) {
+                    repository.syncChaptersAndArticles(regulationId)
+                    Log.d("SyncManager", "已同步法规[$regulationId]的章节和条款")
+                }
+            } catch (e: Exception) {
+                Log.e("SyncManager", "章节条款同步异常: ${e.message}", e)
+            }
+
             // 同步定性依据
             val basisResult = repository.syncLegalBasisesFromServer()
             if (basisResult.isFailure) {
                 Log.e("SyncManager", "定性依据同步失败: ${basisResult.exceptionOrNull()?.message}", basisResult.exceptionOrNull())
                 return false
+            }
+
+            // 同步处理依据
+            val processingBasisResult = repository.syncProcessingBasisesFromServer()
+            if (processingBasisResult.isFailure) {
+                Log.e("SyncManager", "处理依据同步失败: ${processingBasisResult.exceptionOrNull()?.message}", processingBasisResult.exceptionOrNull())
+                return false
+            }
+
+            // 同步章节-依据关联
+            val basisLinkResult = repository.syncBasisChapterLinksFromServer()
+            if (basisLinkResult.isFailure) {
+                Log.e("SyncManager", "依据关联同步失败: ${basisLinkResult.exceptionOrNull()?.message}", basisLinkResult.exceptionOrNull())
+                return false
+            }
+
+            // 同步法律类型
+            try {
+                val legalTypes = LawApi.getLegalTypeList()
+                if (legalTypes.isNotEmpty()) {
+                    val entities = legalTypes.map { it.toEntity() }
+                    com.ruoyi.app.data.database.AppDatabase.getInstance(context).legalTypeDao().insertAll(entities)
+                    Log.d("SyncManager", "法律类型同步成功: ${entities.size}条")
+                }
+            } catch (e: Exception) {
+                Log.e("SyncManager", "法律类型同步异常: ${e.message}", e)
+            }
+
+            // 同步监管类型
+            try {
+                val supervisionTypes = LawApi.getSupervisionTypeList()
+                if (supervisionTypes.isNotEmpty()) {
+                    val entities = supervisionTypes.map { it.toEntity() }
+                    com.ruoyi.app.data.database.AppDatabase.getInstance(context).supervisionTypeDao().insertAll(entities)
+                    Log.d("SyncManager", "监管类型同步成功: ${entities.size}条")
+                }
+            } catch (e: Exception) {
+                Log.e("SyncManager", "监管类型同步异常: ${e.message}", e)
             }
 
             true

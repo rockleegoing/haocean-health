@@ -24,11 +24,50 @@ class ArticleDetailActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         repository = LawRepository(this)
-        articleId = intent.getLongExtra("article_id", 0)
-        regulationTitle = intent.getStringExtra("regulation_title") ?: ""
+
+        // 从 Intent URI 中提取参数
+        articleId = extractArticleIdFromIntent()
+        regulationTitle = extractRegulationTitleFromIntent()
+
+        android.util.Log.d("ArticleDetail", "onCreate: articleId=$articleId, regulationTitle=$regulationTitle")
         if (articleId > 0) {
             loadArticleDetail()
         }
+    }
+
+    private fun extractArticleIdFromIntent(): Long {
+        val extras = intent.extras
+        if (extras != null) {
+            for (key in extras.keySet()) {
+                val value = extras.get(key)
+                if (key == "article_id" || key == "articleId") {
+                    return when (value) {
+                        is Int -> if (value > 0) value.toLong() else 0L
+                        is Long -> if (value > 0) value else 0L
+                        is Integer -> {
+                            val intValue = value.toInt()
+                            if (intValue > 0) intValue.toLong() else 0L
+                        }
+                        is String -> value.toLongOrNull() ?: 0L
+                        else -> 0L
+                    }
+                }
+            }
+        }
+        return 0
+    }
+
+    private fun extractRegulationTitleFromIntent(): String {
+        val extras = intent.extras
+        if (extras != null) {
+            for (key in extras.keySet()) {
+                val value = extras.get(key)
+                if ((key == "regulation_title" || key == "regulationTitle") && value is String && value.isNotEmpty()) {
+                    return value
+                }
+            }
+        }
+        return ""
     }
 
     private fun loadArticleDetail() {

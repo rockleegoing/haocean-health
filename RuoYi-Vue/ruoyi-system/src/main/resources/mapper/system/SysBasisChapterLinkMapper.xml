@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysBasisChapterLinkMapper">
+
+    <resultMap type="SysBasisChapterLink" id="SysBasisChapterLinkResult">
+        <result property="linkId" column="link_id"/>
+        <result property="chapterId" column="chapter_id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="basisType" column="basis_type"/>
+        <result property="basisId" column="basis_id"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="chapterTitle" column="chapter_title"/>
+        <result property="articleNo" column="article_no"/>
+        <result property="basisTitle" column="basis_title"/>
+    </resultMap>
+
+    <sql id="selectSysBasisChapterLinkVo">
+        select l.link_id, l.chapter_id, l.article_id, l.basis_type, l.basis_id,
+               l.create_by, l.create_time, l.update_by, l.update_time,
+               c.chapter_title, a.article_no,
+               case when l.basis_type = 'legal' then lb.title else pb.title end as basis_title
+        from sys_basis_chapter_link l
+        left join sys_regulation_chapter c on l.chapter_id = c.chapter_id
+        left join sys_regulation_article a on l.article_id = a.article_id
+        left join sys_legal_basis lb on l.basis_id = lb.basis_id and l.basis_type = 'legal'
+        left join sys_processing_basis pb on l.basis_id = pb.basis_id and l.basis_type = 'processing'
+    </sql>
+
+    <select id="selectSysBasisChapterLinkList" parameterType="SysBasisChapterLink" resultMap="SysBasisChapterLinkResult">
+        <include refid="selectSysBasisChapterLinkVo"/>
+        <where>
+            <if test="chapterId != null">and l.chapter_id = #{chapterId}</if>
+            <if test="articleId != null">and l.article_id = #{articleId}</if>
+            <if test="basisType != null and basisType != ''">and l.basis_type = #{basisType}</if>
+            <if test="basisId != null">and l.basis_id = #{basisId}</if>
+        </where>
+        order by l.chapter_id, l.article_id
+    </select>
+
+    <select id="selectSysBasisChapterLinkById" parameterType="Long" resultMap="SysBasisChapterLinkResult">
+        <include refid="selectSysBasisChapterLinkVo"/>
+        where l.link_id = #{linkId}
+    </select>
+
+    <select id="selectSysBasisChapterLinkByChapterId" parameterType="Long" resultMap="SysBasisChapterLinkResult">
+        <include refid="selectSysBasisChapterLinkVo"/>
+        where l.chapter_id = #{chapterId}
+        order by l.basis_type, l.basis_id
+    </select>
+
+    <select id="selectSysBasisChapterLinkByChapterIdAndType" resultMap="SysBasisChapterLinkResult">
+        <include refid="selectSysBasisChapterLinkVo"/>
+        where l.chapter_id = #{chapterId} and l.basis_type = #{basisType}
+        order by l.basis_id
+    </select>
+
+    <insert id="insertSysBasisChapterLink" parameterType="SysBasisChapterLink" useGeneratedKeys="true" keyProperty="linkId">
+        insert into sys_basis_chapter_link
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="chapterId != null">chapter_id,</if>
+            <if test="articleId != null">article_id,</if>
+            <if test="basisType != null and basisType != ''">basis_type,</if>
+            <if test="basisId != null">basis_id,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="chapterId != null">#{chapterId},</if>
+            <if test="articleId != null">#{articleId},</if>
+            <if test="basisType != null and basisType != ''">#{basisType},</if>
+            <if test="basisId != null">#{basisId},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysBasisChapterLink" parameterType="SysBasisChapterLink">
+        update sys_basis_chapter_link
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="chapterId != null">chapter_id = #{chapterId},</if>
+            <if test="articleId != null">article_id = #{articleId},</if>
+            <if test="basisType != null and basisType != ''">basis_type = #{basisType},</if>
+            <if test="basisId != null">basis_id = #{basisId},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where link_id = #{linkId}
+    </update>
+
+    <delete id="deleteSysBasisChapterLinkById" parameterType="Long">
+        delete from sys_basis_chapter_link where link_id = #{linkId}
+    </delete>
+
+    <delete id="deleteSysBasisChapterLinkByIds" parameterType="String">
+        delete from sys_basis_chapter_link where link_id in
+        <foreach item="linkId" collection="array" open="(" separator="," close=")">
+            #{linkId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSysBasisChapterLinkByChapterId" parameterType="Long">
+        delete from sys_basis_chapter_link where chapter_id = #{chapterId}
+    </delete>
+
+    <delete id="deleteSysBasisChapterLinkByChapterIdAndType">
+        delete from sys_basis_chapter_link where chapter_id = #{chapterId} and basis_type = #{basisType}
+    </delete>
+
+</mapper>

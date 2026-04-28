@@ -22,6 +22,8 @@ class LegalBasisListActivity : AppCompatActivity() {
     private lateinit var repository: LawRepository
     private lateinit var adapter: LegalBasisAdapter
     private var regulationId: Long = 0
+    private var articleId: Long = 0
+    private var articleNo: String = ""
     private var title: String = "定性依据"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,26 +32,67 @@ class LegalBasisListActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         repository = LawRepository(this)
-        regulationId = intent.getLongExtra("regulation_id", 0)
-        title = intent.getStringExtra("title") ?: "定性依据"
 
+        // 解析参数
+        val extras = intent.extras
+        if (extras != null) {
+            for (key in extras.keySet()) {
+                val value = extras.get(key)
+                when (key) {
+                    "regulation_id", "regulationId" -> {
+                        regulationId = when (value) {
+                            is Int -> value.toLong()
+                            is Long -> value
+                            is String -> value.toLongOrNull() ?: 0L
+                            else -> 0L
+                        }
+                    }
+                    "article_id", "articleId" -> {
+                        articleId = when (value) {
+                            is Int -> value.toLong()
+                            is Long -> value
+                            is String -> value.toLongOrNull() ?: 0L
+                            else -> 0L
+                        }
+                    }
+                    "article_no", "articleNo" -> {
+                        articleNo = value?.toString() ?: ""
+                    }
+                    "title" -> {
+                        title = value?.toString() ?: "定性依据"
+                    }
+                }
+            }
+        }
+
+        // 如果没有传入title，用articleNo构建
+        if (title == "定性依据" && articleNo.isNotEmpty()) {
+            title = "定性依据 - $articleNo"
+        }
+
+        setupToolbar()
         setupRecyclerView()
         setupSearch()
         initData()
     }
 
+    private fun setupToolbar() {
+        binding.toolbar.title = title
+        binding.toolbar.setNavigationOnClickListener { finish() }
+    }
+
     private fun initData() {
-        if (regulationId > 0) {
-            loadByRegulationId(regulationId)
-        } else {
-            loadAll()
+        when {
+            articleId > 0 -> loadByArticleId(articleId)
+            regulationId > 0 -> loadByRegulationId(regulationId)
+            else -> loadAll()
         }
     }
 
     private fun setupRecyclerView() {
         adapter = LegalBasisAdapter { legalBasis ->
             val bundle = Bundle().apply {
-                putLong("basis_id", legalBasis.basisId)
+                putLong(LegalBasisDetailActivity.EXTRA_BASIS_ID, legalBasis.basisId)
             }
             TheRouter.build(Constant.legalBasisDetailRoute).with(bundle).navigation()
         }
@@ -82,6 +125,14 @@ class LegalBasisListActivity : AppCompatActivity() {
     private fun loadByRegulationId(regulationId: Long) {
         lifecycleScope.launch {
             repository.getLegalBasisesByRegulationId(regulationId).collectLatest { list ->
+                updateUI(list)
+            }
+        }
+    }
+
+    private fun loadByArticleId(articleId: Long) {
+        lifecycleScope.launch {
+            repository.getLegalBasisesByArticleId(articleId).collectLatest { list ->
                 updateUI(list)
             }
         }

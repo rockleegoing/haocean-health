@@ -6,13 +6,13 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LegalTypeDao {
-    @Query("SELECT * FROM sys_legal_type WHERE status = '0' ORDER BY sortOrder ASC, typeId ASC")
+    @Query("SELECT * FROM sys_legal_type WHERE status = '0' ORDER BY sort_order ASC, type_id ASC")
     fun getAllLegalTypes(): Flow<List<LegalTypeEntity>>
 
-    @Query("SELECT * FROM sys_legal_type ORDER BY sortOrder ASC, typeId ASC")
+    @Query("SELECT * FROM sys_legal_type ORDER BY sort_order ASC, type_id ASC")
     fun getAllLegalTypesIncludeDisabled(): Flow<List<LegalTypeEntity>>
 
-    @Query("SELECT * FROM sys_legal_type WHERE typeId = :typeId")
+    @Query("SELECT * FROM sys_legal_type WHERE type_id = :typeId")
     suspend fun getLegalTypeById(typeId: Long): LegalTypeEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

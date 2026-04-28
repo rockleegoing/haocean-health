@@ -149,6 +149,14 @@
             android:exported="false"
             android:launchMode="singleTop" />
         <activity
+            android:name=".feature.law.ui.basis.ProcessingBasisListActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".feature.law.ui.basis.ProcessingBasisDetailActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
             android:name=".feature.lawenforcement.ui.RecordDetailActivity"
             android:exported="false"
             android:launchMode="singleTop" />

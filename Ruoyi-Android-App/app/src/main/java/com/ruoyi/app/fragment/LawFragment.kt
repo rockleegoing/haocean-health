@@ -38,12 +38,9 @@ class LawFragment : BaseBindingFragment<FragmentLawBinding>() {
                 val typeNames = legalTypes.map { it.typeName }
                 val adapter = LawTypeAdapter(typeNames) { legalTypeName ->
                     // 点击法律类型，跳转到法规列表
-                    val bundle = Bundle().apply {
-                        putString("filter_type", "legal_type")
-                        putString("filter_value", legalTypeName)
-                        putString("title", legalTypeName)
-                    }
-                    TheRouter.build(Constant.regulationListRoute).with(bundle).navigation()
+                    val url = "${Constant.regulationListRoute}?filter_type=legal_type&filter_value=$legalTypeName&title=$legalTypeName"
+                    android.util.Log.d("LawFragment", "跳转到: $url")
+                    TheRouter.build(url).navigation()
                 }
                 binding.rvLegalTypes.layoutManager = GridLayoutManager(requireContext(), 3)
                 binding.rvLegalTypes.adapter = adapter
@@ -57,12 +54,9 @@ class LawFragment : BaseBindingFragment<FragmentLawBinding>() {
                 val typeNames = supervisionTypes.map { it.typeName }
                 val adapter = LawTypeAdapter(typeNames) { supervisionTypeName ->
                     // 点击监管类型，跳转到法规列表
-                    val bundle = Bundle().apply {
-                        putString("filter_type", "supervision_type")
-                        putString("filter_value", supervisionTypeName)
-                        putString("title", supervisionTypeName)
-                    }
-                    TheRouter.build(Constant.regulationListRoute).with(bundle).navigation()
+                    val url = "${Constant.regulationListRoute}?filter_type=supervision_type&filter_value=$supervisionTypeName&title=$supervisionTypeName"
+                    android.util.Log.d("LawFragment", "跳转到: $url")
+                    TheRouter.build(url).navigation()
                 }
                 binding.rvSupervisionTypes.layoutManager = GridLayoutManager(requireContext(), 3)
                 binding.rvSupervisionTypes.adapter = adapter
@@ -75,12 +69,9 @@ class LawFragment : BaseBindingFragment<FragmentLawBinding>() {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val keyword = binding.etSearch.text.toString().trim()
                 if (keyword.isNotEmpty()) {
-                    val bundle = Bundle().apply {
-                        putString("filter_type", "search")
-                        putString("filter_value", keyword)
-                        putString("title", "搜索: $keyword")
-                    }
-                    TheRouter.build(Constant.regulationListRoute).with(bundle).navigation()
+                    val url = "${Constant.regulationListRoute}?filter_type=search&filter_value=$keyword&title=搜索:$keyword"
+                    android.util.Log.d("LawFragment", "跳转到: $url")
+                    TheRouter.build(url).navigation()
                 }
                 true
             } else {

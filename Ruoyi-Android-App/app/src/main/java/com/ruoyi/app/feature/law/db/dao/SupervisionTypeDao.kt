@@ -6,13 +6,13 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SupervisionTypeDao {
-    @Query("SELECT * FROM sys_supervision_type WHERE status = '0' ORDER BY sortOrder ASC, typeId ASC")
+    @Query("SELECT * FROM sys_supervision_type WHERE status = '0' ORDER BY sort_order ASC, type_id ASC")
     fun getAllSupervisionTypes(): Flow<List<SupervisionTypeEntity>>
 
-    @Query("SELECT * FROM sys_supervision_type ORDER BY sortOrder ASC, typeId ASC")
+    @Query("SELECT * FROM sys_supervision_type ORDER BY sort_order ASC, type_id ASC")
     fun getAllSupervisionTypesIncludeDisabled(): Flow<List<SupervisionTypeEntity>>
 
-    @Query("SELECT * FROM sys_supervision_type WHERE typeId = :typeId")
+    @Query("SELECT * FROM sys_supervision_type WHERE type_id = :typeId")
     suspend fun getSupervisionTypeById(typeId: Long): SupervisionTypeEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

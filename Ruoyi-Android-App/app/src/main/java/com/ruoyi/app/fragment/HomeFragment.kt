@@ -425,18 +425,18 @@ class HomeFragment : BaseBindingFragment<FragmentHomeBinding>() {
                     // 使用 first() 同步获取 Flow 的第一个值
                     android.util.Log.d("HomeFragment", "查询分类[${category.categoryId}]的模板...")
                     var templates = documentRepository.getTemplatesByCategory(category.categoryId).first()
-                    // 按行业分类过滤：如果选择了行业分类，从中间表获取模板ID进行过滤
+                    // 按行业分类过滤：如果选择了行业分类，只从中间表获取模板ID进行过滤
                     if (industryCategoryId != null && industryCategoryId > 0) {
-                        // 使用中间表关联进行过滤
+                        // 只使用中间表关联进行过滤
                         templates = templates.filter { it.id in templateIdsForIndustry }
                         android.util.Log.d("HomeFragment", "按行业分类[$industryCategoryId]从中间表过滤后，分类[${category.categoryName}]的模板数量: ${templates.size}")
                     } else {
                         // 未选择行业分类时，只显示没有设置行业分类的模板（不在中间表中的）
-                        templates = templates.filter { it.id !in templateIdsForIndustry && (it.industryCategoryId == null || it.industryCategoryId == 0L) }
+                        templates = templates.filter { it.id !in templateIdsForIndustry }
                         android.util.Log.d("HomeFragment", "无行业分类过滤，分类[${category.categoryName}]的模板数量: ${templates.size}")
                     }
                     templates.takeIf { it.isNotEmpty() }?.forEach { t ->
-                        android.util.Log.d("HomeFragment", "  模板[id=${t.id}, name=${t.templateName}, categoryId=${t.categoryId}, industryCategoryId=${t.industryCategoryId}]")
+                        android.util.Log.d("HomeFragment", "  模板[id=${t.id}, name=${t.templateName}, categoryId=${t.categoryId}]")
                     }
                     if (templates.isNotEmpty()) {
                         val items = templates.map { TemplateItem(it.id, it.templateName) }

@@ -14,7 +14,9 @@ import com.ruoyi.app.databinding.ItemArticleBinding
  */
 class ChapterTreeAdapter(
     private val onChapterClick: (ChapterTreeItem.Chapter) -> Unit,
-    private val onArticleClick: (ChapterTreeItem.Article) -> Unit
+    private val onArticleClick: (ChapterTreeItem.Article) -> Unit,
+    private val onLegalBasisClick: (ChapterTreeItem.Article) -> Unit,
+    private val onProcessingBasisClick: (ChapterTreeItem.Article) -> Unit
 ) : ListAdapter<ChapterTreeItem, RecyclerView.ViewHolder>(DiffCallback()) {
 
     companion object {
@@ -54,12 +56,9 @@ class ChapterTreeAdapter(
         fun bind(item: ChapterTreeItem.Chapter) {
             binding.tvChapterNo.text = item.chapterNo
             binding.tvChapterTitle.text = item.chapterTitle
-            binding.ivExpand.rotation = if (item.isExpanded) 90f else 0f
-            binding.ivExpand.visibility = if (item.hasArticles) View.VISIBLE else View.GONE
+            binding.ivExpand.visibility = View.GONE // 隐藏展开箭头，禁用展开/收起
 
-            binding.root.setOnClickListener {
-                onChapterClick(item)
-            }
+            // 章节不可点击，移除点击事件
         }
     }
 
@@ -67,6 +66,20 @@ class ChapterTreeAdapter(
         fun bind(item: ChapterTreeItem.Article) {
             binding.tvArticleNo.text = item.articleNo
             binding.tvArticleContent.text = item.content
+
+            // 设置定性依据数量（始终显示，始终可点击）
+            binding.tvLegalBasisCount.text = "定性依据 ${item.legalBasisCount}"
+            binding.layoutLegalBasis.visibility = View.VISIBLE
+            binding.layoutLegalBasis.setOnClickListener {
+                onLegalBasisClick(item)
+            }
+
+            // 设置处理依据数量（始终显示，始终可点击）
+            binding.tvProcessingBasisCount.text = "处理依据 ${item.processingBasisCount}"
+            binding.layoutProcessingBasis.visibility = View.VISIBLE
+            binding.layoutProcessingBasis.setOnClickListener {
+                onProcessingBasisClick(item)
+            }
 
             binding.root.setOnClickListener {
                 onArticleClick(item)
@@ -104,6 +117,8 @@ sealed class ChapterTreeItem {
         val articleId: Long,
         val chapterId: Long?,
         val articleNo: String?,
-        val content: String?
+        val content: String?,
+        val legalBasisCount: Int = 0,
+        val processingBasisCount: Int = 0
     ) : ChapterTreeItem()
 }

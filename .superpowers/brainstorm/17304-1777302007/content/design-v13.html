@@ -1,0 +1,92 @@
+<h2>法规详情页 - 书本目录结构</h2>
+<p class="subtitle">左侧显示完整目录树，右侧显示当前章节内容</p>
+
+<h3>UI原型 - 左右分栏布局</h3>
+
+<div class="mockup">
+  <div class="mockup-body" style="padding:8px;background:#f5f5f5;border-radius:8px;font-size:12px">
+
+    <div style="display:flex;gap:8px;height:400px">
+      <!-- 左侧目录 -->
+      <div style="width:140px;background:white;border-radius:4px;overflow-y:auto">
+        <div style="padding:10px 12px;background:#f5f5f5;font-size:11px;color:#999;font-weight:bold">
+          目录
+        </div>
+        <div style="padding:6px 8px;font-size:11px;border-bottom:1px solid #f0f0f0;cursor:pointer;background:#E3F2FD;color:#1565C0">
+          第一章 总则
+        </div>
+        <div style="padding:4px 8px 4px 20px;font-size:10px;color:#666;border-bottom:1px solid #f0f0f0;cursor:pointer">
+          第一条
+        </div>
+        <div style="padding:4px 8px 4px 20px;font-size:10px;color:#666;border-bottom:1px solid #f0f0f0;cursor:pointer">
+          第二条
+        </div>
+        <div style="padding:6px 8px;font-size:11px;color:#666;border-bottom:1px solid #f0f0f0;cursor:pointer">
+          第二章 基本医疗卫生服务
+        </div>
+        <div style="padding:4px 8px 4px 20px;font-size:10px;color:#666;border-bottom:1px solid #f0f0f0;cursor:pointer">
+          第一条
+        </div>
+        <div style="padding:4px 8px 4px 20px;font-size:10px;color:#666;border-bottom:1px solid #f0f0f0;cursor:pointer">
+          第二条
+        </div>
+        <div style="padding:6px 8px;font-size:11px;color:#666;border-bottom:1px solid #f0f0f0;cursor:pointer">
+          第三章 医疗机构
+        </div>
+        <div style="padding:4px 8px 4px 20px;font-size:10px;color:#666;cursor:pointer">
+          第一条
+        </div>
+      </div>
+
+      <!-- 右侧内容 -->
+      <div style="flex:1;background:white;border-radius:4px;overflow-y:auto">
+        <div style="padding:12px">
+          <div style="font-size:14px;font-weight:bold;color:#333;margin-bottom:8px">第一章 总则</div>
+          <div style="font-size:12px;color:#999;margin-bottom:12px">共 2 条</div>
+        </div>
+
+        <!-- 第一条 -->
+        <div style="padding:12px;border-top:1px solid #f0f0f0">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div style="font-weight:bold;color:#333;font-size:13px">第一条</div>
+            <div style="display:flex;gap:6px;flex-shrink:0">
+              <span style="background:#E3F2FD;color:#1565C0;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer">定性依据 1</span>
+              <span style="background:#FFF3E0;color:#E65100;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer">处理依据 0</span>
+            </div>
+          </div>
+          <div style="color:#666;font-size:12px;line-height:1.6">
+            为了发展医疗卫生与健康事业，保障公民享有基本医疗卫生服务，提升公民全生命周期健康水平，根据宪法，制定本法。
+          </div>
+        </div>
+
+        <!-- 第二条 -->
+        <div style="padding:12px;border-top:1px solid #f0f0f0">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div style="font-weight:bold;color:#333;font-size:13px">第二条</div>
+            <div style="display:flex;gap:6px;flex-shrink:0">
+              <span style="background:#E3F2FD;color:#1565C0;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer">定性依据 2</span>
+              <span style="background:#FFF3E0;color:#E65100;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer">处理依据 1</span>
+            </div>
+          </div>
+          <div style="color:#666;font-size:12px;line-height:1.6">
+            国家和社会尊重，保护公民的健康权。国家实施健康中国战略，建立健康教育制度体系，提升公民健康素养。
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<h3 style="margin-top:24px">布局说明</h3>
+
+<div class="section">
+  <ul style="font-size:13px;line-height:1.8">
+    <li><strong>左侧目录</strong>：书本式树形目录，章节缩进显示，条目在章节下缩进</li>
+    <li><strong>右侧内容</strong>：显示当前选中章节的所有条目</li>
+    <li><strong>交互</strong>：点击目录项 → 右侧显示对应章节内容</li>
+    <li><strong>条目关联</strong>：条目右侧显示定性依据/处理依据徽章，点击跳转列表</li>
+  </ul>
+</div>
+
+<p style="margin-top:16px">请确认。</p>

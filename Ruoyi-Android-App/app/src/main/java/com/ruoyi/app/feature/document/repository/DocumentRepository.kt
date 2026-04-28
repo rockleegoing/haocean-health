@@ -15,6 +15,7 @@ import com.ruoyi.app.feature.document.model.DocumentTemplate
 import com.ruoyi.app.feature.document.model.DocumentVariable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
 /**
@@ -43,6 +44,10 @@ class DocumentRepository(private val context: Context) {
         val entities = templates.map { it.toEntity() }
         templateDao.insertAll(entities)
         Log.d("DocumentRepository", "模板已存入本地数据库")
+
+        // 验证插入结果
+        val count = templateDao.getActiveTemplates().first().size
+        Log.d("DocumentRepository", "验证: 数据库中模板数量 = $count")
     }
 
     /**
@@ -60,8 +65,8 @@ class DocumentRepository(private val context: Context) {
         Log.d("DocumentRepository", "分类已存入本地数据库")
 
         // 验证插入结果
-        val count = categoryDao.getCategoryById(0)
-        Log.d("DocumentRepository", "插入后验证: categoryDao 查询结果 = $count")
+        val count = withContext(Dispatchers.IO) { categoryDao.getCategoryById(0) }
+        Log.d("DocumentRepository", "验证: categoryDao 查询结果 = $count")
     }
 
     /**
@@ -92,6 +97,13 @@ class DocumentRepository(private val context: Context) {
         }
         industryDao.insertAll(entities)
         Log.d("DocumentRepository", "模板行业关联已存入本地数据库")
+
+        // 验证插入结果
+        if (entities.isNotEmpty()) {
+            val firstTemplateId = entities.first().templateId
+            val templateIds = industryDao.getTemplateIdsByIndustryCategory(entities.first().industryCategoryId)
+            Log.d("DocumentRepository", "验证: 行业分类[${entities.first().industryCategoryId}]关联的模板数量 = ${templateIds.size}")
+        }
     }
 
     /**
@@ -160,14 +172,12 @@ class DocumentRepository(private val context: Context) {
         templateName = templateName,
         templateType = templateType,
         category = category,
-        categoryId = categoryId,  // 使用API返回的categoryId
+        categoryId = categoryId,
         sort = 0,
         filePath = filePath,
         fileUrl = fileUrl,
         version = version,
         isActive = isActive,
-        industryCategoryId = industryCategoryId,
-        industryCategoryName = industryCategoryName,
         syncTime = System.currentTimeMillis()
     )
 

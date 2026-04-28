@@ -322,7 +322,7 @@ export default {
     /** 获取法律类型选项 */
     getLegalTypeOptions() {
       allLegalType().then(response => {
-        this.legalTypeOptions = response.rows || []
+        this.legalTypeOptions = response || []
       })
     },
     // 取消按钮
@@ -336,7 +336,7 @@ export default {
         regulationId: null,
         title: null,
         legalType: null,
-        supervisionTypes: null,
+        supervisionTypes: [],
         publishDate: null,
         effectiveDate: null,
         issuingAuthority: null,
@@ -380,6 +380,14 @@ export default {
       const regulationId = row.regulationId || this.ids
       getRegulation(regulationId).then(response => {
         this.form = response.data
+        // 将监管类型JSON字符串解析为数组
+        if (this.form.supervisionTypes && typeof this.form.supervisionTypes === 'string') {
+          try {
+            this.form.supervisionTypes = JSON.parse(this.form.supervisionTypes)
+          } catch (e) {
+            this.form.supervisionTypes = []
+          }
+        }
         this.open = true
         this.title = "修改法律法规"
       })
@@ -388,13 +396,21 @@ export default {
     handleDetail(row) {
       getRegulation(row.regulationId).then(response => {
         this.detailData = response.data || {}
+        // 将监管类型JSON字符串解析为数组以便显示
+        if (this.detailData.supervisionTypes && typeof this.detailData.supervisionTypes === 'string') {
+          try {
+            this.detailData.supervisionTypes = JSON.parse(this.detailData.supervisionTypes).join('、')
+          } catch (e) {
+            // 保持原样
+          }
+        }
         this.detailOpen = true
       })
     },
     /** 管理章节按钮操作 */
     handleManageChapters() {
       this.$router.push({
-        path: '/system/regulation/chapter',
+        path: '/regulation/chapter',
         query: { regulationId: this.detailData.regulationId }
       })
     },
@@ -402,14 +418,19 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          // 将监管类型数组转换为JSON字符串
+          const data = { ...this.form }
+          if (Array.isArray(data.supervisionTypes)) {
+            data.supervisionTypes = JSON.stringify(data.supervisionTypes)
+          }
           if (this.form.regulationId != null) {
-            updateRegulation(this.form).then(response => {
+            updateRegulation(data).then(response => {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
             })
           } else {
-            addRegulation(this.form).then(response => {
+            addRegulation(data).then(response => {
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()

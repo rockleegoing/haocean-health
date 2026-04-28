@@ -1,0 +1,409 @@
+<h2>法律法规详情页 - 章节关联依据功能 完整设计方案</h2>
+<p class="subtitle">点击章节徽章 → 跳转依据列表 → 点击跳转详情页 → 字段可复制</p>
+
+<h3>一、交互流程</h3>
+
+<div class="mockup">
+  <div class="mockup-body" style="padding:16px;background:#f9f9f9;border-radius:8px">
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap">
+      <div style="background:white;padding:16px;border-radius:8px;border:1px solid #e0e0e0;text-align:center;min-width:120px">
+        <div style="font-weight:bold;margin-bottom:8px">法规详情页</div>
+        <div style="font-size:12px;color:#666">章节列表 + 徽章</div>
+      </div>
+      <div style="color:#999;font-size:20px">→</div>
+      <div style="background:#E3F2FD;padding:16px;border-radius:8px;border:2px solid #1565C0;text-align:center;min-width:120px">
+        <div style="font-weight:bold;margin-bottom:8px">依据列表页</div>
+        <div style="font-size:12px;color:#1565C0">只显示该章节关联的</div>
+      </div>
+      <div style="color:#999;font-size:20px">→</div>
+      <div style="background:white;padding:16px;border-radius:8px;border:1px solid #e0e0e0;text-align:center;min-width:120px">
+        <div style="font-weight:bold;margin-bottom:8px">依据详情页</div>
+        <div style="font-size:12px;color:#666">字段可复制</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3>二、数据库改动</h3>
+
+<div class="section">
+  <h4>1. sys_processing_basis 表（处理依据）</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+CREATE TABLE sys_processing_basis (
+    basis_id             BIGINT PRIMARY KEY AUTO_INCREMENT,
+    basis_no             VARCHAR(20) COMMENT '编号',
+    title                VARCHAR(255) NOT NULL COMMENT '标题',
+    violation_type       VARCHAR(100) COMMENT '违法类型',
+    issuing_authority    VARCHAR(100) COMMENT '颁发机构',
+    effective_date       VARCHAR(20) COMMENT '实施时间',
+    legal_level          VARCHAR(20) COMMENT '法律层级',
+    clauses              TEXT COMMENT '条款内容(JSON数组)',
+    legal_liability      TEXT COMMENT '法律责任',
+    discretion_standard  TEXT COMMENT '裁量标准',
+    regulation_id         BIGINT COMMENT '关联法规ID',
+    status               CHAR(1) DEFAULT '0' COMMENT '状态',
+    del_flag             CHAR(1) DEFAULT '0' COMMENT '删除标志',
+    create_by            VARCHAR(64),
+    create_time          DATETIME,
+    update_by            VARCHAR(64),
+    update_time          DATETIME,
+    PRIMARY KEY (basis_id),
+    INDEX idx_regulation_id (regulation_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='处理依据表';</pre>
+
+  <h4>2. sys_basis_chapter_link 表（关联表）</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+CREATE TABLE sys_basis_chapter_link (
+    link_id      BIGINT PRIMARY KEY AUTO_INCREMENT,
+    basis_type   VARCHAR(20) NOT NULL COMMENT '关联类型：legal/processing',
+    basis_id     BIGINT NOT NULL COMMENT '依据ID',
+    chapter_id   BIGINT NOT NULL COMMENT '章节ID',
+    create_time  DATETIME,
+    UNIQUE KEY uk_basis_chapter (basis_type, basis_id, chapter_id),
+    INDEX idx_chapter (chapter_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='依据章节关联表';</pre>
+</div>
+
+<h3>三、后端API设计</h3>
+
+<div class="section">
+  <h4>1. 获取章节关联依据统计</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+GET /system/regulation/chapterBasisCount/{regulationId}
+
+Response:
+{
+  "code": 200,
+  "data": [
+    {
+      "chapterId": 1,
+      "chapterNo": "第一章",
+      "chapterTitle": "总则",
+      "legalBasisCount": 3,
+      "processingBasisCount": 2
+    },
+    {
+      "chapterId": 2,
+      "chapterNo": "第二章",
+      "chapterTitle": "基本医疗卫生服务",
+      "legalBasisCount": 5,
+      "processingBasisCount": 4
+    }
+  ]
+}</pre>
+
+  <h4>2. 获取某章节关联的定性依据列表</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+GET /system/regulation/{regulationId}/legalBasisByChapter/{chapterId}
+
+Response:
+{
+  "code": 200,
+  "rows": [
+    {
+      "basisId": 1,
+      "basisNo": "001",
+      "title": "超出资质认可范围从事诊疗活动",
+      "violationType": "超出资质认可范围",
+      "legalLevel": "法律"
+    }
+  ],
+  "total": 3
+}</pre>
+
+  <h4>3. 获取某章节关联的处理依据列表</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+GET /system/regulation/{regulationId}/processingBasisByChapter/{chapterId}
+
+Response:
+{
+  "code": 200,
+  "rows": [...],
+  "total": 2
+}</pre>
+
+  <h4>4. 定性依据详情</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+GET /system/legalBasis/{basisId}
+
+Response:
+{
+  "code": 200,
+  "data": {
+    "basisId": 1,
+    "basisNo": "001",
+    "title": "超出资质认可范围从事诊疗活动",
+    "violationType": "超出资质认可范围",
+    "issuingAuthority": "卫健委",
+    "effectiveDate": "2020-06-01",
+    "legalLevel": "法律",
+    "clauses": "[\"基本医疗卫生与健康促进法第三十八条\"]",
+    "legalLiability": "由县级以上人民政府卫生健康主管部门责令停止执业...",
+    "discretionStandard": "轻微：...一般：...严重：...",
+    "linkedChapters": [
+      {"chapterId": 1, "chapterNo": "第一章", "chapterTitle": "总则"}
+    ]
+  }
+}</pre>
+</div>
+
+<h3>四、Android端数据模型</h3>
+
+<div class="section">
+  <h4>1. ChapterTreeItem.Chapter 更新</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+data class Chapter(
+    val chapterId: Long,
+    val chapterNo: String?,
+    val chapterTitle: String?,
+    val hasArticles: Boolean = false,
+    var isExpanded: Boolean = false,
+    var legalBasisCount: Int = 0,        // 新增
+    var processingBasisCount: Int = 0      // 新增
+)</pre>
+
+  <h4>2. 路由常量</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+// 定性依据
+const val legalBasisListRoute = "/law/legalBasis/list"
+const val legalBasisDetailRoute = "/law/legalBasis/detail"
+
+// 处理依据
+const val processingBasisListRoute = "/law/processingBasis/list"
+const val processingBasisDetailRoute = "/law/processingBasis/detail"</pre>
+
+  <h4>3. 跳转方法</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+// 从法规详情页跳转到定性依据列表
+fun navigateToLegalBasisList(regulationId: Long, chapterId: Long, chapterTitle: String) {
+    val url = "$legalBasisListRoute?regulationId=$regulationId&chapterId=$chapterId&title=$chapterTitle"
+    TheRouter.build(url).navigation()
+}
+
+// 从法规详情页跳转到处理依据列表
+fun navigateToProcessingBasisList(regulationId: Long, chapterId: Long, chapterTitle: String) {
+    val url = "$processingBasisListRoute?regulationId=$regulationId&chapterId=$chapterId&title=$chapterTitle"
+    TheRouter.build(url).navigation()
+}
+
+// 从列表跳转到详情
+fun navigateToLegalBasisDetail(basisId: Long) {
+    val url = "$legalBasisDetailRoute?basisId=$basisId"
+    TheRouter.build(url).navigation()
+}</pre>
+</div>
+
+<h3>五、UI原型 - 法规详情页（章节行）</h3>
+
+<div class="mockup">
+  <div class="mockup-header">法规详情页 - 章节列表</div>
+  <div class="mockup-body" style="padding:8px;background:#f5f5f5;border-radius:8px;font-size:12px">
+    <div style="background:white;padding:12px;border-radius:4px;margin-bottom:8px">
+      <div style="font-size:16px;font-weight:bold;color:#333;margin-bottom:8px">中华人民共和国基本医疗卫生与健康促进法</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <span style="background:#E3F2FD;color:#1565C0;padding:2px 8px;border-radius:4px;font-size:11px">法律</span>
+        <span style="color:#999;font-size:12px">发布日期: 2019-12-28</span>
+      </div>
+    </div>
+
+    <div style="background:white;padding:12px;border-radius:4px;margin-bottom:8px;border-left:3px solid #1565C0">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="color:#1565C0;font-size:12px">▶</span>
+        <span style="font-weight:bold;color:#333">第一章 总则</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-left:20px">
+        <span style="background:#E3F2FD;color:#1565C0;padding:4px 8px;border-radius:4px;font-size:11px;cursor:pointer">定性依据 3</span>
+        <span style="background:#FFF3E0;color:#E65100;padding:4px 8px;border-radius:4px;font-size:11px;cursor:pointer">处理依据 2</span>
+      </div>
+    </div>
+
+    <div style="background:white;padding:12px;border-radius:4px;border-left:3px solid #e0e0e0">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="color:#ccc;font-size:12px">▶</span>
+        <span style="font-weight:bold;color:#999">第二章 基本医疗卫生服务</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-left:20px">
+        <span style="background:#f5f5f5;color:#999;padding:4px 8px;border-radius:4px;font-size:11px">定性依据 0</span>
+        <span style="background:#f5f5f5;color:#999;padding:4px 8px;border-radius:4px;font-size:11px">处理依据 0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3>六、UI原型 - 定性依据列表页</h3>
+
+<div class="mockup">
+  <div class="mockup-header">定性依据列表页</div>
+  <div class="mockup-body" style="padding:8px;background:#f5f5f5;border-radius:8px;font-size:12px">
+    <div style="background:white;padding:12px;border-radius:4px;margin-bottom:8px">
+      <div style="font-weight:bold;color:#333">定性依据 - 第一章 总则</div>
+      <div style="color:#999;font-size:11px;margin-top:4px">关联章节：3 条</div>
+    </div>
+
+    <div style="background:white;border-radius:4px;padding:12px;margin-bottom:8px;border-left:3px solid #1565C0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:bold;color:#333">1.</div>
+          <div style="color:#333;margin-top:4px">超出资质认可范围从事诊疗活动</div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <span style="background:#E3F2FD;color:#1565C0;padding:2px 6px;border-radius:2px;font-size:10px">法律</span>
+            <span style="color:#666;font-size:10px">超出资质认可范围</span>
+          </div>
+        </div>
+        <div style="color:#1565C0">▶</div>
+      </div>
+    </div>
+
+    <div style="background:white;border-radius:4px;padding:12px;margin-bottom:8px;border-left:3px solid #1565C0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:bold;color:#333">2.</div>
+          <div style="color:#333;margin-top:4px">医疗卫生机构等未按规定报告传染病疫情</div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <span style="background:#E3F2FD;color:#1565C0;padding:2px 6px;border-radius:2px;font-size:10px">行政法规</span>
+            <span style="color:#666;font-size:10px">传染病防治</span>
+          </div>
+        </div>
+        <div style="color:#1565C0">▶</div>
+      </div>
+    </div>
+
+    <div style="background:white;border-radius:4px;padding:12px;border-left:3px solid #1565C0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:bold;color:#333">3.</div>
+          <div style="color:#333;margin-top:4px">医疗机构使用非卫生技术人员从事医疗卫生技术服务</div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <span style="background:#E3F2FD;color:#1565C0;padding:2px 6px;border-radius:2px;font-size:10px">部门规章</span>
+            <span style="color:#666;font-size:10px">资质管理</span>
+          </div>
+        </div>
+        <div style="color:#1565C0">▶</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3>七、UI原型 - 定性依据详情页</h3>
+
+<div class="mockup">
+  <div class="mockup-header">定性依据详情页</div>
+  <div class="mockup-body" style="padding:8px;background:#f5f5f5;border-radius:8px;font-size:12px">
+
+    <!-- 顶部标题 + 标签 -->
+    <div style="background:white;border-radius:4px;padding:16px;margin-bottom:8px">
+      <div style="font-size:17px;font-weight:bold;color:#333;margin-bottom:12px">
+        超出资质认可范围从事诊疗活动
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <span style="background:#E3F2FD;color:#1565C0;padding:4px 10px;border-radius:4px;font-size:12px">001</span>
+        <span style="background:#E3F2FD;color:#1565C0;padding:4px 10px;border-radius:4px;font-size:12px">超出资质认可范围</span>
+        <span style="background:#E3F2FD;color:#1565C0;padding:4px 10px;border-radius:4px;font-size:12px">2020-06-01</span>
+      </div>
+    </div>
+
+    <!-- 基本信息分组 -->
+    <div style="background:white;border-radius:4px;margin-bottom:8px">
+      <div style="background:#f5f5f5;padding:10px 16px;font-size:12px;color:#999;font-weight:bold">
+        基本信息
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #f5f5f5">
+        <span style="color:#666;font-size:13px">编号</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="color:#333;font-size:13px">001</span>
+          <span style="color:#1565C0;font-size:14px;cursor:pointer">📋</span>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #f5f5f5">
+        <span style="color:#666;font-size:13px">标题</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="color:#333;font-size:13px">超出资质认可范围从事诊疗活动</span>
+          <span style="color:#1565C0;font-size:14px;cursor:pointer">📋</span>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #f5f5f5">
+        <span style="color:#666;font-size:13px">违法类型</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="color:#333;font-size:13px">超出资质认可范围</span>
+          <span style="color:#1565C0;font-size:14px;cursor:pointer">📋</span>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px">
+        <span style="color:#666;font-size:13px">颁发机构</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="color:#333;font-size:13px">卫健委</span>
+          <span style="color:#1565C0;font-size:14px;cursor:pointer">📋</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 裁量信息分组 -->
+    <div style="background:white;border-radius:4px">
+      <div style="background:#f5f5f5;padding:10px 16px;font-size:12px;color:#999;font-weight:bold">
+        裁量信息
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px;border-bottom:1px solid #f5f5f5">
+        <span style="color:#666;font-size:13px;flex-shrink:0">条款内容</span>
+        <div style="display:flex;align-items:flex-start;gap:8px;flex:1;margin-left:16px">
+          <span style="color:#333;font-size:13px;flex:1;text-align:right">基本医疗卫生与健康促进法第三十八条</span>
+          <span style="color:#1565C0;font-size:14px;cursor:pointer">📋</span>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px;border-bottom:1px solid #f5f5f5">
+        <span style="color:#666;font-size:13px;flex-shrink:0">法律责任</span>
+        <div style="display:flex;align-items:flex-start;gap:8px;flex:1;margin-left:16px">
+          <span style="color:#333;font-size:13px;flex:1;text-align:right">由县级以上人民政府卫生健康主管部门责令停止执业，没收违法所得，并处罚款；情节严重的，吊销执业证书。</span>
+          <span style="color:#1565C0;font-size:14px;cursor:pointer">📋</span>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px">
+        <span style="color:#666;font-size:13px;flex-shrink:0">裁量标准</span>
+        <div style="display:flex;align-items:flex-start;gap:8px;flex:1;margin-left:16px">
+          <span style="color:#333;font-size:13px;flex:1;text-align:right">轻微：责令停止执业，处1万元以下罚款；一般：责令停止执业，处1-3万元罚款；严重：责令停止执业，处3-5万元罚款，吊销执业证书。</span>
+          <span style="color:#1565C0;font-size:14px;cursor:pointer">📋</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<h3>八、编号显示格式</h3>
+
+<div class="section">
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+// 前端处理：001 -> 1.，002 -> 2.
+// 规则：去掉前导0，末尾加 "."
+fun formatBasisNo(basisNo: String?): String {
+    if (basisNo.isNullOrBlank()) return ""
+    val num = basisNo.toLongOrNull() ?: return basisNo
+    return "$num."
+}</pre>
+</div>
+
+<h3>九、复制功能实现</h3>
+
+<div class="section">
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+// Android 复制到剪贴板
+fun copyToClipboard(text: String) {
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText("依据内容", text)
+    clipboard.setPrimaryClip(clip)
+    Toast.makeText(context, "已复制", Toast.LENGTH_SHORT).show()
+}
+
+// 每行复制按钮点击
+onCopyClick = { fieldLabel, fieldValue ->
+    copyToClipboard(fieldValue)
+}</pre>
+</div>
+
+<p style="margin-top:16px">以上是完整设计方案，请确认。</p>

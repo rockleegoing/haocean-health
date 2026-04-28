@@ -319,7 +319,7 @@ export default {
     /** 管理条款按钮 */
     handleManageArticles(row) {
       this.$router.push({
-        path: '/system/regulation/article',
+        path: '/regulation/article',
         query: { chapterId: row.chapterId, regulationId: row.regulationId }
       })
     },

@@ -50,7 +50,13 @@ public class SysDocumentServiceImpl implements ISysDocumentService {
      */
     @Override
     public SysDocumentTemplate selectSysDocumentTemplateById(Long id) {
-        return sysDocumentTemplateMapper.selectSysDocumentTemplateById(id);
+        SysDocumentTemplate template = sysDocumentTemplateMapper.selectSysDocumentTemplateById(id);
+        if (template != null) {
+            // 查询中间表获取行业分类ID列表
+            List<Long> industryCategoryIds = sysDocumentTemplateIndustryMapper.selectIndustryCategoryIdsByTemplateId(id);
+            template.setIndustryCategoryIds(industryCategoryIds);
+        }
+        return template;
     }
 
     /**

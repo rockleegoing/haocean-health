@@ -39,6 +39,7 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
     private var isPhotoExpanded = false
     private var isAudioExpanded = false
     private var isVideoExpanded = false
+    private var recordId: Long = 0
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA)
 
@@ -50,13 +51,35 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
         observeViewModel()
 
         // 获取记录ID并加载
-        val recordId = intent.getLongExtra("record_id", -1L)
-        if (recordId != -1L) {
+        recordId = extractRecordIdFromIntent()
+        if (recordId > 0) {
             viewModel.loadRecord(recordId)
         } else {
             ToastUtils.show("记录不存在")
             finish()
         }
+    }
+
+    private fun extractRecordIdFromIntent(): Long {
+        val extras = intent.extras
+        if (extras != null) {
+            for (key in extras.keySet()) {
+                val value = extras.get(key)
+                if (key == "record_id" || key == "recordId") {
+                    return when (value) {
+                        is Int -> if (value > 0) value.toLong() else 0L
+                        is Long -> if (value > 0) value else 0L
+                        is Integer -> {
+                            val intValue = value.toInt()
+                            if (intValue > 0) intValue.toLong() else 0L
+                        }
+                        is String -> value.toLongOrNull() ?: 0L
+                        else -> 0L
+                    }
+                }
+            }
+        }
+        return 0
     }
 
     override fun initData() {
@@ -212,9 +235,8 @@ class RecordDetailActivity : BaseBindingActivity<ActivityRecordDetailBinding>() 
 
         viewModel.operationResult.observe(this) { result ->
             ToastUtils.show(result)
-            if (result == "上报成功") {
+            if (result == "上报成功" && recordId > 0) {
                 // 刷新数据
-                val recordId = intent.getLongExtra("record_id", -1L)
                 viewModel.loadRecord(recordId)
             }
         }

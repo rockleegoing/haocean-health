@@ -188,8 +188,10 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="行业分类ID" prop="industryCategoryId">
-              <el-input v-model="form.industryCategoryId" placeholder="请输入行业分类ID" />
+            <el-form-item label="行业分类" prop="industryCategoryId">
+              <el-select v-model="form.industryCategoryId" placeholder="请选择行业分类" clearable>
+                <el-option v-for="cat in industryCategoryList" :key="cat.categoryId" :label="cat.categoryName" :value="cat.categoryId" />
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -304,6 +306,7 @@
 
 <script>
 import { listUnit, getUnit, delUnit, addUnit, updateUnit } from "@/api/system/unit"
+import { listCategory } from "@/api/system/category"
 
 export default {
   name: "Unit",
@@ -345,6 +348,8 @@ export default {
       },
       // 表单参数
       form: {},
+      // 行业分类列表
+      industryCategoryList: [],
       // 表单校验
       rules: {
         unitName: [
@@ -425,17 +430,25 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
+      this.loadIndustryCategories()
       this.open = true
       this.title = "添加执法单位"
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
+      this.loadIndustryCategories()
       const unitId = row.unitId || this.ids
       getUnit(unitId).then(response => {
         this.form = response.data
         this.open = true
         this.title = "修改执法单位"
+      })
+    },
+    /** 加载行业分类列表 */
+    loadIndustryCategories() {
+      listCategory({ pageNum: 1, pageSize: 100 }).then(response => {
+        this.industryCategoryList = response.rows
       })
     },
     /** 提交按钮 */

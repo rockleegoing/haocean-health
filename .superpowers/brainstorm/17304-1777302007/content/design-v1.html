@@ -1,0 +1,128 @@
+<h2>法律法规详情页 - 章节关联依据设计</h2>
+<p class="subtitle">数据结构 + API 设计方案</p>
+
+<h3>一、数据库改动</h3>
+
+<div class="section">
+  <h4>1. 新建处理依据表 sys_processing_basis</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+CREATE TABLE sys_processing_basis (
+    basis_id      BIGINT PRIMARY KEY AUTO_INCREMENT,
+    basis_no      VARCHAR(20),           -- 编号
+    title         VARCHAR(255) NOT NULL, -- 标题
+    violation_type VARCHAR(100),          -- 违法类型
+    clauses       TEXT,                   -- 条款内容(JSON数组)
+    legal_liability TEXT,                -- 法律责任
+    discretion_standard TEXT,            -- 裁量标准
+    regulation_id BIGINT,                -- 关联法规
+    status        CHAR(1) DEFAULT '0',
+    del_flag      CHAR(1) DEFAULT '0',
+    ...
+);</pre>
+
+  <h4>2. 新建关联表 sys_basis_chapter_link</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+CREATE TABLE sys_basis_chapter_link (
+    link_id      BIGINT PRIMARY KEY AUTO_INCREMENT,
+    basis_type   VARCHAR(20),   -- 'legal' 或 'processing'
+    basis_id     BIGINT,        -- sys_legal_basis 或 sys_processing_basis 的 ID
+    chapter_id   BIGINT,        -- 关联章节
+    create_time  DATETIME,
+    UNIQUE KEY uk_basis_chapter (basis_type, basis_id, chapter_id)
+);</pre>
+</div>
+
+<h3>二、后端API设计</h3>
+
+<div class="section">
+  <h4>GET /system/regulation/chapterBasisCount/{regulationId}</h4>
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+Response:
+{
+  "code": 200,
+  "data": [
+    {
+      "chapterId": 1,
+      "chapterNo": "第一章",
+      "chapterTitle": "总则",
+      "legalBasisCount": 3,      -- 定性依据数量
+      "processingBasisCount": 2   -- 处理依据数量
+    },
+    {
+      "chapterId": 2,
+      "chapterNo": "第二章",
+      "chapterTitle": "基本医疗卫生服务",
+      "legalBasisCount": 5,
+      "processingBasisCount": 4
+    }
+  ]
+}</pre>
+</div>
+
+<h3>三、Android端数据模型</h3>
+
+<div class="section">
+  <pre style="background:#f5f5f5;padding:12px;border-radius:8px;font-size:12px">
+data class ChapterTreeItem.Chapter(
+    val chapterId: Long,
+    val chapterNo: String?,
+    val chapterTitle: String?,
+    val hasArticles: Boolean = false,
+    var isExpanded: Boolean = false,
+    var legalBasisCount: Int = 0,      -- 新增
+    var processingBasisCount: Int = 0   -- 新增
+)</pre>
+</div>
+
+<h3>四、UI交互设计</h3>
+
+<div class="mockup">
+  <div class="mockup-header">章节行点击交互</div>
+  <div class="mockup-body" style="padding:16px;background:#f9f9f9;border-radius:8px">
+    <div style="background:white;padding:12px;border-radius:8px;margin-bottom:8px;border:1px solid #e0e0e0">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="color:#666">▶</span>
+        <span style="font-weight:bold">第一章 总则</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px;margin-left:24px">
+        <span style="background:#E3F2FD;color:#1565C0;padding:2px 8px;border-radius:4px;font-size:12px">定性依据 3</span>
+        <span style="background:#FFF3E0;color:#E65100;padding:2px 8px;border-radius:4px;font-size:12px">处理依据 2</span>
+      </div>
+    </div>
+    <div style="background:white;padding:12px;border-radius:8px;border:1px solid #e0e0e0">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="color:#999">▶</span>
+        <span style="font-weight:bold;color:#999">第二章 基本医疗卫生服务</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px;margin-left:24px">
+        <span style="background:#E3F2FD;color:#999;padding:2px 8px;border-radius:4px;font-size:12px">定性依据 0</span>
+        <span style="background:#FFF3E0;color:#999;padding:2px 8px;border-radius:4px;font-size:12px">处理依据 0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top:16px;color:#666;font-size:13px">
+  <strong>交互说明：</strong>点击"定性依据 3"或"处理依据 2"徽章 → 弹出底部弹窗显示该章节关联的依据列表
+</p>
+
+<div class="pros-cons" style="margin-top:16px">
+  <div class="pros">
+    <h4>方案优点</h4>
+    <ul>
+      <li>数据结构清晰，关联表设计灵活</li>
+      <li>SQL统计查询高效（单表JOIN+COUNT）</li>
+      <li>前端改动小，仅加字段和弹窗</li>
+      <li>支持一个依据关联多个章节</li>
+    </ul>
+  </div>
+  <div class="cons">
+    <h4>需确认</h4>
+    <ul>
+      <li>处理依据表结构是否与定性依据一致？</li>
+      <li>是否需要后端同步支持？</li>
+    </ul>
+  </div>
+</div>
+
+<p style="margin-top:20px;font-size:14px;color:#333">请查看以上设计方案，如有问题或需要调整，请告诉我。</p>

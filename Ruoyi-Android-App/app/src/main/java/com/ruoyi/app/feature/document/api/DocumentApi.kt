@@ -74,52 +74,76 @@ object DocumentApi {
      * 同步文书模板(下行)
      */
     suspend fun syncTemplates(): List<DocumentTemplate> = withContext(Dispatchers.IO) {
+        val url = "${ConfigApi.baseUrl}/api/admin/document/sync/template"
+        android.util.Log.d("DocumentApi", "=== 同步文书模板 ===")
+        android.util.Log.d("DocumentApi", "请求URL: $url")
         val request = Request.Builder()
-            .url("${ConfigApi.baseUrl}/api/admin/document/sync/template")
+            .url(url)
             .get()
             .build()
 
         val response = client.newCall(request).execute()
-        parseTemplateListResponse(response.body?.string() ?: "")
+        val body = response.body?.string() ?: ""
+        android.util.Log.d("DocumentApi", "HTTP状态码: ${response.code}")
+        android.util.Log.d("DocumentApi", "响应内容: $body")
+        parseTemplateListResponse(body)
     }
 
     /**
      * 同步文书套组(下行)
      */
     suspend fun syncGroups(): List<DocumentGroup> = withContext(Dispatchers.IO) {
+        val url = "${ConfigApi.baseUrl}/api/admin/document/sync/group"
+        android.util.Log.d("DocumentApi", "=== 同步文书套组 ===")
+        android.util.Log.d("DocumentApi", "请求URL: $url")
         val request = Request.Builder()
-            .url("${ConfigApi.baseUrl}/api/admin/document/sync/group")
+            .url(url)
             .get()
             .build()
 
         val response = client.newCall(request).execute()
-        parseGroupListResponse(response.body?.string() ?: "")
+        val body = response.body?.string() ?: ""
+        android.util.Log.d("DocumentApi", "HTTP状态码: ${response.code}")
+        android.util.Log.d("DocumentApi", "响应内容: $body")
+        parseGroupListResponse(body)
     }
 
     /**
      * 同步文书分类(下行)
      */
     suspend fun syncCategories(): List<DocumentCategory> = withContext(Dispatchers.IO) {
+        val url = "${ConfigApi.baseUrl}/api/admin/document/category/sync"
+        android.util.Log.d("DocumentApi", "=== 同步文书分类 ===")
+        android.util.Log.d("DocumentApi", "请求URL: $url")
         val request = Request.Builder()
-            .url("${ConfigApi.baseUrl}/api/admin/document/category/sync")
+            .url(url)
             .get()
             .build()
 
         val response = client.newCall(request).execute()
-        parseCategoryListResponse(response.body?.string() ?: "")
+        val body = response.body?.string() ?: ""
+        android.util.Log.d("DocumentApi", "HTTP状态码: ${response.code}")
+        android.util.Log.d("DocumentApi", "响应内容: $body")
+        parseCategoryListResponse(body)
     }
 
     /**
      * 同步文书模板与行业分类关联(下行)
      */
     suspend fun syncTemplateIndustry(): List<DocumentTemplateIndustry> = withContext(Dispatchers.IO) {
+        val url = "${ConfigApi.baseUrl}/api/admin/document/template/industry/sync"
+        android.util.Log.d("DocumentApi", "=== 同步文书模板行业关联 ===")
+        android.util.Log.d("DocumentApi", "请求URL: $url")
         val request = Request.Builder()
-            .url("${ConfigApi.baseUrl}/api/admin/document/template/industry/sync")
+            .url(url)
             .get()
             .build()
 
         val response = client.newCall(request).execute()
-        parseTemplateIndustryResponse(response.body?.string() ?: "")
+        val body = response.body?.string() ?: ""
+        android.util.Log.d("DocumentApi", "HTTP状态码: ${response.code}")
+        android.util.Log.d("DocumentApi", "响应内容: $body")
+        parseTemplateIndustryResponse(body)
     }
 
     /**
@@ -259,9 +283,7 @@ object DocumentApi {
             filePath = obj.optString("filePath", null),
             fileUrl = obj.optString("fileUrl", null),
             version = obj.optInt("version", 1),
-            isActive = obj.optString("isActive", "1"),
-            industryCategoryId = if (obj.has("industryCategoryId") && !obj.isNull("industryCategoryId")) obj.optLong("industryCategoryId") else null,
-            industryCategoryName = obj.optString("industryCategoryName", null)
+            isActive = obj.optString("isActive", "1")
         )
     }
 

@@ -40,14 +40,11 @@ public class SysDocumentTemplate extends BaseEntity {
     @Excel(name = "所属分类")
     private String category;
 
-    /** 行业分类ID */
-    private Long industryCategoryId;
-
-    /** 行业分类名称 */
-    private String industryCategoryName;
-
     /** 行业分类ID列表（前端传入，不存库） */
     private List<Long> industryCategoryIds;
+
+    /** 行业分类名称（列表查询时从中间表联查，不存库） */
+    private String industryCategoryName;
 
     /** 文件路径 */
     private String filePath;
@@ -161,12 +158,12 @@ public class SysDocumentTemplate extends BaseEntity {
         return delFlag;
     }
 
-    public Long getIndustryCategoryId() {
-        return industryCategoryId;
+    public List<Long> getIndustryCategoryIds() {
+        return industryCategoryIds;
     }
 
-    public void setIndustryCategoryId(Long industryCategoryId) {
-        this.industryCategoryId = industryCategoryId;
+    public void setIndustryCategoryIds(List<Long> industryCategoryIds) {
+        this.industryCategoryIds = industryCategoryIds;
     }
 
     public String getIndustryCategoryName() {
@@ -175,14 +172,6 @@ public class SysDocumentTemplate extends BaseEntity {
 
     public void setIndustryCategoryName(String industryCategoryName) {
         this.industryCategoryName = industryCategoryName;
-    }
-
-    public List<Long> getIndustryCategoryIds() {
-        return industryCategoryIds;
-    }
-
-    public void setIndustryCategoryIds(List<Long> industryCategoryIds) {
-        this.industryCategoryIds = industryCategoryIds;
     }
 
     @Override
@@ -200,8 +189,6 @@ public class SysDocumentTemplate extends BaseEntity {
             .append("version", getVersion())
             .append("isActive", getIsActive())
             .append("delFlag", getDelFlag())
-            .append("industryCategoryId", getIndustryCategoryId())
-            .append("industryCategoryName", getIndustryCategoryName())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())

@@ -97,11 +97,12 @@
 - Create: `ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysSupervisionTypeController.java`
 
 **API 路径：**
-- `/system/legal/type/list` - 列表查询
-- `/system/legal/type/{typeId}` - 详情
-- `/system/legal/type` - 新增
-- `/system/legal/type/{typeIds}` - 删除
-- `/system/legal/type/all` - 获取所有正常状态
+- `GET /system/legal/type/list` - 列表查询
+- `GET /system/legal/type/{typeId}` - 详情
+- `POST /system/legal/type` - 新增
+- `PUT /system/legal/type` - 修改
+- `DELETE /system/legal/type/{typeIds}` - 删除
+- `GET /system/legal/type/all` - 获取所有正常状态
 
 - [ ] **Step 1: Create SysLegalTypeController.java**
 
@@ -124,12 +125,22 @@
 **API 方法：**
 ```javascript
 // legalType.js
-export function listLegalType(query)  // GET /system/legal/type/list
-export function allLegalType()        // GET /system/legal/type/all
+export function listLegalType(query)    // GET /system/legal/type/list
+export function allLegalType()          // GET /system/legal/type/all
+export function getLegalType(typeId)    // GET /system/legal/type/{typeId}
+export function addLegalType(data)      // POST /system/legal/type
+export function editLegalType(data)     // PUT /system/legal/type
+export function delLegalType(typeIds)   // DELETE /system/legal/type/{typeIds}
+export function exportLegalType(query)  // GET /system/legal/type/export
 
 // supervisionType.js
-export function listSupervisionType(query)  // GET /system/supervision/type/list
-export function allSupervisionType()        // GET /system/supervision/type/all
+export function listSupervisionType(query)    // GET /system/supervision/type/list
+export function allSupervisionType()          // GET /system/supervision/type/all
+export function getSupervisionType(typeId)    // GET /system/supervision/type/{typeId}
+export function addSupervisionType(data)       // POST /system/supervision/type
+export function editSupervisionType(data)      // PUT /system/supervision/type
+export function delSupervisionType(typeIds)   // DELETE /system/supervision/type/{typeIds}
+export function exportSupervisionType(query)   // GET /system/supervision/type/export
 ```
 
 - [ ] **Step 1: Create legalType.js**
@@ -203,16 +214,20 @@ export function allSupervisionType()        // GET /system/supervision/type/all
 
 ---
 
-### Task 9: 创建Android字典Api
+### Task 9: 修改Android的LawApi添加字典API
 
 **Files:**
-- Create: `app/src/main/java/com/ruoyi/app/feature/law/api/DictApi.kt`
+- Modify: `app/src/main/java/com/ruoyi/app/feature/law/api/LawApi.kt`
 
-- [ ] **Step 1: Create DictApi.kt**
+添加获取法律类型和监管类型列表的API方法
 
-- [ ] **Step 2: Compile to verify**
+- [ ] **Step 1: Add getLegalTypeList method**
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 2: Add getSupervisionTypeList method**
+
+- [ ] **Step 3: Compile to verify**
+
+- [ ] **Step 4: Commit**
 
 ---
 
@@ -289,7 +304,7 @@ export function allSupervisionType()        // GET /system/supervision/type/all
 6. Task 6: 前端页面
 7. Task 7: 修改法规页面
 8. Task 8: Android Entity/Dao
-9. Task 9: Android Api
+9. Task 9: Android API (合并到LawApi)
 10. Task 10: Android Sync
 11. Task 11: Android Repository
 12. Task 12: Android LawFragment

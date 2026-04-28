@@ -82,41 +82,45 @@ ruoyi-system/src/main/java/com/ruoyi/system/
 ### 3.2 Controller 设计
 
 **SysLegalTypeController.java**
-- `GET /system/dict/legalType/list` - 列表查询
-- `GET /system/dict/legalType/{typeId}` - 详情
-- `POST /system/dict/legalType` - 新增
-- `PUT /system/dict/legalType` - 修改
-- `DELETE /system/dict/legalType/{typeIds}` - 删除
-- `GET /system/dict/legalType/all` - 获取所有正常状态（用于下拉框）
+- `GET /system/legal/type/list` - 列表查询
+- `GET /system/legal/type/{typeId}` - 详情
+- `POST /system/legal/type` - 新增
+- `PUT /system/legal/type` - 修改
+- `DELETE /system/legal/type/{typeIds}` - 删除
+- `GET /system/legal/type/all` - 获取所有正常状态（用于下拉框）
 
 **SysSupervisionTypeController.java**
-- `GET /system/dict/supervisionType/list` - 列表查询
-- `GET /system/dict/supervisionType/{typeId}` - 详情
-- `POST /system/dict/supervisionType` - 新增
-- `PUT /system/dict/supervisionType` - 修改
-- `DELETE /system/dict/supervisionType/{typeIds}` - 删除
-- `GET /system/dict/supervisionType/all` - 获取所有正常状态（用于下拉框）
+- `GET /system/supervision/type/list` - 列表查询
+- `GET /system/supervision/type/{typeId}` - 详情
+- `POST /system/supervision/type` - 新增
+- `PUT /system/supervision/type` - 修改
+- `DELETE /system/supervision/type/{typeIds}` - 删除
+- `GET /system/supervision/type/all` - 获取所有正常状态（用于下拉框）
 
 ## 4. 前端设计
 
 ### 4.1 菜单结构
 
 ```
-系统管理 (menu_id=1)
-└── 字典管理 (M目录, order=7)
-    ├── 法律类型管理 (C菜单)
-    └── 监管类型管理 (C菜单)
+法律法规 (顶级目录, order=5)
+├── 法律法规管理
+├── 章节管理
+├── 条款管理
+├── 批量操作
+├── 定性依据
+├── 法律类型管理 (C菜单)
+└── 监管类型管理 (C菜单)
 ```
 
 ### 4.2 页面设计
 
-**法律类型管理页面** (`/system/dict/legalType/index`)
+**法律类型管理页面** (`/system/regulation/legalType/index`)
 - 表格列表（typeCode, typeName, sortOrder, status, createTime）
 - 新增/编辑弹窗
 - 删除确认
 - 导出功能
 
-**监管类型管理页面** (`/system/dict/supervisionType/index`)
+**监管类型管理页面** (`/system/regulation/supervisionType/index`)
 - 表格列表（typeCode, typeName, sortOrder, status, createTime）
 - 新增/编辑弹窗
 - 删除确认
@@ -128,8 +132,7 @@ ruoyi-system/src/main/java/com/ruoyi/system/
 - 法律类型下拉框：改为调用 API 获取字典数据
 - 移除硬编码的法律类型选项
 
-**修改 Article/index.vue**
-- 法律类型下拉框：改为调用 API 获取字典数据
+注：Article/index.vue 无法律类型下拉框，无需改造
 
 ## 5. Android 端设计
 
@@ -190,8 +193,8 @@ repository.getAllSupervisionTypes().collectLatest { types ->
 ### 6.1 字典查询接口（匿名访问，供 Android 同步）
 
 ```
-GET /system/dict/legalType/list
-GET /system/dict/supervisionType/list
+GET /system/legal/type/list
+GET /system/supervision/type/list
 ```
 
 响应：
@@ -232,17 +235,18 @@ GET /system/dict/supervisionType/list
 - `ruoyi-system/src/main/java/com/ruoyi/system/service/ISysSupervisionTypeService.java`
 - `ruoyi-system/src/main/java/com/ruoyi/system/service/impl/SysLegalTypeServiceImpl.java`
 - `ruoyi-system/src/main/java/com/ruoyi/system/service/impl/SysSupervisionTypeServiceImpl.java`
-- `ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysLegalTypeController.java`
-- `ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysSupervisionTypeController.java`
+- `ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysLegalTypeController.java` (路径: /system/legal/type)
+- `ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysSupervisionTypeController.java` (路径: /system/supervision/type)
 
 ### 8.2 前端（新增）
-- `ruoyi-ui/src/views/system/dict/legalType/index.vue`
-- `ruoyi-ui/src/views/system/dict/supervisionType/index.vue`
-- `ruoyi-ui/src/api/system/dict.js`
+- `ruoyi-ui/src/views/system/regulation/legalType/index.vue`
+- `ruoyi-ui/src/views/system/regulation/supervisionType/index.vue`
+- `ruoyi-ui/src/api/system/legalType.js`
+- `ruoyi-ui/src/api/system/supervisionType.js`
 
 ### 8.3 前端（修改）
 - `ruoyi-ui/src/views/system/regulation/index.vue` - 法律类型下拉改为API
-- `ruoyi-ui/src/views/system/regulation/article/index.vue` - 法律类型下拉改为API
+- 注：article/index.vue 无法律类型下拉框，无需改造
 
 ### 8.4 Android（新增）
 - `app/src/main/java/com/ruoyi/app/feature/law/db/entity/LegalTypeEntity.kt`

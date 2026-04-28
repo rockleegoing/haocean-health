@@ -46,7 +46,7 @@ public class SysUnitServiceImpl implements ISysUnitService
 
     /**
      * 新增执法单位
-     * 
+     *
      * @param sysUnit 执法单位
      * @return 结果
      */
@@ -59,7 +59,7 @@ public class SysUnitServiceImpl implements ISysUnitService
 
     /**
      * 修改执法单位
-     * 
+     *
      * @param sysUnit 执法单位
      * @return 结果
      */
