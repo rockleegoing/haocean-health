@@ -11,12 +11,7 @@
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | basis_id | bigint(20) | 主键，自增 |
-| basis_no | varchar(20) | 编号 |
 | title | varchar(255) | 标题 |
-| violation_type | varchar(100) | 违法类型 |
-| issuing_authority | varchar(100) | 颁发机构 |
-| effective_date | varchar(20) | 实施时间 |
-| legal_level | varchar(20) | 效级 |
 | regulation_id | bigint(20) | 关联法规ID |
 | status | char(1) | 状态：0正常 1停用 |
 | del_flag | char(1) | 删除标志：0正常 2删除 |
@@ -42,11 +37,30 @@
 
 ### 1.3 处理依据主表 `sys_processing_basis`
 
-结构同 `sys_legal_basis`
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| basis_id | bigint(20) | 主键，自增 |
+| title | varchar(255) | 标题 |
+| regulation_id | bigint(20) | 关联法规ID |
+| status | char(1) | 状态：0正常 1停用 |
+| del_flag | char(1) | 删除标志：0正常 2删除 |
+| create_by | varchar(64) | 创建者 |
+| create_time | datetime | 创建时间 |
+| update_by | varchar(64) | 更新者 |
+| update_time | datetime | 更新时间 |
+| remark | varchar(500) | 备注 |
 
 ### 1.4 处理依据内容表 `sys_processing_basis_content`
 
-结构同 `sys_legal_basis_content`
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| content_id | bigint(20) | 主键，自增 |
+| basis_id | bigint(20) | 关联处理依据ID |
+| label | varchar(100) | 标签 |
+| content | text | 内容 |
+| sort_order | int | 排序 |
+| create_by | varchar(64) | 创建者 |
+| create_time | datetime | 创建时间 |
 
 **外键**：`basis_id` REFERENCES `sys_processing_basis`(basis_id) ON DELETE CASCADE
 
@@ -86,17 +100,12 @@
 
 ### 3.1 Room 实体
 
-#### LegalBasisEntity（主表）
+#### LegalBasisEntity（主表 - 精简版）
 ```kotlin
 @Entity(tableName = "sys_legal_basis")
 data class LegalBasisEntity(
     @PrimaryKey val basisId: Long,
-    val basisNo: String?,
     val title: String,
-    val violationType: String?,
-    val issuingAuthority: String?,
-    val effectiveDate: String?,
-    val legalLevel: String?,
     val regulationId: Long?,
     val status: String,
     val delFlag: String,
@@ -158,29 +167,39 @@ data class LegalBasisContentEntity(
 #### 列表页
 不变，显示主表标题列表
 
-#### 详情页
-书页式布局：
+#### 详情页（重构）
+全部数据从内容表读取，按 sort_order 顺序显示。书页式布局：
 ```
 [标题]
+
 [编号]                    [复制]
 [编号内容...]
 
 [违法类型]                [复制]
 [违法类型内容...]
 
+[颁发机构]                [复制]
+[颁发机构内容...]
+
+[实施时间]                [复制]
+[实施时间内容...]
+
+[效级]                    [复制]
+[效级内容...]
+
 [条款内容]                [复制]
-[条款内容...]
+[条款内容内容...]
 
 [法律责任]                [复制]
-[法律责任...]
+[法律责任内容...]
 
 [裁量标准]                [复制]
-[裁量标准...]
+[裁量标准内容...]
 
 ...（每个内容行都是 Label + 复制 + 内容）
 ```
 
-**Android 端：只读显示，每行有复制按钮**
+**Android 端：只读显示，每行有复制按钮。数据全部从内容表读取，按 sort_order 排序。**
 
 ## 四、SQL 脚本
 
@@ -199,14 +218,25 @@ data class LegalBasisContentEntity(
 
 ## 五、实现顺序
 
-1. **后端**：创建新表、修改实体、修改 Service、修改 Controller
+1. **后端**：
+   - 创建新表结构
+   - 修改实体类（精简主表）
+   - 修改 Service 层
+   - 修改 Controller 层
+   - 新增内容表 CRUD 接口
 2. **数据库**：执行 SQL 脚本
-3. **Android**：修改 Room 实体、修改 API 解析、同步逻辑更新
+3. **Android**：
+   - 修改 Room 实体（精简主表）
+   - 新增内容表实体
+   - 修改 API 解析（适配新接口）
+   - 更新同步逻辑
+   - **清空详情页代码，重构整个详情页 UI**（从内容表读取数据）
 4. **Web 前端**：调整表单，支持内容行动态添加
 5. **测试**：全流程测试
 
 ## 六、注意事项
 
-1. 旧表 `sys_legal_basis` 和 `sys_processing_basis` 中的 `clauses`、`legal_liability`、`discretion_standard` 字段保留暂不删除（兼容旧接口）
+1. 旧表 `sys_legal_basis` 和 `sys_processing_basis` 中的 `clauses`、`legal_liability`、`discretion_standard` 字段**删除**
 2. 新接口返回数据时使用新表结构
-3. 迁移期间旧数据仍可访问，新功能使用新表结构
+3. Android 详情页重构，**全部从内容表读取数据**
+4. 主表只保留基础字段（title, regulation_id, status, del_flag 等）
