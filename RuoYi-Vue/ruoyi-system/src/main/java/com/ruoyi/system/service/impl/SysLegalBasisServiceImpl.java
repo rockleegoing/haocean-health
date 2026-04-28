@@ -109,7 +109,7 @@ public class SysLegalBasisServiceImpl implements ISysLegalBasisService {
     @Override
     public Map<String, Object> selectLegalBasisDetail(Long basisId) {
         SysLegalBasis legalBasis = sysLegalBasisMapper.selectSysLegalBasisById(basisId);
-        List<SysLegalBasisContent> contents = sysLegalBasisContentMapper.selectSysLegalBasisContentByBasisId(basisId);
+        List<SysLegalBasisContent> contents = sysLegalBasisContentService.selectSysLegalBasisContentByBasisId(basisId);
         Map<String, Object> result = new HashMap<>();
         result.put("basis", legalBasis);
         result.put("contents", contents);

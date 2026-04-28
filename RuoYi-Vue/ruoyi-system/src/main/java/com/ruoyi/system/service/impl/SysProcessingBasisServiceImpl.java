@@ -109,7 +109,7 @@ public class SysProcessingBasisServiceImpl implements ISysProcessingBasisService
     @Override
     public Map<String, Object> selectProcessingBasisDetail(Long basisId) {
         SysProcessingBasis processingBasis = sysProcessingBasisMapper.selectSysProcessingBasisById(basisId);
-        List<SysProcessingBasisContent> contents = sysProcessingBasisContentMapper.selectSysProcessingBasisContentByBasisId(basisId);
+        List<SysProcessingBasisContent> contents = sysProcessingBasisContentService.selectSysProcessingBasisContentByBasisId(basisId);
         Map<String, Object> result = new HashMap<>();
         result.put("basis", processingBasis);
         result.put("contents", contents);
