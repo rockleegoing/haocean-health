@@ -22,8 +22,11 @@ class LawSyncManager(private val context: Context) {
     private val chapterDao = AppDatabase.getInstance(context).chapterDao()
     private val articleDao = AppDatabase.getInstance(context).articleDao()
     private val legalBasisDao = AppDatabase.getInstance(context).legalBasisDao()
+    private val legalBasisContentDao = AppDatabase.getInstance(context).legalBasisContentDao()
+    private val processingBasisContentDao = AppDatabase.getInstance(context).processingBasisContentDao()
     private val legalTypeDao = AppDatabase.getInstance(context).legalTypeDao()
     private val supervisionTypeDao = AppDatabase.getInstance(context).supervisionTypeDao()
+    private val processingBasisDao = AppDatabase.getInstance(context).processingBasisDao()
 
     companion object {
         private const val PREFS_NAME = "law_sync_prefs"
@@ -75,6 +78,23 @@ class LawSyncManager(private val context: Context) {
         if (basisResponse.code == 200) {
             val entities = basisResponse.rows.map { it.toEntity() }
             legalBasisDao.insertLegalBasises(entities)
+        }
+
+        // 同步定性依据内容表
+        for (basis in basisResponse.rows) {
+            syncLegalBasisContents(basis.basisId)
+        }
+
+        // 同步处理依据
+        val processingBasisResponse = LawApi.getProcessingBasisList(pageNum = 1, pageSize = 1000)
+        if (processingBasisResponse.code == 200) {
+            val entities = processingBasisResponse.rows.map { it.toEntity() }
+            processingBasisDao.insertProcessingBasises(entities)
+        }
+
+        // 同步处理依据内容表
+        for (basis in processingBasisResponse.rows) {
+            syncProcessingBasisContents(basis.basisId)
         }
 
         // 同步法律类型
@@ -168,6 +188,28 @@ class LawSyncManager(private val context: Context) {
         if (responses.isNotEmpty()) {
             val entities = responses.map { it.toEntity() }
             supervisionTypeDao.insertAll(entities)
+        }
+    }
+
+    /**
+     * 同步定性依据内容表
+     */
+    private suspend fun syncLegalBasisContents(basisId: Long) {
+        val detailResponse = LawApi.getLegalBasisDetail(basisId)
+        if (detailResponse.code == 200 && detailResponse.data?.contents != null) {
+            val contentEntities = detailResponse.data.contents.map { it.toEntity() }
+            legalBasisContentDao.insertContents(contentEntities)
+        }
+    }
+
+    /**
+     * 同步处理依据内容表
+     */
+    private suspend fun syncProcessingBasisContents(basisId: Long) {
+        val detailResponse = LawApi.getProcessingBasisDetail(basisId)
+        if (detailResponse.code == 200 && detailResponse.data?.contents != null) {
+            val contentEntities = detailResponse.data.contents.map { it.toEntity() }
+            processingBasisContentDao.insertContents(contentEntities)
         }
     }
 
