@@ -6,23 +6,27 @@
         <div class="left-panel">
           <div class="panel-header">
             <span>法律法规类型</span>
+            <el-button type="text" size="mini" @click="handleClearType" style="margin-left: 10px;">
+              [全部]
+            </el-button>
           </div>
-          <!-- 类型选择器 -->
-          <el-select
-            v-model="selectedTypeId"
-            placeholder="全部类型"
-            clearable
-            size="small"
-            style="width: 100%; margin-bottom: 10px;"
-            @change="handleTypeChange"
+          <!-- 类型树（支持单选） -->
+          <el-tree
+            ref="lawTypeTree"
+            :data="lawTypeTreeData"
+            :props="lawTypeTreeProps"
+            node-key="id"
+            :expand-on-click-node="true"
+            :highlight-current="true"
+            @node-click="handleLawTypeNodeClick"
           >
-            <el-option
-              v-for="item in lawTypeOptions"
-              :key="item.id"
-              :label="item.label"
-              :value="item.id"
-            />
-          </el-select>
+            <span slot-scope="{ node, data }" class="custom-tree-node">
+              <span>
+                <i :class="data.icon" v-if="data.icon" style="margin-right: 5px;" />
+                {{ node.label }}
+              </span>
+            </span>
+          </el-tree>
 
           <el-divider />
 
@@ -383,8 +387,16 @@ export default {
         this.lawTypeOptions = flattenOptions
       })
     },
-    /** 类型选择变化 */
-    handleTypeChange(val) {
+    /** 点击类型节点 */
+    handleLawTypeNodeClick(data) {
+      this.selectedTypeId = data.id
+      this.currentLawId = null
+      this.currentLawName = ''
+      this.getLawList()
+    },
+    /** 清除类型选择，显示全部 */
+    handleClearType() {
+      this.selectedTypeId = null
       this.currentLawId = null
       this.currentLawName = ''
       this.getLawList()
