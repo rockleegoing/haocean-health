@@ -29,10 +29,6 @@ public class Law extends BaseEntity
     @Excel(name = "发布日期", width = 30, dateFormat = "yyyy-MM-dd")
     private Date releaseTime;
 
-    /** 法律法规类型ID（末级） */
-    @Excel(name = "类型ID")
-    private Long typeId;
-
     public void setId(Long id)
     {
         this.id = id;
@@ -63,23 +59,12 @@ public class Law extends BaseEntity
         return releaseTime;
     }
 
-    public void setTypeId(Long typeId)
-    {
-        this.typeId = typeId;
-    }
-
-    public Long getTypeId()
-    {
-        return typeId;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("name", getName())
             .append("releaseTime", getReleaseTime())
-            .append("typeId", getTypeId())
             .toString();
     }
 }
