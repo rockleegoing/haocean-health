@@ -1,16 +1,39 @@
 <template>
   <div class="app-container">
     <el-row :gutter="20">
-      <!-- 左侧：法律法规列表 -->
-      <el-col :span="6" :xs="24">
+      <!-- 左侧：类型树 + 法律列表 -->
+      <el-col :span="8" :xs="24">
         <div class="left-panel">
           <div class="panel-header">
-            <span>法律法规</span>
+            <span>法律法规类型</span>
+          </div>
+          <!-- 类型树 -->
+          <el-tree
+            ref="lawTypeTree"
+            :data="lawTypeTreeData"
+            :props="lawTypeTreeProps"
+            node-key="id"
+            :expand-on-click-node="false"
+            :highlight-current="true"
+            @node-click="handleLawTypeNodeClick"
+          >
+            <span slot-scope="{ node, data }" class="custom-tree-node">
+              <span>
+                <i :class="data.icon" v-if="data.icon" style="margin-right: 5px;" />
+                {{ node.label }}
+              </span>
+            </span>
+          </el-tree>
+
+          <el-divider />
+
+          <div class="panel-header">
+            <span>{{ selectedTypeName || '全部法律' }}</span>
             <el-button type="primary" plain size="mini" icon="el-icon-plus" @click="handleAddLaw" style="margin-left: auto;">
               新增法律
             </el-button>
           </div>
-          <!-- 法律搜索框 -->
+          <!-- 法律列表（根据选中类型过滤） -->
           <el-input
             v-model="lawSearchKeyword"
             placeholder="搜索法律名称"
@@ -31,11 +54,7 @@
             :row-class-name="lawRowClassName"
             style="width: 100%; cursor: pointer;"
           >
-            <el-table-column label="法律名称" align="left" prop="name">
-              <template slot-scope="scope">
-                <span>{{ scope.row.name }}</span>
-              </template>
-            </el-table-column>
+            <el-table-column label="法律名称" align="left" prop="name" />
             <el-table-column label="发布日期" align="center" prop="releaseTime" width="100">
               <template slot-scope="scope">
                 <span>{{ parseTime(scope.row.releaseTime, '{y}-{m}') }}</span>
@@ -46,7 +65,7 @@
       </el-col>
 
       <!-- 右侧：法律条款列表 -->
-      <el-col :span="18" :xs="24">
+      <el-col :span="16" :xs="24">
         <div class="right-panel">
           <div class="panel-header">
             <span v-if="currentLawId">法律条款: {{ currentLawName }}</span>
@@ -129,6 +148,16 @@
       <el-form ref="lawForm" :model="lawForm" :rules="lawRules" label-width="100px">
         <el-form-item label="法律名称" prop="name">
           <el-input v-model="lawForm.name" placeholder="请输入法律名称" />
+        </el-form-item>
+        <el-form-item label="所属类型" prop="typeId">
+          <el-select v-model="lawForm.typeId" placeholder="请选择类型" clearable style="width: 100%">
+            <el-option
+              v-for="item in lawTypeOptions"
+              :key="item.id"
+              :label="item.label"
+              :value="item.id"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="发布日期" prop="releaseTime">
           <el-date-picker
@@ -245,6 +274,7 @@
 <script>
 import { listLaw, getLaw, addLaw, updateLaw, delLaw } from "@/api/system/law"
 import { listLegalterm, getLegalterm, addLegalterm, updateLegalterm, delLegalterm } from "@/api/system/legalterm"
+import { treeList } from "@/api/system/lawtype"
 
 export default {
   name: "LawWithTerm",
@@ -261,8 +291,19 @@ export default {
       lawOpen: false,
       lawForm: {},
       lawRules: {
-        name: [{ required: true, message: "法律名称不能为空", trigger: "blur" }]
+        name: [{ required: true, message: "法律名称不能为空", trigger: "blur" }],
+        typeId: [{ required: false, message: "请选择类型", trigger: "change" }]
       },
+
+      // 类型树相关
+      lawTypeTreeData: [],
+      lawTypeTreeProps: {
+        children: 'children',
+        label: 'name'
+      },
+      selectedTypeId: null,
+      selectedTypeName: '',
+      lawTypeOptions: [],
 
       // 右侧条款相关
       termLoading: false,
@@ -293,15 +334,57 @@ export default {
     }
   },
   created() {
+    this.getLawTypeTree()
+    this.getLawTypeOptions()
     this.getLawList()
     this.getLawOptions()
   },
   methods: {
+    // ========== 类型树相关 ==========
+    /** 获取类型树 */
+    getLawTypeTree() {
+      treeList().then(response => {
+        if (response.data && response.data.length > 0) {
+          this.lawTypeTreeData = response.data[0].children || response.data
+        }
+      })
+    },
+    /** 获取类型下拉选项 */
+    getLawTypeOptions() {
+      treeList().then(response => {
+        const flattenOptions = []
+        const flatten = (list, level = 0) => {
+          list.forEach(item => {
+            flattenOptions.push({ id: item.id, name: item.name, label: '-'.repeat(level) + item.name })
+            if (item.children && item.children.length > 0) {
+              flatten(item.children, level + 1)
+            }
+          })
+        }
+        if (response.data && response.data.length > 0) {
+          flatten(response.data[0].children || response.data)
+        }
+        this.lawTypeOptions = flattenOptions
+      })
+    },
+    /** 点击类型节点 */
+    handleLawTypeNodeClick(data) {
+      this.selectedTypeId = data.id
+      this.selectedTypeName = data.name
+      this.currentLawId = null
+      this.currentLawName = ''
+      this.getLawList()
+    },
+
     // ========== 左侧法律相关 ==========
     /** 获取法律列表 */
     getLawList() {
       this.lawLoading = true
-      listLaw({ pageNum: 1, pageSize: 9999 }).then(response => {
+      const params = { pageNum: 1, pageSize: 9999 }
+      if (this.selectedTypeId) {
+        params.typeId = this.selectedTypeId
+      }
+      listLaw(params).then(response => {
         this.lawList = response.rows || []
         this.lawLoading = false
       })
@@ -334,7 +417,7 @@ export default {
     },
     /** 新增法律按钮 */
     handleAddLaw() {
-      this.lawForm = {}
+      this.lawForm = { typeId: this.selectedTypeId }
       this.lawTitle = "新增法律"
       this.lawOpen = true
     },
@@ -478,5 +561,11 @@ export default {
   font-weight: bold;
   border-bottom: 1px solid #ebeef5;
   margin-bottom: 10px;
+}
+.custom-tree-node {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 </style>
