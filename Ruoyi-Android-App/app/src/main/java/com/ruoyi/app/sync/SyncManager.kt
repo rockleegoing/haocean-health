@@ -283,11 +283,16 @@ class SyncManager private constructor() {
                 val matters = repository.getAllMatters()
                 Log.d("SyncManager", "需要同步明细的监管事项数量: ${matters.size}")
                 for (matter in matters) {
-                    repository.syncItems(matter.matterId)
+                    val itemsResult = repository.syncItems(matter.matterId)
+                    if (itemsResult.isFailure) {
+                        Log.e("SyncManager", "监管事项明细同步失败")
+                        return false
+                    }
                     Log.d("SyncManager", "已同步监管事项[${matter.matterId}]的明细")
                 }
             } catch (e: Exception) {
                 Log.e("SyncManager", "监管事项明细同步异常: ${e.message}", e)
+                return false
             }
 
             // 3. 同步行业分类关联
