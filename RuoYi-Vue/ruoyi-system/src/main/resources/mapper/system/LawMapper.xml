@@ -8,11 +8,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="id"    column="id"    />
         <result property="name"    column="name"    />
         <result property="releaseTime"    column="release_time"    />
-        <result property="typeId"    column="type_id"    />
     </resultMap>
 
     <sql id="selectLawVo">
-        select id, name, release_time, type_id from law
+        select id, name, release_time from law
     </sql>
 
     <select id="selectLawList" parameterType="Law" resultMap="LawResult">
@@ -20,7 +19,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>
             <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
             <if test="releaseTime != null "> and release_time = #{releaseTime}</if>
-            <if test="typeId != null"> and type_id = #{typeId}</if>
         </where>
     </select>
     
@@ -34,12 +32,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null">name,</if>
             <if test="releaseTime != null">release_time,</if>
-            <if test="typeId != null">type_id,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="name != null">#{name},</if>
             <if test="releaseTime != null">#{releaseTime},</if>
-            <if test="typeId != null">#{typeId},</if>
          </trim>
     </insert>
 
@@ -48,7 +44,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null">name = #{name},</if>
             <if test="releaseTime != null">release_time = #{releaseTime},</if>
-            <if test="typeId != null">type_id = #{typeId},</if>
         </trim>
         where id = #{id}
     </update>
