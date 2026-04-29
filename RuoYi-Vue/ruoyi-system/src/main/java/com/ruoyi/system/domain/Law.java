@@ -29,42 +29,57 @@ public class Law extends BaseEntity
     @Excel(name = "发布日期", width = 30, dateFormat = "yyyy-MM-dd")
     private Date releaseTime;
 
-    public void setId(Long id) 
+    /** 法律法规类型ID（末级） */
+    @Excel(name = "类型ID")
+    private Long typeId;
+
+    public void setId(Long id)
     {
         this.id = id;
     }
 
-    public Long getId() 
+    public Long getId()
     {
         return id;
     }
 
-    public void setName(String name) 
+    public void setName(String name)
     {
         this.name = name;
     }
 
-    public String getName() 
+    public String getName()
     {
         return name;
     }
 
-    public void setReleaseTime(Date releaseTime) 
+    public void setReleaseTime(Date releaseTime)
     {
         this.releaseTime = releaseTime;
     }
 
-    public Date getReleaseTime() 
+    public Date getReleaseTime()
     {
         return releaseTime;
     }
 
+    public void setTypeId(Long typeId)
+    {
+        this.typeId = typeId;
+    }
+
+    public Long getTypeId()
+    {
+        return typeId;
+    }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("name", getName())
             .append("releaseTime", getReleaseTime())
+            .append("typeId", getTypeId())
             .toString();
     }
 }
