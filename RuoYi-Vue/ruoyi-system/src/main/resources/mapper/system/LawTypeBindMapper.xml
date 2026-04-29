@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.LawTypeBindMapper">
+
+    <resultMap type="LawTypeBind" id="LawTypeBindResult">
+        <result property="lawId"    column="law_id"    />
+        <result property="typeId"    column="type_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectLawTypeBindVo">
+        select law_id, type_id, create_by, create_time from law_type_bind
+    </sql>
+
+    <select id="selectByLawId" parameterType="Long" resultMap="LawTypeBindResult">
+        <include refid="selectLawTypeBindVo"/>
+        where law_id = #{lawId}
+    </select>
+
+    <select id="selectByTypeId" parameterType="Long" resultMap="LawTypeBindResult">
+        <include refid="selectLawTypeBindVo"/>
+        where type_id = #{typeId}
+    </select>
+
+    <select id="selectAll" resultMap="LawTypeBindResult">
+        <include refid="selectLawTypeBindVo"/>
+    </select>
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        insert into law_type_bind (law_id, type_id, create_by, create_time) values
+        <foreach item="item" collection="list" separator=",">
+            (#{item.lawId}, #{item.typeId}, #{item.createBy}, #{item.createTime})
+        </foreach>
+    </insert>
+
+    <delete id="deleteByLawId" parameterType="Long">
+        delete from law_type_bind where law_id = #{lawId}
+    </delete>
+
+    <delete id="deleteByLawIdAndTypeId">
+        delete from law_type_bind where law_id = #{lawId} and type_id = #{typeId}
+    </delete>
+</mapper>
