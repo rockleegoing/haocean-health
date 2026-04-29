@@ -149,8 +149,8 @@
         <el-form-item label="法律名称" prop="name">
           <el-input v-model="lawForm.name" placeholder="请输入法律名称" />
         </el-form-item>
-        <el-form-item label="所属类型" prop="typeId">
-          <el-select v-model="lawForm.typeId" placeholder="请选择类型" clearable style="width: 100%">
+        <el-form-item label="所属类型" prop="typeIds">
+          <el-select v-model="lawForm.typeIds" multiple placeholder="请选择类型" collapse-tags style="width: 100%">
             <el-option
               v-for="item in lawTypeOptions"
               :key="item.id"
@@ -292,7 +292,7 @@ export default {
       lawForm: {},
       lawRules: {
         name: [{ required: true, message: "法律名称不能为空", trigger: "blur" }],
-        typeId: [{ required: false, message: "请选择类型", trigger: "change" }]
+        typeIds: [{ required: false, message: "请选择类型", trigger: "change" }]
       },
 
       // 类型树相关
@@ -417,7 +417,7 @@ export default {
     },
     /** 新增法律按钮 */
     handleAddLaw() {
-      this.lawForm = { typeId: this.selectedTypeId }
+      this.lawForm = { typeIds: [] }
       this.lawTitle = "新增法律"
       this.lawOpen = true
     },
