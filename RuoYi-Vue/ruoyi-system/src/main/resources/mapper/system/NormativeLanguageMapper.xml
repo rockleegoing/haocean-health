@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.NormativeLanguageMapper">
+    
+    <resultMap type="NormativeLanguage" id="NormativeLanguageResult">
+        <result property="id"    column="id"    />
+        <result property="professionalCategory"    column="professional_category"    />
+        <result property="primaryCategory"    column="primary_category"    />
+        <result property="secondaryCategory"    column="secondary_category"    />
+        <result property="tertiaryCategory"    column="tertiary_category"    />
+        <result property="standardCode"    column="standard_code"    />
+        <result property="violationCode"    column="violation_code"    />
+        <result property="informationReport"    column="information_report"    />
+        <result property="inspectionContent"    column="inspection_content"    />
+        <result property="qualitativeBasis"    column="qualitative_basis"    />
+        <result property="handlingBasis"    column="handling_basis"    />
+        <result property="standardPhrase"    column="standard_phrase"    />
+        <result property="supervisoryOpinion"    column="supervisory_opinion"    />
+        <result property="handlingContent"    column="handling_content"    />
+        <result property="handlingProcedure"    column="handling_procedure"    />
+        <result property="administrativePenalty"    column="administrative_penalty"    />
+        <result property="administrativeForcedMeasures"    column="administrative_forced_measures"    />
+        <result property="otherHandling"    column="other_handling"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="isDeleted"    column="is_deleted"    />
+    </resultMap>
+
+    <sql id="selectNormativeLanguageVo">
+        select id, professional_category, primary_category, secondary_category, tertiary_category, standard_code, violation_code, information_report, inspection_content, qualitative_basis, handling_basis, standard_phrase, supervisory_opinion, handling_content, handling_procedure, administrative_penalty, administrative_forced_measures, other_handling, create_time, is_deleted from normative_language
+    </sql>
+
+    <select id="selectNormativeLanguageList" parameterType="NormativeLanguage" resultMap="NormativeLanguageResult">
+        <include refid="selectNormativeLanguageVo"/>
+        <where>  
+            <if test="professionalCategory != null "> and professional_category = #{professionalCategory}</if>
+            <if test="primaryCategory != null "> and primary_category = #{primaryCategory}</if>
+            <if test="secondaryCategory != null "> and secondary_category = #{secondaryCategory}</if>
+            <if test="tertiaryCategory != null "> and tertiary_category = #{tertiaryCategory}</if>
+            <if test="standardCode != null  and standardCode != ''"> and standard_code = #{standardCode}</if>
+            <if test="violationCode != null  and violationCode != ''"> and violation_code = #{violationCode}</if>
+            <if test="informationReport != null  and informationReport != ''"> and information_report = #{informationReport}</if>
+            <if test="inspectionContent != null  and inspectionContent != ''"> and inspection_content = #{inspectionContent}</if>
+            <if test="qualitativeBasis != null  and qualitativeBasis != ''"> and qualitative_basis = #{qualitativeBasis}</if>
+            <if test="handlingBasis != null  and handlingBasis != ''"> and handling_basis = #{handlingBasis}</if>
+            <if test="standardPhrase != null  and standardPhrase != ''"> and standard_phrase = #{standardPhrase}</if>
+            <if test="supervisoryOpinion != null  and supervisoryOpinion != ''"> and supervisory_opinion = #{supervisoryOpinion}</if>
+            <if test="handlingContent != null  and handlingContent != ''"> and handling_content = #{handlingContent}</if>
+            <if test="handlingProcedure != null  and handlingProcedure != ''"> and handling_procedure = #{handlingProcedure}</if>
+            <if test="administrativePenalty != null  and administrativePenalty != ''"> and administrative_penalty = #{administrativePenalty}</if>
+            <if test="administrativeForcedMeasures != null  and administrativeForcedMeasures != ''"> and administrative_forced_measures = #{administrativeForcedMeasures}</if>
+            <if test="otherHandling != null  and otherHandling != ''"> and other_handling = #{otherHandling}</if>
+            <if test="isDeleted != null "> and is_deleted = #{isDeleted}</if>
+        </where>
+    </select>
+    
+    <select id="selectNormativeLanguageById" parameterType="Long" resultMap="NormativeLanguageResult">
+        <include refid="selectNormativeLanguageVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertNormativeLanguage" parameterType="NormativeLanguage" useGeneratedKeys="true" keyProperty="id">
+        insert into normative_language
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="professionalCategory != null">professional_category,</if>
+            <if test="primaryCategory != null">primary_category,</if>
+            <if test="secondaryCategory != null">secondary_category,</if>
+            <if test="tertiaryCategory != null">tertiary_category,</if>
+            <if test="standardCode != null">standard_code,</if>
+            <if test="violationCode != null">violation_code,</if>
+            <if test="informationReport != null">information_report,</if>
+            <if test="inspectionContent != null">inspection_content,</if>
+            <if test="qualitativeBasis != null">qualitative_basis,</if>
+            <if test="handlingBasis != null">handling_basis,</if>
+            <if test="standardPhrase != null">standard_phrase,</if>
+            <if test="supervisoryOpinion != null">supervisory_opinion,</if>
+            <if test="handlingContent != null">handling_content,</if>
+            <if test="handlingProcedure != null">handling_procedure,</if>
+            <if test="administrativePenalty != null">administrative_penalty,</if>
+            <if test="administrativeForcedMeasures != null">administrative_forced_measures,</if>
+            <if test="otherHandling != null">other_handling,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="professionalCategory != null">#{professionalCategory},</if>
+            <if test="primaryCategory != null">#{primaryCategory},</if>
+            <if test="secondaryCategory != null">#{secondaryCategory},</if>
+            <if test="tertiaryCategory != null">#{tertiaryCategory},</if>
+            <if test="standardCode != null">#{standardCode},</if>
+            <if test="violationCode != null">#{violationCode},</if>
+            <if test="informationReport != null">#{informationReport},</if>
+            <if test="inspectionContent != null">#{inspectionContent},</if>
+            <if test="qualitativeBasis != null">#{qualitativeBasis},</if>
+            <if test="handlingBasis != null">#{handlingBasis},</if>
+            <if test="standardPhrase != null">#{standardPhrase},</if>
+            <if test="supervisoryOpinion != null">#{supervisoryOpinion},</if>
+            <if test="handlingContent != null">#{handlingContent},</if>
+            <if test="handlingProcedure != null">#{handlingProcedure},</if>
+            <if test="administrativePenalty != null">#{administrativePenalty},</if>
+            <if test="administrativeForcedMeasures != null">#{administrativeForcedMeasures},</if>
+            <if test="otherHandling != null">#{otherHandling},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+         </trim>
+    </insert>
+
+    <update id="updateNormativeLanguage" parameterType="NormativeLanguage">
+        update normative_language
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="professionalCategory != null">professional_category = #{professionalCategory},</if>
+            <if test="primaryCategory != null">primary_category = #{primaryCategory},</if>
+            <if test="secondaryCategory != null">secondary_category = #{secondaryCategory},</if>
+            <if test="tertiaryCategory != null">tertiary_category = #{tertiaryCategory},</if>
+            <if test="standardCode != null">standard_code = #{standardCode},</if>
+            <if test="violationCode != null">violation_code = #{violationCode},</if>
+            <if test="informationReport != null">information_report = #{informationReport},</if>
+            <if test="inspectionContent != null">inspection_content = #{inspectionContent},</if>
+            <if test="qualitativeBasis != null">qualitative_basis = #{qualitativeBasis},</if>
+            <if test="handlingBasis != null">handling_basis = #{handlingBasis},</if>
+            <if test="standardPhrase != null">standard_phrase = #{standardPhrase},</if>
+            <if test="supervisoryOpinion != null">supervisory_opinion = #{supervisoryOpinion},</if>
+            <if test="handlingContent != null">handling_content = #{handlingContent},</if>
+            <if test="handlingProcedure != null">handling_procedure = #{handlingProcedure},</if>
+            <if test="administrativePenalty != null">administrative_penalty = #{administrativePenalty},</if>
+            <if test="administrativeForcedMeasures != null">administrative_forced_measures = #{administrativeForcedMeasures},</if>
+            <if test="otherHandling != null">other_handling = #{otherHandling},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteNormativeLanguageById" parameterType="Long">
+        delete from normative_language where id = #{id}
+    </delete>
+
+    <delete id="deleteNormativeLanguageByIds" parameterType="String">
+        delete from normative_language where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

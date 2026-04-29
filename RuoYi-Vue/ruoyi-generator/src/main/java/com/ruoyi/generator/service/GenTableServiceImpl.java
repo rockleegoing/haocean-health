@@ -557,28 +557,40 @@ public class GenTableServiceImpl implements IGenTableService
         String genPath = table.getGenPath();
         if (StringUtils.equals(genPath, "/"))
         {
+            String userDir = System.getProperty("user.dir");
+            // 判断userDir 最后是RuoYi-Vue目录 还是ruoyi-admin目录
+            if(!userDir.endsWith("RuoYi-Vue")){
+                // 若果不是RuoYi-Vue 而是ruoyi-admin 截取到RuoYi-Vue
+                // 查找RuoYi-Vue在字符串的位置
+                int index = userDir.lastIndexOf("RuoYi-Vue");
+                if(index != -1){
+                    // 需包含RuoYi-Vue目录
+                    userDir = userDir.substring(0, index+9);
+                }
+            }
+
             if(template.contains("controller.java.vm"))
             {
-                return System.getProperty("user.dir") + File.separator + "ruoyi-admin" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
+                return userDir + File.separator + "ruoyi-admin" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
             }
             else if(StringUtils.contains(template, "sql.vm"))
             {
-                return System.getProperty("user.dir")+ File.separator + "sql" + File.separator + VelocityUtils.getFileName(template, table);
+                return userDir+ File.separator + "sql" + File.separator + VelocityUtils.getFileName(template, table);
             }
             else if(StringUtils.containsAny(template, "api.js.vm", "api.ts.vm"))
             {
-                return System.getProperty("user.dir")+ File.separator + "ruoyi-ui" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
+                return userDir + File.separator + "ruoyi-ui" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
             }
             else if(StringUtils.containsAny(template, "type.ts.vm", "index.ts.vm", "index.vue.vm", "index-tree.vue.vm", "view.vue.vm"))
             {
-                return System.getProperty("user.dir")+ File.separator + "ruoyi-ui" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
+                return  userDir + File.separator + "ruoyi-ui" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
             }
             else if(StringUtils.contains(template, "mapper.java.vm"))
             {
-                return System.getProperty("user.dir")+ File.separator + "ruoyi-system" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
+                return userDir + File.separator + "ruoyi-system" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
             }
             else{
-                return System.getProperty("user.dir") + File.separator + "ruoyi-system" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
+                return userDir + File.separator + "ruoyi-system" + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
             }
         }
         return genPath + File.separator + VelocityUtils.getFileName(template, table);
