@@ -2,6 +2,7 @@ package com.ruoyi.system.service;
 
 import java.util.List;
 import com.ruoyi.system.domain.Law;
+import com.ruoyi.system.domain.LegalTerm;
 
 /**
  * 法律目录Service接口
@@ -53,9 +54,25 @@ public interface ILawService
 
     /**
      * 删除法律目录信息
-     * 
+     *
      * @param id 法律目录主键
      * @return 结果
      */
     public int deleteLawById(Long id);
+
+    /**
+     * 查询法律条款列表
+     *
+     * @param legalTerm 法律条款
+     * @return 法律条款集合
+     */
+    public List<LegalTerm> selectLegalTermList(LegalTerm legalTerm);
+
+    /**
+     * 查询法律条款详情
+     *
+     * @param id 法律条款主键
+     * @return 法律条款
+     */
+    public LegalTerm selectLegalTermById(Long id);
 }

@@ -4,7 +4,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.LawMapper;
+import com.ruoyi.system.mapper.LegalTermMapper;
 import com.ruoyi.system.domain.Law;
+import com.ruoyi.system.domain.LegalTerm;
 import com.ruoyi.system.service.ILawService;
 
 /**
@@ -14,10 +16,13 @@ import com.ruoyi.system.service.ILawService;
  * @date 2026-04-29
  */
 @Service
-public class LawServiceImpl implements ILawService 
+public class LawServiceImpl implements ILawService
 {
     @Autowired
     private LawMapper lawMapper;
+
+    @Autowired
+    private LegalTermMapper legalTermMapper;
 
     /**
      * 查询法律条款
@@ -81,7 +86,7 @@ public class LawServiceImpl implements ILawService
 
     /**
      * 删除法律条款信息
-     * 
+     *
      * @param id 法律条款主键
      * @return 结果
      */
@@ -89,5 +94,29 @@ public class LawServiceImpl implements ILawService
     public int deleteLawById(Long id)
     {
         return lawMapper.deleteLawById(id);
+    }
+
+    /**
+     * 查询法律条款列表
+     *
+     * @param legalTerm 法律条款
+     * @return 法律条款集合
+     */
+    @Override
+    public List<LegalTerm> selectLegalTermList(LegalTerm legalTerm)
+    {
+        return legalTermMapper.selectLegalTermList(legalTerm);
+    }
+
+    /**
+     * 查询法律条款详情
+     *
+     * @param id 法律条款主键
+     * @return 法律条款
+     */
+    @Override
+    public LegalTerm selectLegalTermById(Long id)
+    {
+        return legalTermMapper.selectLegalTermById(id);
     }
 }
