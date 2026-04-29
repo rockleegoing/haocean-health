@@ -10,11 +10,10 @@ import androidx.room.PrimaryKey
  */
 @Entity(
     tableName = "law",
-    indices = [Index(value = ["name"]), Index(value = ["typeId"])]
+    indices = [Index(value = ["name"])]
 )
 data class LawEntity(
     @PrimaryKey val id: Long,           // 法律ID
     val name: String,                    // 法律名称
-    val releaseTime: Long?,              // 发布日期
-    val typeId: Long?                    // 法律法规类型ID
+    val releaseTime: Long?              // 发布日期
 )
