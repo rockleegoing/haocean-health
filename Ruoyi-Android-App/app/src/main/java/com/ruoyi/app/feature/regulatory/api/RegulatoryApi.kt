@@ -2,6 +2,7 @@ package com.ruoyi.app.feature.regulatory.api
 
 import com.drake.net.Get
 import com.ruoyi.app.api.ConfigApi
+import kotlinx.serialization.Serializable
 
 object RegulatoryApi {
 
@@ -22,35 +23,35 @@ object RegulatoryApi {
     }
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class MatterListResponse(
     val code: Int,
     val msg: String,
     val rows: List<MatterDto> = emptyList()
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class MatterResponse(
     val code: Int,
     val msg: String,
     val data: MatterDto? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class ItemListResponse(
     val code: Int,
     val msg: String,
     val rows: List<ItemDto> = emptyList()
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CategoryBindListResponse(
     val code: Int,
     val msg: String,
     val rows: List<CategoryBindDto> = emptyList()
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class MatterDto(
     val matterId: Long,
     val matterName: String,
@@ -59,7 +60,7 @@ data class MatterDto(
     val status: String?
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class ItemDto(
     val itemId: Long,
     val matterId: Long,
@@ -69,7 +70,7 @@ data class ItemDto(
     val legalBasis: String?
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CategoryBindDto(
     val id: Long,
     val industryCategoryId: Long,
