@@ -80,13 +80,6 @@
           <el-button
             size="mini"
             type="text"
-            icon="el-icon-view"
-            @click="handleViewData(scope.row)"
-            v-hasPermi="['system:category:query']"
-          >详情</el-button>
-          <el-button
-            size="mini"
-            type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:category:edit']"
@@ -110,8 +103,6 @@
       @pagination="getList"
     />
 
-    <!-- 用语分类详情抽屉 -->
-    <category-view-drawer ref="categoryViewRef" />
     <!-- 添加或修改用语分类对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="100px">
@@ -138,11 +129,9 @@
 
 <script>
 import { listCategory, getCategory, delCategory, addCategory, updateCategory } from "@/api/system/category"
-import CategoryViewDrawer from "./view"
 
 export default {
   name: "Category",
-  components: { CategoryViewDrawer },
   data() {
     return {
       // 遮罩层
@@ -284,10 +273,6 @@ export default {
         this.getList()
         this.$modal.msgSuccess("删除成功")
       }).catch(() => {})
-    },
-    /** 详情按钮操作 */
-    handleViewData(row) {
-      this.$refs["categoryViewRef"].open(row.categoryId)
     },
     /** 导出按钮操作 */
     handleExport() {
