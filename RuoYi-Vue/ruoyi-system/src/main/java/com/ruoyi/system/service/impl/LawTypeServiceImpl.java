@@ -135,4 +135,16 @@ public class LawTypeServiceImpl implements ILawTypeService
     {
         return lawTypeMapper.deleteLawTypeById(id);
     }
+
+    /**
+     * 查询指定 ancestors 前缀的所有子节点
+     *
+     * @param ancestorsPrefix 祖先路径前缀
+     * @return 子节点列表
+     */
+    @Override
+    public List<LawType> selectChildrenByAncestorsLike(String ancestorsPrefix)
+    {
+        return lawTypeMapper.selectChildrenByAncestorsLike(ancestorsPrefix);
+    }
 }
