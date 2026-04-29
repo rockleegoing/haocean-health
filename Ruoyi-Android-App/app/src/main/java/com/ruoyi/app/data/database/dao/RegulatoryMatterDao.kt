@@ -3,6 +3,9 @@ package com.ruoyi.app.data.database.dao
 import androidx.room.*
 import com.ruoyi.app.data.database.entity.RegulatoryMatterEntity
 
+/**
+ * 监管事项 DAO
+ */
 @Dao
 interface RegulatoryMatterDao {
     @Query("SELECT * FROM regulatory_matter ORDER BY matterName")

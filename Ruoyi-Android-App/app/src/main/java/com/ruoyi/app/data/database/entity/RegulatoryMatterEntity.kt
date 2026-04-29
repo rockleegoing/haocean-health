@@ -4,6 +4,9 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+/**
+ * 监管事项实体
+ */
 @Entity(
     tableName = "regulatory_matter",
     indices = [Index(value = ["categoryId"])]

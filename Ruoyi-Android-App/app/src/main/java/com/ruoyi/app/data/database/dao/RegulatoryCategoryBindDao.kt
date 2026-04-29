@@ -3,6 +3,9 @@ package com.ruoyi.app.data.database.dao
 import androidx.room.*
 import com.ruoyi.app.data.database.entity.RegulatoryCategoryBindEntity
 
+/**
+ * 监管事项分类绑定 DAO
+ */
 @Dao
 interface RegulatoryCategoryBindDao {
     @Query("SELECT * FROM regulatory_category_bind")
