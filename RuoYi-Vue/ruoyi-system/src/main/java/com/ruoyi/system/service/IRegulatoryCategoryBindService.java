@@ -53,9 +53,25 @@ public interface IRegulatoryCategoryBindService
 
     /**
      * 删除监管事项执法分类绑定关系信息
-     * 
+     *
      * @param matterId 监管事项执法分类绑定关系主键
      * @return 结果
      */
     public int deleteRegulatoryCategoryBindByMatterId(Long matterId);
+
+    /**
+     * 根据事项ID和分类ID删除绑定关系
+     *
+     * @param matterId 监管事项ID
+     * @param categoryId 分类ID
+     * @return 结果
+     */
+    public int deleteRegulatoryCategoryBindByMatterIdAndCategoryId(Long matterId, Long categoryId);
+
+    /**
+     * 查询所有已绑定的事项列表（去重）
+     *
+     * @return 已绑定事项集合
+     */
+    public List<RegulatoryCategoryBind> selectBoundMatterList();
 }

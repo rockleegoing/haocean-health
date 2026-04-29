@@ -38,7 +38,7 @@ export function updateNormativecategory(data) {
 // 删除规范用语类别
 export function delNormativecategory(code) {
   return request({
-    url: '/system/normativecategory/' + code,
+    url: '/system/normativecategory/single/' + code,
     method: 'delete'
   })
 }

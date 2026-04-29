@@ -99,4 +99,15 @@ public class NormativeCategoryController extends BaseController
     {
         return toAjax(normativeCategoryService.deleteNormativeCategoryByCodes(codes));
     }
+
+    /**
+     * 删除规范用语类别（单个）
+     */
+    @PreAuthorize("@ss.hasPermi('system:normativecategory:remove')")
+    @Log(title = "规范用语类别", businessType = BusinessType.DELETE)
+    @DeleteMapping("/single/{code}")
+    public AjaxResult removeSingle(@PathVariable Long code)
+    {
+        return toAjax(normativeCategoryService.deleteNormativeCategoryByCode(code));
+    }
 }

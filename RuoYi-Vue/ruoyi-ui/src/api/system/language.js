@@ -45,9 +45,9 @@ export function updateLanguage(data) {
 }
 
 // 删除规范用语
-export function delLanguage(id) {
+export function delLanguage(ids) {
   return request({
-    url: '/system/language/' + id,
+    url: '/system/language/' + ids,
     method: 'delete'
   })
 }

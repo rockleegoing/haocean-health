@@ -10,10 +10,11 @@ export function listRegulatorycategorybind(query) {
 }
 
 // 查询监管事项执法分类绑定关系详细
-export function getRegulatorycategorybind(matterId) {
+export function getRegulatorycategorybind(params) {
   return request({
-    url: '/system/regulatorycategorybind/' + matterId,
-    method: 'get'
+    url: '/system/regulatorycategorybind/',
+    method: 'get',
+    params: params
   })
 }
 
@@ -26,19 +27,28 @@ export function addRegulatorycategorybind(data) {
   })
 }
 
-// 修改监管事项执法分类绑定关系
-export function updateRegulatorycategorybind(data) {
+// 删除监管事项执法分类绑定关系
+export function delRegulatorycategorybind(params) {
   return request({
     url: '/system/regulatorycategorybind',
-    method: 'put',
-    data: data
+    method: 'delete',
+    params: params
   })
 }
 
-// 删除监管事项执法分类绑定关系
-export function delRegulatorycategorybind(matterId) {
+// 查询所有已绑定的事项列表（用于按事项视图，不受分页限制）
+export function listBoundMatter() {
   return request({
-    url: '/system/regulatorycategorybind/' + matterId,
-    method: 'delete'
+    url: '/system/regulatorycategorybind/boundMatterList',
+    method: 'get'
+  })
+}
+
+// 查询行业分类列表
+export function listCategory(query) {
+  return request({
+    url: '/system/category/list',
+    method: 'get',
+    params: query
   })
 }

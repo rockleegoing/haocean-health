@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.NormativeTermBindMapper">
+
+    <resultMap type="NormativeTermBind" id="NormativeTermBindResult">
+        <result property="legalTermId"    column="legal_term_id"    />
+        <result property="normativeLanguageId"    column="normative_language_id"    />
+        <result property="basisType"    column="basis_type"    />
+        <result property="legalTermZhCode"    column="legal_term_zh_code"    />
+        <result property="legalTermContent"    column="legal_term_content"    />
+        <result property="normativeName"    column="normative_name"    />
+        <result property="standardCode"    column="standard_code"    />
+        <result property="supervisoryOpinion"    column="supervisory_opinion"    />
+    </resultMap>
+
+    <sql id="selectNormativeTermBindVo">
+        select b.legal_term_id, b.normative_language_id, b.basis_type,
+               lt.zh_code as legal_term_zh_code, lt.content as legal_term_content,
+               nl.standard_phrase as normative_name, nl.standard_code, nl.supervisory_opinion
+        from normative_term_bind b
+        left join legal_term lt on b.legal_term_id = lt.id
+        left join normative_language nl on b.normative_language_id = nl.id
+    </sql>
+
+    <select id="selectNormativeTermBindList" parameterType="NormativeTermBind" resultMap="NormativeTermBindResult">
+        <include refid="selectNormativeTermBindVo"/>
+        <where>
+            <if test="legalTermId != null "> and b.legal_term_id = #{legalTermId}</if>
+            <if test="normativeLanguageId != null "> and b.normative_language_id = #{normativeLanguageId}</if>
+            <if test="basisType != null "> and b.basis_type = #{basisType}</if>
+        </where>
+    </select>
+
+    <select id="selectNormativeTermBindByLegalTermId" parameterType="Long" resultMap="NormativeTermBindResult">
+        <include refid="selectNormativeTermBindVo"/>
+        where b.legal_term_id = #{legalTermId}
+    </select>
+
+    <insert id="insertNormativeTermBind" parameterType="NormativeTermBind">
+        insert into normative_term_bind
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="legalTermId != null">legal_term_id,</if>
+            <if test="normativeLanguageId != null">normative_language_id,</if>
+            <if test="basisType != null">basis_type,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="legalTermId != null">#{legalTermId},</if>
+            <if test="normativeLanguageId != null">#{normativeLanguageId},</if>
+            <if test="basisType != null">#{basisType},</if>
+         </trim>
+    </insert>
+
+    <update id="updateNormativeTermBind" parameterType="NormativeTermBind">
+        update normative_term_bind
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="normativeLanguageId != null">normative_language_id = #{normativeLanguageId},</if>
+            <if test="basisType != null">basis_type = #{basisType},</if>
+        </trim>
+        where legal_term_id = #{legalTermId}
+    </update>
+
+    <delete id="deleteNormativeTermBindByLegalTermId" parameterType="Long">
+        delete from normative_term_bind where legal_term_id = #{legalTermId}
+    </delete>
+
+    <delete id="deleteNormativeTermBindByLegalTermIds" parameterType="String">
+        delete from normative_term_bind where legal_term_id in
+        <foreach item="legalTermId" collection="array" open="(" separator="," close=")">
+            #{legalTermId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteNormativeTermBindByBothIds">
+        delete from normative_term_bind where legal_term_id = #{legalTermId} and normative_language_id = #{normativeLanguageId}
+    </delete>
+</mapper>

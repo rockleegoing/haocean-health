@@ -63,10 +63,24 @@ public class RegulatoryCategoryBindController extends BaseController
      * 获取监管事项执法分类绑定关系详细信息
      */
     @PreAuthorize("@ss.hasPermi('system:regulatorycategorybind:query')")
-    @GetMapping(value = "/{matterId}")
-    public AjaxResult getInfo(@PathVariable("matterId") Long matterId)
+    @GetMapping(value = "/{matterId}/{categoryId}")
+    public AjaxResult getInfo(@PathVariable("matterId") Long matterId, @PathVariable("categoryId") Long categoryId)
     {
-        return success(regulatoryCategoryBindService.selectRegulatoryCategoryBindByMatterId(matterId));
+        RegulatoryCategoryBind bind = new RegulatoryCategoryBind();
+        bind.setMatterId(matterId);
+        bind.setCategoryId(categoryId);
+        return success(regulatoryCategoryBindService.selectRegulatoryCategoryBindList(bind));
+    }
+
+    /**
+     * 获取所有已绑定的事项列表（用于按事项视图，不受分页限制）
+     */
+    @PreAuthorize("@ss.hasPermi('system:regulatorycategorybind:list')")
+    @GetMapping("/boundMatterList")
+    public AjaxResult listBoundMatter()
+    {
+        List<RegulatoryCategoryBind> list = regulatoryCategoryBindService.selectBoundMatterList();
+        return success(list);
     }
 
     /**
@@ -81,24 +95,13 @@ public class RegulatoryCategoryBindController extends BaseController
     }
 
     /**
-     * 修改监管事项执法分类绑定关系
-     */
-    @PreAuthorize("@ss.hasPermi('system:regulatorycategorybind:edit')")
-    @Log(title = "监管事项执法分类绑定关系", businessType = BusinessType.UPDATE)
-    @PutMapping
-    public AjaxResult edit(@RequestBody RegulatoryCategoryBind regulatoryCategoryBind)
-    {
-        return toAjax(regulatoryCategoryBindService.updateRegulatoryCategoryBind(regulatoryCategoryBind));
-    }
-
-    /**
      * 删除监管事项执法分类绑定关系
      */
     @PreAuthorize("@ss.hasPermi('system:regulatorycategorybind:remove')")
     @Log(title = "监管事项执法分类绑定关系", businessType = BusinessType.DELETE)
-	@DeleteMapping("/{matterIds}")
-    public AjaxResult remove(@PathVariable Long[] matterIds)
+    @DeleteMapping
+    public AjaxResult remove(RegulatoryCategoryBind bind)
     {
-        return toAjax(regulatoryCategoryBindService.deleteRegulatoryCategoryBindByMatterIds(matterIds));
+        return toAjax(regulatoryCategoryBindService.deleteRegulatoryCategoryBindByMatterIdAndCategoryId(bind.getMatterId(), bind.getCategoryId()));
     }
 }

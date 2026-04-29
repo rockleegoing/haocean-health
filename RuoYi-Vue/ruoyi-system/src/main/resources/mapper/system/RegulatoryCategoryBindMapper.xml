@@ -56,9 +56,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteRegulatoryCategoryBindByMatterIds" parameterType="String">
-        delete from regulatory_category_bind where matter_id in 
+        delete from regulatory_category_bind where matter_id in
         <foreach item="matterId" collection="array" open="(" separator="," close=")">
             #{matterId}
         </foreach>
     </delete>
+
+    <delete id="deleteRegulatoryCategoryBindByMatterIdAndCategoryId">
+        delete from regulatory_category_bind where matter_id = #{matterId} and category_id = #{categoryId}
+    </delete>
+
+    <select id="selectBoundMatterList" resultMap="RegulatoryCategoryBindResult">
+        select distinct b.matter_id, m.main_name as matter_name
+        from regulatory_category_bind b
+        left join regulatory_matter m on b.matter_id = m.id
+    </select>
 </mapper>

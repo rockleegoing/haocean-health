@@ -1,289 +1,482 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="法律名称" prop="name">
-        <el-input
-          v-model="queryParams.name"
-          placeholder="请输入法律名称"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="发布日期" prop="releaseTime">
-        <el-date-picker clearable
-          v-model="queryParams.releaseTime"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择发布日期">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <el-row :gutter="20">
+      <!-- 左侧：法律法规列表 -->
+      <el-col :span="6" :xs="24">
+        <div class="left-panel">
+          <div class="panel-header">
+            <span>法律法规</span>
+            <el-button type="primary" plain size="mini" icon="el-icon-plus" @click="handleAddLaw" style="margin-left: auto;">
+              新增法律
+            </el-button>
+          </div>
+          <!-- 法律搜索框 -->
+          <el-input
+            v-model="lawSearchKeyword"
+            placeholder="搜索法律名称"
+            size="mini"
+            clearable
+            prefix-icon="el-icon-search"
+            style="margin-bottom: 10px;"
+            @input="handleLawSearch"
+          />
+          <el-table
+            v-loading="lawLoading"
+            :data="lawSearchKeyword ? lawSearchResult : lawList"
+            :show-header="false"
+            border
+            stripe
+            highlight-current-row
+            @row-click="handleLawRowClick"
+            :row-class-name="lawRowClassName"
+            style="width: 100%; cursor: pointer;"
+          >
+            <el-table-column label="法律名称" align="left" prop="name">
+              <template slot-scope="scope">
+                <span>{{ scope.row.name }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="发布日期" align="center" prop="releaseTime" width="100">
+              <template slot-scope="scope">
+                <span>{{ parseTime(scope.row.releaseTime, '{y}-{m}') }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </el-col>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['system:law:add']"
-        >新增</el-button>
+      <!-- 右侧：法律条款列表 -->
+      <el-col :span="18" :xs="24">
+        <div class="right-panel">
+          <div class="panel-header">
+            <span v-if="currentLawId">法律条款: {{ currentLawName }}</span>
+            <span v-else>请选择左侧法律</span>
+            <div style="margin-left: auto; display: flex;">
+              <el-button type="primary" plain size="mini" icon="el-icon-plus" @click="handleAddTerm" :disabled="!currentLawId">
+                新增条款
+              </el-button>
+              <el-button type="warning" plain size="mini" icon="el-icon-download" @click="handleExport" :disabled="!currentLawId">
+                导出
+              </el-button>
+            </div>
+          </div>
+
+          <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="80px">
+            <el-form-item label="条款编码" prop="zhCode">
+              <el-input
+                v-model="queryParams.zhCode"
+                placeholder="请输入条款编码"
+                clearable
+                @keyup.enter.native="handleQuery"
+              />
+            </el-form-item>
+            <el-form-item label="条款内容" prop="content">
+              <el-input
+                v-model="queryParams.content"
+                placeholder="请输入条款内容"
+                clearable
+                @keyup.enter.native="handleQuery"
+              />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+              <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+            </el-form-item>
+          </el-form>
+
+          <el-table v-loading="termLoading" :data="termList" @selection-change="handleSelectionChange">
+            <el-table-column type="selection" width="55" align="center" />
+            <el-table-column label="条款编码" align="center" prop="zhCode" width="150" show-overflow-tooltip />
+            <el-table-column label="条款内容" align="left" prop="content" show-overflow-tooltip />
+            <el-table-column label="更新时间" align="center" prop="updateTime" width="180" />
+            <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180">
+              <template slot-scope="scope">
+                <el-button
+                  size="mini"
+                  type="text"
+                  icon="el-icon-view"
+                  @click="handleView(scope.row)"
+                >查看</el-button>
+                <el-button
+                  size="mini"
+                  type="text"
+                  icon="el-icon-edit"
+                  @click="handleUpdate(scope.row)"
+                >修改</el-button>
+                <el-button
+                  size="mini"
+                  type="text"
+                  icon="el-icon-delete"
+                  @click="handleDelete(scope.row)"
+                >删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+
+          <pagination
+            v-show="total>0"
+            :total="total"
+            :page.sync="queryParams.pageNum"
+            :limit.sync="queryParams.pageSize"
+            @pagination="getTermList"
+          />
+        </div>
       </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['system:law:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['system:law:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['system:law:export']"
-        >导出</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="lawList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="${comment}" align="center" prop="id" />
-      <el-table-column label="法律名称" align="center" prop="name" />
-      <el-table-column label="发布日期" align="center" prop="releaseTime" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.releaseTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-view"
-            @click="handleViewData(scope.row)"
-            v-hasPermi="['system:law:query']"
-          >详情</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:law:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['system:law:remove']"
-          >删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <!-- 新增/修改法律对话框 -->
+    <el-dialog :title="lawTitle" :visible.sync="lawOpen" width="500px" append-to-body>
+      <el-form ref="lawForm" :model="lawForm" :rules="lawRules" label-width="100px">
+        <el-form-item label="法律名称" prop="name">
+          <el-input v-model="lawForm.name" placeholder="请输入法律名称" />
+        </el-form-item>
+        <el-form-item label="发布日期" prop="releaseTime">
+          <el-date-picker
+            v-model="lawForm.releaseTime"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="请选择发布日期"
+            style="width: 100%;"
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitLawForm">确 定</el-button>
+        <el-button @click="cancelLaw">取 消</el-button>
+      </div>
+    </el-dialog>
 
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
-
-    <!-- 法律目录详情抽屉 -->
-    <law-view-drawer ref="lawViewRef" />
-    <!-- 添加或修改法律目录对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+    <!-- 新增/修改条款对话框 -->
+    <el-dialog :title="termTitle" :visible.sync="termOpen" width="700px" append-to-body>
+      <el-form ref="termForm" :model="termForm" :rules="termRules" label-width="100px">
+        <el-form-item label="所属法律" prop="lawId">
+          <el-select v-model="termForm.lawId" placeholder="请选择所属法律" filterable style="width: 100%">
+            <el-option
+              v-for="item in lawOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
         <el-row>
-          <el-col :span="24">
-            <el-form-item label="法律名称" prop="name">
-              <el-input v-model="form.name" placeholder="请输入法律名称" />
+          <el-col :span="8">
+            <el-form-item label="编" prop="part">
+              <el-input v-model="termForm.part" placeholder="请输入编" />
             </el-form-item>
           </el-col>
-          <el-col :span="24">
-            <el-form-item label="发布日期" prop="releaseTime">
-              <el-date-picker clearable
-                v-model="form.releaseTime"
-                type="date"
-                value-format="yyyy-MM-dd"
-                placeholder="请选择发布日期">
-              </el-date-picker>
+          <el-col :span="8">
+            <el-form-item label="分编" prop="partBranch">
+              <el-input v-model="termForm.partBranch" placeholder="请输入分编" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="章" prop="chapter">
+              <el-input v-model="termForm.chapter" placeholder="请输入章" />
             </el-form-item>
           </el-col>
         </el-row>
+        <el-row>
+          <el-col :span="8">
+            <el-form-item label="节" prop="quarter">
+              <el-input v-model="termForm.quarter" placeholder="请输入节" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="条" prop="article">
+              <el-input v-model="termForm.article" placeholder="请输入条" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="款" prop="section">
+              <el-input v-model="termForm.section" placeholder="请输入款" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="8">
+            <el-form-item label="项" prop="subparagraph">
+              <el-input v-model="termForm.subparagraph" placeholder="请输入项" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="目" prop="item">
+              <el-input v-model="termForm.item" placeholder="请输入目" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="中文编码" prop="zhCode">
+              <el-input v-model="termForm.zhCode" placeholder="请输入中文编码" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="条款内容" prop="content">
+          <el-input v-model="termForm.content" type="textarea" placeholder="请输入条款内容" />
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
+        <el-button type="primary" @click="submitTermForm">确 定</el-button>
+        <el-button @click="cancelTerm">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 查看详情对话框 -->
+    <el-dialog title="条款详情" :visible.sync="viewOpen" width="600px" append-to-body>
+      <el-descriptions :column="2" border>
+        <el-descriptions-item label="条款编码">{{ viewData.zhCode }}</el-descriptions-item>
+        <el-descriptions-item label="所属法律">{{ viewData.lawName }}</el-descriptions-item>
+        <el-descriptions-item label="编">{{ viewData.part }}</el-descriptions-item>
+        <el-descriptions-item label="分编">{{ viewData.partBranch }}</el-descriptions-item>
+        <el-descriptions-item label="章">{{ viewData.chapter }}</el-descriptions-item>
+        <el-descriptions-item label="节">{{ viewData.quarter }}</el-descriptions-item>
+        <el-descriptions-item label="条">{{ viewData.article }}</el-descriptions-item>
+        <el-descriptions-item label="款">{{ viewData.section }}</el-descriptions-item>
+        <el-descriptions-item label="项">{{ viewData.subparagraph }}</el-descriptions-item>
+        <el-descriptions-item label="目">{{ viewData.item }}</el-descriptions-item>
+        <el-descriptions-item label="条款内容" :span="2">{{ viewData.content }}</el-descriptions-item>
+      </el-descriptions>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="viewOpen = false">关 闭</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { listLaw, getLaw, delLaw, addLaw, updateLaw } from "@/api/system/law"
-import LawViewDrawer from "./view"
+import { listLaw, getLaw, addLaw, updateLaw, delLaw } from "@/api/system/law"
+import { listLegalterm, getLegalterm, addLegalterm, updateLegalterm, delLegalterm } from "@/api/system/legalterm"
 
 export default {
-  name: "Law",
-  components: { LawViewDrawer },
+  name: "LawWithTerm",
   data() {
     return {
-      // 遮罩层
-      loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
-      // 显示搜索条件
-      showSearch: true,
-      // 总条数
-      total: 0,
-      // 法律目录表格数据
+      // 左侧法律相关
+      lawLoading: false,
       lawList: [],
-      // 弹出层标题
-      title: "",
-      // 是否显示弹出层
-      open: false,
-      // 查询参数
+      lawSearchKeyword: '',
+      lawSearchResult: [],
+      currentLawId: null,
+      currentLawName: '',
+      lawTitle: "",
+      lawOpen: false,
+      lawForm: {},
+      lawRules: {
+        name: [{ required: true, message: "法律名称不能为空", trigger: "blur" }]
+      },
+
+      // 右侧条款相关
+      termLoading: false,
+      termList: [],
+      total: 0,
+      showSearch: true,
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        name: null,
-        releaseTime: null
+        lawId: null,
+        zhCode: null,
+        content: null
       },
-      // 表单参数
-      form: {},
-      // 表单校验
-      rules: {
-      }
+      termTitle: "",
+      termOpen: false,
+      termForm: {},
+      termRules: {
+        lawId: [{ required: true, message: "所属法律不能为空", trigger: "change" }],
+        zhCode: [{ required: true, message: "条款编码不能为空", trigger: "blur" }]
+      },
+
+      // 查看详情
+      viewOpen: false,
+      viewData: {},
+
+      // 法律下拉选项
+      lawOptions: []
     }
   },
   created() {
-    this.getList()
+    this.getLawList()
+    this.getLawOptions()
   },
   methods: {
-    /** 查询法律目录列表 */
-    getList() {
-      this.loading = true
-      listLaw(this.queryParams).then(response => {
-        this.lawList = response.rows
-        this.total = response.total
-        this.loading = false
+    // ========== 左侧法律相关 ==========
+    /** 获取法律列表 */
+    getLawList() {
+      this.lawLoading = true
+      listLaw({ pageNum: 1, pageSize: 9999 }).then(response => {
+        this.lawList = response.rows || []
+        this.lawLoading = false
       })
     },
-    // 取消按钮
-    cancel() {
-      this.open = false
-      this.reset()
-    },
-    // 表单重置
-    reset() {
-      this.form = {
-        id: null,
-        name: null,
-        releaseTime: null
+    /** 法律搜索 */
+    handleLawSearch() {
+      if (!this.lawSearchKeyword) {
+        this.lawSearchResult = []
+        return
       }
-      this.resetForm("form")
+      const keyword = this.lawSearchKeyword.toLowerCase()
+      this.lawSearchResult = this.lawList.filter(item =>
+        (item.name || '').toLowerCase().includes(keyword)
+      )
     },
-    /** 搜索按钮操作 */
-    handleQuery() {
+    /** 点击法律行 */
+    handleLawRowClick(row) {
+      this.currentLawId = row.id
+      this.currentLawName = row.name
+      this.queryParams.lawId = row.id
       this.queryParams.pageNum = 1
-      this.getList()
+      this.getTermList()
     },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.resetForm("queryForm")
-      this.handleQuery()
+    /** 设置法律行样式 */
+    lawRowClassName({ row, rowIndex }) {
+      if (row.id === this.currentLawId) {
+        return 'current-row'
+      }
+      return ''
     },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
-      this.single = selection.length !== 1
-      this.multiple = !selection.length
+    /** 新增法律按钮 */
+    handleAddLaw() {
+      this.lawForm = {}
+      this.lawTitle = "新增法律"
+      this.lawOpen = true
     },
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.reset()
-      this.open = true
-      this.title = "添加法律目录"
-    },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset()
-      const id = row.id || this.ids
-      getLaw(id).then(response => {
-        this.form = response.data
-        this.open = true
-        this.title = "修改法律目录"
-      })
-    },
-    /** 提交按钮 */
-    submitForm() {
-      this.$refs["form"].validate(valid => {
+    /** 提交法律表单 */
+    submitLawForm() {
+      this.$refs["lawForm"].validate(valid => {
         if (valid) {
-          if (this.form.id != null) {
-            updateLaw(this.form).then(response => {
+          if (this.lawForm.id) {
+            updateLaw(this.lawForm).then(response => {
               this.$modal.msgSuccess("修改成功")
-              this.open = false
-              this.getList()
+              this.lawOpen = false
+              this.getLawList()
             })
           } else {
-            addLaw(this.form).then(response => {
+            addLaw(this.lawForm).then(response => {
               this.$modal.msgSuccess("新增成功")
-              this.open = false
-              this.getList()
+              this.lawOpen = false
+              this.getLawList()
             })
           }
         }
       })
     },
-    /** 删除按钮操作 */
+    /** 取消法律弹窗 */
+    cancelLaw() {
+      this.lawOpen = false
+      this.lawForm = {}
+    },
+
+    // ========== 右侧条款相关 ==========
+    /** 获取条款列表 */
+    getTermList() {
+      if (!this.currentLawId) {
+        this.termList = []
+        this.total = 0
+        return
+      }
+      this.termLoading = true
+      listLegalterm(this.queryParams).then(response => {
+        this.termList = response.rows || []
+        this.total = response.total
+        this.termLoading = false
+      })
+    },
+    /** 搜索按钮操作 */
+    handleQuery() {
+      this.queryParams.pageNum = 1
+      this.getTermList()
+    },
+    /** 重置按钮操作 */
+    resetQuery() {
+      this.queryParams.zhCode = null
+      this.queryParams.content = null
+      this.queryParams.pageNum = 1
+      this.getTermList()
+    },
+    // 多选框选中数据
+    handleSelectionChange(selection) {
+      this.ids = selection.map(item => item.id)
+    },
+    /** 新增条款按钮 */
+    handleAddTerm() {
+      this.termForm = { lawId: this.currentLawId }
+      this.termTitle = "新增条款"
+      this.termOpen = true
+    },
+    /** 查看详情 */
+    handleView(row) {
+      this.viewData = row
+      this.viewOpen = true
+    },
+    /** 修改条款 */
+    handleUpdate(row) {
+      this.termForm = Object.assign({}, row)
+      this.termTitle = "修改条款"
+      this.termOpen = true
+    },
+    /** 删除条款 */
     handleDelete(row) {
       const ids = row.id || this.ids
-      this.$modal.confirm('是否确认删除法律目录编号为"' + ids + '"的数据项？').then(function() {
-        return delLaw(ids)
+      this.$modal.confirm('是否确认删除条款编号为"' + ids + '"的数据项？').then(() => {
+        return delLegalterm(ids)
       }).then(() => {
-        this.getList()
+        this.getTermList()
         this.$modal.msgSuccess("删除成功")
       }).catch(() => {})
     },
-    /** 详情按钮操作 */
-    handleViewData(row) {
-      this.$refs["lawViewRef"].open(row.id)
+    /** 提交条款表单 */
+    submitTermForm() {
+      this.$refs["termForm"].validate(valid => {
+        if (valid) {
+          if (this.termForm.id) {
+            updateLegalterm(this.termForm).then(response => {
+              this.$modal.msgSuccess("修改成功")
+              this.termOpen = false
+              this.getTermList()
+            })
+          } else {
+            addLegalterm(this.termForm).then(response => {
+              this.$modal.msgSuccess("新增成功")
+              this.termOpen = false
+              this.getTermList()
+            })
+          }
+        }
+      })
+    },
+    /** 取消条款弹窗 */
+    cancelTerm() {
+      this.termOpen = false
+      this.termForm = {}
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('system/law/export', {
+      this.download('system/legalterm/export', {
         ...this.queryParams
-      }, `law_${new Date().getTime()}.xlsx`)
+      }, `legalterm_${new Date().getTime()}.xlsx`)
+    },
+
+    // ========== 下拉选项 ==========
+    /** 获取法律下拉选项 */
+    getLawOptions() {
+      listLaw({ pageNum: 1, pageSize: 1000 }).then(response => {
+        this.lawOptions = response.rows || []
+      })
     }
   }
 }
 </script>
+
+<style scoped>
+.left-panel, .right-panel {
+  background: #fff;
+  border-radius: 4px;
+  padding: 10px;
+}
+.panel-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  font-weight: bold;
+  border-bottom: 1px solid #ebeef5;
+  margin-bottom: 10px;
+}
+</style>
