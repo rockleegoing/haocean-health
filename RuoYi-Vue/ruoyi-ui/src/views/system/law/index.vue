@@ -275,6 +275,7 @@
 import { listLaw, getLaw, addLaw, updateLaw, delLaw } from "@/api/system/law"
 import { listLegalterm, getLegalterm, addLegalterm, updateLegalterm, delLegalterm } from "@/api/system/legalterm"
 import { treeList } from "@/api/system/lawtype"
+import { bindLawType } from "@/api/system/lawbind"
 
 export default {
   name: "LawWithTerm",
@@ -425,17 +426,25 @@ export default {
     submitLawForm() {
       this.$refs["lawForm"].validate(valid => {
         if (valid) {
+          const lawData = { ...this.lawForm }
+          const typeIds = lawData.typeIds || []
+          delete lawData.typeIds
           if (this.lawForm.id) {
-            updateLaw(this.lawForm).then(response => {
-              this.$modal.msgSuccess("修改成功")
-              this.lawOpen = false
-              this.getLawList()
+            updateLaw(lawData).then(response => {
+              bindLawType(this.lawForm.id, typeIds).then(() => {
+                this.$modal.msgSuccess("修改成功")
+                this.lawOpen = false
+                this.getLawList()
+              })
             })
           } else {
-            addLaw(this.lawForm).then(response => {
-              this.$modal.msgSuccess("新增成功")
-              this.lawOpen = false
-              this.getLawList()
+            addLaw(lawData).then(response => {
+              const newId = response.data.id
+              bindLawType(newId, typeIds).then(() => {
+                this.$modal.msgSuccess("新增成功")
+                this.lawOpen = false
+                this.getLawList()
+              })
             })
           }
         }
