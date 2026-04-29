@@ -46,8 +46,7 @@ data class TermListResponse(
 @Serializable
 data class LawDto(
     val id: Long,                    // 法律ID
-    val name: String,                 // 法律名称
-    val typeId: Long? = null          // 法律法规类型ID
+    val name: String                 // 法律名称
 )
 
 /** 法律条款DTO */
