@@ -23,8 +23,6 @@ import com.ruoyi.app.data.database.dao.RoleDao
 import com.ruoyi.app.data.database.dao.SyncQueueDao
 import com.ruoyi.app.data.database.dao.UnitDao
 import com.ruoyi.app.data.database.dao.UserDao
-import com.ruoyi.app.data.database.dao.SupervisionCategoryDao
-import com.ruoyi.app.data.database.dao.SupervisionItemDao
 import com.ruoyi.app.data.database.dao.DocumentTemplateDao
 import com.ruoyi.app.data.database.dao.DocumentVariableDao
 import com.ruoyi.app.data.database.dao.DocumentCategoryDao
@@ -50,8 +48,6 @@ import com.ruoyi.app.data.database.entity.RoleEntity
 import com.ruoyi.app.data.database.entity.SyncQueueEntity
 import com.ruoyi.app.data.database.entity.UnitEntity
 import com.ruoyi.app.data.database.entity.UserEntity
-import com.ruoyi.app.data.database.entity.SupervisionCategoryEntity
-import com.ruoyi.app.data.database.entity.SupervisionItemEntity
 import com.ruoyi.app.data.database.entity.DocumentTemplateEntity
 import com.ruoyi.app.data.database.entity.DocumentVariableEntity
 import com.ruoyi.app.data.database.entity.DocumentCategoryEntity
@@ -85,8 +81,6 @@ import com.ruoyi.app.data.database.entity.LawEntity
         RegulatoryMatterEntity::class,
         RegulatoryMatterItemEntity::class,
         RegulatoryCategoryBindEntity::class,
-        SupervisionCategoryEntity::class,
-        SupervisionItemEntity::class,
         DocumentTemplateEntity::class,
         DocumentVariableEntity::class,
         DocumentCategoryEntity::class,
@@ -118,8 +112,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun regulatoryMatterDao(): RegulatoryMatterDao
     abstract fun regulatoryMatterItemDao(): RegulatoryMatterItemDao
     abstract fun regulatoryCategoryBindDao(): RegulatoryCategoryBindDao
-    abstract fun supervisionCategoryDao(): SupervisionCategoryDao
-    abstract fun supervisionItemDao(): SupervisionItemDao
     abstract fun documentTemplateDao(): DocumentTemplateDao
     abstract fun documentVariableDao(): DocumentVariableDao
     abstract fun documentCategoryDao(): DocumentCategoryDao
