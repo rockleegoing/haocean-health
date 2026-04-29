@@ -3,16 +3,13 @@ package com.ruoyi.app.sync
 import android.content.Context
 import android.util.Log
 import com.ruoyi.app.api.repository.CategoryRepository
-import com.ruoyi.app.api.repository.PhraseRepository
 import com.ruoyi.app.api.repository.UnitRepository
-import com.ruoyi.app.feature.law.api.LawApi
 import com.ruoyi.app.data.database.entity.UnitEntity
-import com.ruoyi.app.feature.law.repository.LawRepository
-import com.ruoyi.app.feature.law.repository.toEntity
 import com.ruoyi.app.feature.document.repository.DocumentRepository
+import com.ruoyi.app.feature.normative.repository.NormativeRepository
+import com.ruoyi.app.feature.regulatory.repository.RegulatoryRepository
 import com.ruoyi.app.sync.model.SyncProgress
 import com.ruoyi.app.sync.model.SyncResult
-import com.ruoyi.app.sync.model.SyncStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,9 +41,8 @@ class SyncManager private constructor() {
         const val MODULE_USER_PERMISSION = "用户权限"
         const val MODULE_INDUSTRY_CATEGORY = "行业分类"
         const val MODULE_UNIT = "执法单位"
-        const val MODULE_LAW = "法律法规"
-        const val MODULE_PHRASE = "规范用语"
-        const val MODULE_SUPERVISION = "监管事项"
+        const val MODULE_NORMATIVE = "规范用语"
+        const val MODULE_REGULATORY = "监管事项"
         const val MODULE_DOCUMENT_CATEGORY = "文书分类"
         const val MODULE_DOCUMENT_TEMPLATE = "文书模板"
         const val MODULE_MEDIA_FILE = "媒体文件"
@@ -58,9 +54,8 @@ class SyncManager private constructor() {
             MODULE_USER_PERMISSION,
             MODULE_INDUSTRY_CATEGORY,
             MODULE_UNIT,
-            MODULE_LAW,
-            MODULE_PHRASE,
-            MODULE_SUPERVISION,
+            MODULE_NORMATIVE,
+            MODULE_REGULATORY,
             MODULE_DOCUMENT_CATEGORY,
             MODULE_DOCUMENT_TEMPLATE,
             MODULE_MEDIA_FILE,
@@ -147,9 +142,8 @@ class SyncManager private constructor() {
                 MODULE_USER_PERMISSION -> syncUserPermissions()
                 MODULE_INDUSTRY_CATEGORY -> syncIndustryCategory(context)
                 MODULE_UNIT -> syncUnit(context)
-                MODULE_LAW -> syncLaw(context)
-                MODULE_PHRASE -> syncPhrase(context)
-                MODULE_SUPERVISION -> syncSupervision(context)
+                MODULE_NORMATIVE -> syncNormative(context)
+                MODULE_REGULATORY -> syncRegulatory(context)
                 MODULE_DOCUMENT_CATEGORY -> syncDocumentCategory(context)
                 MODULE_DOCUMENT_TEMPLATE -> syncDocumentTemplate(context)
                 MODULE_MEDIA_FILE -> syncMediaFile(context)
@@ -224,111 +218,92 @@ class SyncManager private constructor() {
         return repository.uploadUnitToServer(unit).isSuccess
     }
 
-    private suspend fun syncLaw(context: Context?): Boolean {
-        // 法律法规同步
+    private suspend fun syncNormative(context: Context?): Boolean {
+        // 规范用语同步（分类 + 用语 + 关联）
         if (context == null) return false
         return try {
-            val repository = LawRepository(context)
-            // 同步法律法规主表
-            val regulationResult = repository.syncRegulationsFromServer()
-            if (regulationResult.isFailure) {
-                Log.e("SyncManager", "法律法规同步失败: ${regulationResult.exceptionOrNull()?.message}", regulationResult.exceptionOrNull())
+            val repository = NormativeRepository(context)
+
+            // 1. 同步分类
+            val categoryResult = repository.syncCategories()
+            if (categoryResult.isFailure) {
+                Log.e("SyncManager", "规范用语分类同步失败: ${categoryResult.exceptionOrNull()?.message}", categoryResult.exceptionOrNull())
                 return false
             }
-            Log.d("SyncManager", "syncLaw: 法规主表同步成功")
+            Log.d("SyncManager", "syncNormative: 分类同步成功")
 
-            // 同步章节和条款
-            try {
-                val db = com.ruoyi.app.data.database.AppDatabase.getInstance(context)
-                val regulations = db.regulationDao().getAllRegulationIds()
-                Log.d("SyncManager", "需要同步章节条款的法规数量: ${regulations.size}")
-                for (regulationId in regulations) {
-                    repository.syncChaptersAndArticles(regulationId)
-                    Log.d("SyncManager", "已同步法规[$regulationId]的章节和条款")
-                }
-            } catch (e: Exception) {
-                Log.e("SyncManager", "章节条款同步异常: ${e.message}", e)
-            }
-
-            // 同步定性依据
-            val basisResult = repository.syncLegalBasisesFromServer()
-            if (basisResult.isFailure) {
-                Log.e("SyncManager", "定性依据同步失败: ${basisResult.exceptionOrNull()?.message}", basisResult.exceptionOrNull())
+            // 2. 同步规范用语
+            val languageResult = repository.syncLanguages()
+            if (languageResult.isFailure) {
+                Log.e("SyncManager", "规范用语同步失败: ${languageResult.exceptionOrNull()?.message}", languageResult.exceptionOrNull())
                 return false
             }
-            Log.d("SyncManager", "syncLaw: 定性依据同步成功")
+            Log.d("SyncManager", "syncNormative: 用语同步成功")
 
-            // 同步处理依据
-            val processingBasisResult = repository.syncProcessingBasisesFromServer()
-            if (processingBasisResult.isFailure) {
-                Log.e("SyncManager", "处理依据同步失败: ${processingBasisResult.exceptionOrNull()?.message}", processingBasisResult.exceptionOrNull())
+            // 3. 同步监管事项关联
+            val matterBindResult = repository.syncMatterBinds()
+            if (matterBindResult.isFailure) {
+                Log.e("SyncManager", "监管事项关联同步失败: ${matterBindResult.exceptionOrNull()?.message}", matterBindResult.exceptionOrNull())
                 return false
             }
-            Log.d("SyncManager", "syncLaw: 处理依据同步成功")
+            Log.d("SyncManager", "syncNormative: 监管事项关联同步成功")
 
-            // 同步章节-依据关联
-            Log.d("SyncManager", "syncLaw: 开始同步依据关联表")
-            val basisLinkResult = repository.syncBasisChapterLinksFromServer()
-            if (basisLinkResult.isFailure) {
-                Log.e("SyncManager", "依据关联同步失败: ${basisLinkResult.exceptionOrNull()?.message}", basisLinkResult.exceptionOrNull())
+            // 4. 同步法律条款关联
+            val termBindResult = repository.syncTermBinds()
+            if (termBindResult.isFailure) {
+                Log.e("SyncManager", "法律条款关联同步失败: ${termBindResult.exceptionOrNull()?.message}", termBindResult.exceptionOrNull())
                 return false
             }
-            Log.d("SyncManager", "syncLaw: 依据关联同步成功")
+            Log.d("SyncManager", "syncNormative: 法律条款关联同步成功")
 
-            // 同步法律类型
-            try {
-                val legalTypes = LawApi.getLegalTypeList()
-                if (legalTypes.isNotEmpty()) {
-                    val entities = legalTypes.map { it.toEntity() }
-                    com.ruoyi.app.data.database.AppDatabase.getInstance(context).legalTypeDao().insertAll(entities)
-                    Log.d("SyncManager", "法律类型同步成功: ${entities.size}条")
-                }
-            } catch (e: Exception) {
-                Log.e("SyncManager", "法律类型同步异常: ${e.message}", e)
-            }
-
-            // 同步监管类型
-            try {
-                val supervisionTypes = LawApi.getSupervisionTypeList()
-                if (supervisionTypes.isNotEmpty()) {
-                    val entities = supervisionTypes.map { it.toEntity() }
-                    com.ruoyi.app.data.database.AppDatabase.getInstance(context).supervisionTypeDao().insertAll(entities)
-                    Log.d("SyncManager", "监管类型同步成功: ${entities.size}条")
-                }
-            } catch (e: Exception) {
-                Log.e("SyncManager", "监管类型同步异常: ${e.message}", e)
-            }
-
-            Log.d("SyncManager", "syncLaw: 全部法律数据同步完成")
+            Log.d("SyncManager", "syncNormative: 全部规范用语数据同步完成")
             true
-        } catch (e: Exception) {
-            Log.e("SyncManager", "法律法规同步异常: ${e.message}", e)
-            false
-        }
-    }
-
-    private suspend fun syncPhrase(context: Context?): Boolean {
-        // 规范用语同步
-        if (context == null) return false
-        return try {
-            val repository = PhraseRepository(context)
-            val result = repository.syncFullFromServer()
-            if (result.isFailure) {
-                Log.e("SyncManager", "规范用语同步失败: ${result.exceptionOrNull()?.message}", result.exceptionOrNull())
-            }
-            result.isSuccess
         } catch (e: Exception) {
             Log.e("SyncManager", "规范用语同步异常: ${e.message}", e)
             false
         }
     }
 
-    private suspend fun syncSupervision(context: Context?): Boolean {
-        // 监管事项同步
-        // TODO: 调用后端 GET /supervision/item/list
-        // 存储到 supervision_item 表
-        delay(800) // 模拟网络请求
-        return true
+    private suspend fun syncRegulatory(context: Context?): Boolean {
+        // 监管事项同步（事项 + 明细 + 行业分类关联）
+        if (context == null) return false
+        return try {
+            val repository = RegulatoryRepository(context)
+
+            // 1. 同步监管事项
+            val matterResult = repository.syncMatters()
+            if (matterResult.isFailure) {
+                Log.e("SyncManager", "监管事项同步失败: ${matterResult.exceptionOrNull()?.message}", matterResult.exceptionOrNull())
+                return false
+            }
+            Log.d("SyncManager", "syncRegulatory: 监管事项同步成功")
+
+            // 2. 同步监管事项明细
+            try {
+                val matters = repository.getAllMatters()
+                Log.d("SyncManager", "需要同步明细的监管事项数量: ${matters.size}")
+                for (matter in matters) {
+                    repository.syncItems(matter.matterId)
+                    Log.d("SyncManager", "已同步监管事项[${matter.matterId}]的明细")
+                }
+            } catch (e: Exception) {
+                Log.e("SyncManager", "监管事项明细同步异常: ${e.message}", e)
+            }
+
+            // 3. 同步行业分类关联
+            val categoryBindResult = repository.syncCategoryBinds()
+            if (categoryBindResult.isFailure) {
+                Log.e("SyncManager", "行业分类关联同步失败: ${categoryBindResult.exceptionOrNull()?.message}", categoryBindResult.exceptionOrNull())
+                return false
+            }
+            Log.d("SyncManager", "syncRegulatory: 行业分类关联同步成功")
+
+            Log.d("SyncManager", "syncRegulatory: 全部监管事项数据同步完成")
+            true
+        } catch (e: Exception) {
+            Log.e("SyncManager", "监管事项同步异常: ${e.message}", e)
+            false
+        }
     }
 
     private suspend fun syncDocumentCategory(context: Context?): Boolean {
