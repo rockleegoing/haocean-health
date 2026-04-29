@@ -81,6 +81,15 @@ class LawRepository(private val context: Context) {
             termDao.getByLawId(lawId)
         }
     }
+
+    /**
+     * 获取法律详情
+     */
+    suspend fun getLawById(lawId: Long): LawEntity? {
+        return withContext(Dispatchers.IO) {
+            lawDao.getById(lawId)
+        }
+    }
 }
 
 /**
