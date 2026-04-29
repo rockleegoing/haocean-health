@@ -365,7 +365,7 @@ export default {
     getLawTypeTree() {
       treeList().then(response => {
         if (response.data && response.data.length > 0) {
-          this.lawTypeTreeData = response.data[0].children || response.data
+          this.lawTypeTreeData = response.data
         }
       })
     },
@@ -382,7 +382,7 @@ export default {
           })
         }
         if (response.data && response.data.length > 0) {
-          flatten(response.data[0].children || response.data)
+          flatten(response.data)
         }
         this.lawTypeOptions = flattenOptions
       })
