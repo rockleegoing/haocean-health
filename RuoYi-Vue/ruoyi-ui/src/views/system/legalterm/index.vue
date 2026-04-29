@@ -137,20 +137,11 @@
 
     <el-table v-loading="loading" :data="legaltermList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="id" align="center" prop="id" />
-      <el-table-column label="法律名称" align="center" prop="lawName" />
-      <el-table-column label="编" align="center" prop="part" />
-      <el-table-column label="分编" align="center" prop="partBranch" />
-      <el-table-column label="章" align="center" prop="chapter" />
-      <el-table-column label="节" align="center" prop="quarter" />
-      <el-table-column label="条" align="center" prop="article" />
-      <el-table-column label="款" align="center" prop="section" />
-      <el-table-column label="项" align="center" prop="subparagraph" />
-      <el-table-column label="目" align="center" prop="item" />
-      <el-table-column label="中文条款编码" align="center" prop="zhCode" />
-      <el-table-column label="条款内容" align="center" prop="content" />
-      <el-table-column label="远程库id" align="center" prop="stashTermId" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="id" align="center" prop="id" width="80" />
+      <el-table-column label="法律名称" align="center" prop="lawName" width="200" show-overflow-tooltip />
+      <el-table-column label="中文条款编码" align="center" prop="zhCode" width="150" show-overflow-tooltip />
+      <el-table-column label="条款内容" align="center" prop="content" show-overflow-tooltip />
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -176,7 +167,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -188,8 +179,8 @@
     <!-- 法律条款详情抽屉 -->
     <legalterm-view-drawer ref="legaltermViewRef" />
     <!-- 添加或修改法律条款对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="150px">
         <el-row>
           <el-col :span="24">
             <el-form-item label="法律名称" prop="lawId">
