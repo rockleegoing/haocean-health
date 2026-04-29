@@ -21,7 +21,7 @@ class RegulatoryRepository(private val context: Context) {
     /**
      * 同步监管事项列表
      */
-    suspend fun syncMattersFromServer(): Result<Unit> {
+    suspend fun syncMatters(): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = RegulatoryApi.getMatterList()
@@ -41,7 +41,7 @@ class RegulatoryRepository(private val context: Context) {
     /**
      * 同步监管事项明细
      */
-    suspend fun syncItemsFromServer(matterId: Long): Result<Unit> {
+    suspend fun syncItems(matterId: Long): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = RegulatoryApi.getItemListByMatter(matterId)
@@ -61,7 +61,7 @@ class RegulatoryRepository(private val context: Context) {
     /**
      * 同步行业分类监管事项关联
      */
-    suspend fun syncCategoryBindsFromServer(): Result<Unit> {
+    suspend fun syncCategoryBinds(): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = RegulatoryApi.getCategoryBindList()
