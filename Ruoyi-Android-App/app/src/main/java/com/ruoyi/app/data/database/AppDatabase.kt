@@ -29,6 +29,7 @@ import com.ruoyi.app.data.database.dao.DocumentCategoryDao
 import com.ruoyi.app.data.database.dao.DocumentGroupDao
 import com.ruoyi.app.data.database.dao.DocumentTemplateIndustryDao
 import com.ruoyi.app.data.database.dao.LawDao
+import com.ruoyi.app.data.database.dao.LawTypeBindDao
 import com.ruoyi.app.data.database.dao.LawTypeDao
 import com.ruoyi.app.data.database.entity.ActivationCodeEntity
 import com.ruoyi.app.data.database.entity.DataVersionEntity
@@ -55,6 +56,7 @@ import com.ruoyi.app.data.database.entity.DocumentCategoryEntity
 import com.ruoyi.app.data.database.entity.DocumentGroupEntity
 import com.ruoyi.app.data.database.entity.DocumentTemplateIndustryEntity
 import com.ruoyi.app.data.database.entity.LawEntity
+import com.ruoyi.app.data.database.entity.LawTypeBindEntity
 import com.ruoyi.app.data.database.entity.LawTypeEntity
 
 /**
@@ -88,9 +90,10 @@ import com.ruoyi.app.data.database.entity.LawTypeEntity
         DocumentCategoryEntity::class,
         DocumentGroupEntity::class,
         DocumentTemplateIndustryEntity::class,
-        LawTypeEntity::class
+        LawTypeEntity::class,
+        LawTypeBindEntity::class
     ],
-    version = 17,
+    version = 18,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -108,6 +111,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun evidenceMaterialDao(): EvidenceMaterialDao
     abstract fun lawDao(): LawDao
     abstract fun lawTypeDao(): LawTypeDao
+    abstract fun lawTypeBindDao(): LawTypeBindDao
     abstract fun legalTermDao(): LegalTermDao
     abstract fun normativeCategoryDao(): NormativeCategoryDao
     abstract fun normativeLanguageDao(): NormativeLanguageDao
