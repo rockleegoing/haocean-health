@@ -11,15 +11,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectLawVo">
-        select id, name, release_time from law
+        select distinct l.id, l.name, l.release_time from law l
     </sql>
 
     <select id="selectLawList" parameterType="Law" resultMap="LawResult">
         <include refid="selectLawVo"/>
+        <if test="typeId != null">
+            INNER JOIN law_type_bind lb ON l.id = lb.law_id AND lb.type_id = #{typeId}
+        </if>
         <where>
-            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
-            <if test="releaseTime != null "> and release_time = #{releaseTime}</if>
+            <if test="name != null and name != ''"> and l.name like concat('%', #{name}, '%')</if>
+            <if test="releaseTime != null "> and l.release_time = #{releaseTime}</if>
         </where>
+        order by l.id
     </select>
     
     <select id="selectLawById" parameterType="Long" resultMap="LawResult">

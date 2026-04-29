@@ -7,23 +7,22 @@
           <div class="panel-header">
             <span>法律法规类型</span>
           </div>
-          <!-- 类型树 -->
-          <el-tree
-            ref="lawTypeTree"
-            :data="lawTypeTreeData"
-            :props="lawTypeTreeProps"
-            node-key="id"
-            :expand-on-click-node="false"
-            :highlight-current="true"
-            @node-click="handleLawTypeNodeClick"
+          <!-- 类型选择器 -->
+          <el-select
+            v-model="selectedTypeId"
+            placeholder="全部类型"
+            clearable
+            size="small"
+            style="width: 100%; margin-bottom: 10px;"
+            @change="handleTypeChange"
           >
-            <span slot-scope="{ node, data }" class="custom-tree-node">
-              <span>
-                <i :class="data.icon" v-if="data.icon" style="margin-right: 5px;" />
-                {{ node.label }}
-              </span>
-            </span>
-          </el-tree>
+            <el-option
+              v-for="item in lawTypeOptions"
+              :key="item.id"
+              :label="item.label"
+              :value="item.id"
+            />
+          </el-select>
 
           <el-divider />
 
@@ -313,7 +312,6 @@ export default {
         label: 'name'
       },
       selectedTypeId: null,
-      selectedTypeName: '',
       lawTypeOptions: [],
 
       // 右侧条款相关
@@ -342,6 +340,13 @@ export default {
 
       // 法律下拉选项
       lawOptions: []
+    }
+  },
+  computed: {
+    selectedTypeName() {
+      if (!this.selectedTypeId) return ''
+      const option = this.lawTypeOptions.find(item => item.id === this.selectedTypeId)
+      return option ? option.name : ''
     }
   },
   created() {
@@ -378,10 +383,8 @@ export default {
         this.lawTypeOptions = flattenOptions
       })
     },
-    /** 点击类型节点 */
-    handleLawTypeNodeClick(data) {
-      this.selectedTypeId = data.id
-      this.selectedTypeName = data.name
+    /** 类型选择变化 */
+    handleTypeChange(val) {
       this.currentLawId = null
       this.currentLawName = ''
       this.getLawList()

@@ -29,6 +29,9 @@ public class Law extends BaseEntity
     @Excel(name = "发布日期", width = 30, dateFormat = "yyyy-MM-dd")
     private Date releaseTime;
 
+    /** 类型ID（用于查询，不存储） */
+    private Long typeId;
+
     public void setId(Long id)
     {
         this.id = id;
@@ -57,6 +60,16 @@ public class Law extends BaseEntity
     public Date getReleaseTime()
     {
         return releaseTime;
+    }
+
+    public Long getTypeId()
+    {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId)
+    {
+        this.typeId = typeId;
     }
 
     @Override
