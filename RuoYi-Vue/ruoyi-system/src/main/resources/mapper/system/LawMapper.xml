@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.LawMapper">
+    
+    <resultMap type="Law" id="LawResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="releaseTime"    column="release_time"    />
+    </resultMap>
+
+    <sql id="selectLawVo">
+        select id, name, release_time from law
+    </sql>
+
+    <select id="selectLawList" parameterType="Law" resultMap="LawResult">
+        <include refid="selectLawVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="releaseTime != null "> and release_time = #{releaseTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectLawById" parameterType="Long" resultMap="LawResult">
+        <include refid="selectLawVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertLaw" parameterType="Law" useGeneratedKeys="true" keyProperty="id">
+        insert into law
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">name,</if>
+            <if test="releaseTime != null">release_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">#{name},</if>
+            <if test="releaseTime != null">#{releaseTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateLaw" parameterType="Law">
+        update law
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="releaseTime != null">release_time = #{releaseTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteLawById" parameterType="Long">
+        delete from law where id = #{id}
+    </delete>
+
+    <delete id="deleteLawByIds" parameterType="String">
+        delete from law where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

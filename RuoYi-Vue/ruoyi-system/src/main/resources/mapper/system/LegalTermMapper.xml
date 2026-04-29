@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.LegalTermMapper">
+    
+    <resultMap type="LegalTerm" id="LegalTermResult">
+        <result property="id"    column="id"    />
+        <result property="lawId"    column="law_id"    />
+        <result property="part"    column="part"    />
+        <result property="partBranch"    column="part_branch"    />
+        <result property="chapter"    column="chapter"    />
+        <result property="quarter"    column="quarter"    />
+        <result property="article"    column="article"    />
+        <result property="section"    column="section"    />
+        <result property="subparagraph"    column="subparagraph"    />
+        <result property="item"    column="item"    />
+        <result property="zhCode"    column="zh_code"    />
+        <result property="content"    column="content"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="stashTermId"    column="stash_term_id"    />
+    </resultMap>
+
+    <sql id="selectLegalTermVo">
+        select id, law_id, part, part_branch, chapter, quarter, article, section, subparagraph, item, zh_code, content, update_time, stash_term_id from legal_term
+    </sql>
+
+    <select id="selectLegalTermList" parameterType="LegalTerm" resultMap="LegalTermResult">
+        <include refid="selectLegalTermVo"/>
+        <where>  
+            <if test="lawId != null "> and law_id = #{lawId}</if>
+            <if test="part != null "> and part = #{part}</if>
+            <if test="partBranch != null "> and part_branch = #{partBranch}</if>
+            <if test="chapter != null "> and chapter = #{chapter}</if>
+            <if test="quarter != null "> and quarter = #{quarter}</if>
+            <if test="article != null "> and article = #{article}</if>
+            <if test="section != null "> and section = #{section}</if>
+            <if test="subparagraph != null "> and subparagraph = #{subparagraph}</if>
+            <if test="item != null "> and item = #{item}</if>
+            <if test="zhCode != null  and zhCode != ''"> and zh_code = #{zhCode}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="stashTermId != null "> and stash_term_id = #{stashTermId}</if>
+        </where>
+    </select>
+    
+    <select id="selectLegalTermById" parameterType="Long" resultMap="LegalTermResult">
+        <include refid="selectLegalTermVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertLegalTerm" parameterType="LegalTerm" useGeneratedKeys="true" keyProperty="id">
+        insert into legal_term
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="lawId != null">law_id,</if>
+            <if test="part != null">part,</if>
+            <if test="partBranch != null">part_branch,</if>
+            <if test="chapter != null">chapter,</if>
+            <if test="quarter != null">quarter,</if>
+            <if test="article != null">article,</if>
+            <if test="section != null">section,</if>
+            <if test="subparagraph != null">subparagraph,</if>
+            <if test="item != null">item,</if>
+            <if test="zhCode != null and zhCode != ''">zh_code,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="stashTermId != null">stash_term_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="lawId != null">#{lawId},</if>
+            <if test="part != null">#{part},</if>
+            <if test="partBranch != null">#{partBranch},</if>
+            <if test="chapter != null">#{chapter},</if>
+            <if test="quarter != null">#{quarter},</if>
+            <if test="article != null">#{article},</if>
+            <if test="section != null">#{section},</if>
+            <if test="subparagraph != null">#{subparagraph},</if>
+            <if test="item != null">#{item},</if>
+            <if test="zhCode != null and zhCode != ''">#{zhCode},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="stashTermId != null">#{stashTermId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateLegalTerm" parameterType="LegalTerm">
+        update legal_term
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="lawId != null">law_id = #{lawId},</if>
+            <if test="part != null">part = #{part},</if>
+            <if test="partBranch != null">part_branch = #{partBranch},</if>
+            <if test="chapter != null">chapter = #{chapter},</if>
+            <if test="quarter != null">quarter = #{quarter},</if>
+            <if test="article != null">article = #{article},</if>
+            <if test="section != null">section = #{section},</if>
+            <if test="subparagraph != null">subparagraph = #{subparagraph},</if>
+            <if test="item != null">item = #{item},</if>
+            <if test="zhCode != null and zhCode != ''">zh_code = #{zhCode},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="stashTermId != null">stash_term_id = #{stashTermId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteLegalTermById" parameterType="Long">
+        delete from legal_term where id = #{id}
+    </delete>
+
+    <delete id="deleteLegalTermByIds" parameterType="String">
+        delete from legal_term where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
