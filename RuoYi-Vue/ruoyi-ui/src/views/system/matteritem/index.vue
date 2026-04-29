@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="120px">
       <el-form-item label="监管事项" prop="regulatoryMatterId">
         <el-select v-model="queryParams.regulatoryMatterId" placeholder="请选择监管事项" clearable filterable @change="handleQuery">
           <el-option
@@ -27,10 +27,10 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="是否标记删除，flag 0否 1是" prop="isDeleted">
+      <el-form-item label="删除(0否 1是)" prop="isDeleted">
         <el-input
           v-model="queryParams.isDeleted"
-          placeholder="请输入是否标记删除，flag 0否 1是"
+          placeholder="请输入删除状态，0否 1是"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -121,7 +121,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -133,8 +133,8 @@
     <!-- 监管事项详情详情抽屉 -->
     <matteritem-view-drawer ref="matteritemViewRef" />
     <!-- 添加或修改监管事项详情对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="120px">
         <el-row>
           <el-col :span="24">
             <el-form-item label="监管事项" prop="regulatoryMatterId">
@@ -169,8 +169,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="是否标记删除，flag 0否 1是" prop="isDeleted">
-              <el-input v-model="form.isDeleted" placeholder="请输入是否标记删除，flag 0否 1是" />
+            <el-form-item label="删除状态(0否 1是)" prop="isDeleted">
+              <el-input v-model="form.isDeleted" placeholder="请输入删除状态，0否 1是" />
             </el-form-item>
           </el-col>
         </el-row>
