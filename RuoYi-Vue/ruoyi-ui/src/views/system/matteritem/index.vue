@@ -89,15 +89,13 @@
 
     <el-table v-loading="loading" :data="matteritemList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="${comment}" align="center" prop="id" />
-      <el-table-column label="监管事项" align="center" prop="mainName" show-overflow-tooltip />
-      <el-table-column label="数据源id" align="center" prop="countyItemId" />
-      <el-table-column label="类型" align="center" prop="codeType" />
-      <el-table-column label="监管子项编码" align="center" prop="itemCode" />
-      <el-table-column label="详情名称" align="center" prop="itemName" />
-      <el-table-column label="描述" align="center" prop="according" />
-      <el-table-column label="是否标记删除，flag 0否 1是" align="center" prop="isDeleted" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="id" align="center" prop="id" width="80" />
+      <el-table-column label="监管事项" align="center" prop="mainName" width="150" show-overflow-tooltip />
+      <el-table-column label="编码类型" align="center" prop="codeType" width="100" show-overflow-tooltip />
+      <el-table-column label="监管子项编码" align="center" prop="itemCode" width="120" show-overflow-tooltip />
+      <el-table-column label="详情名称" align="center" prop="itemName" show-overflow-tooltip />
+      <el-table-column label="描述" align="center" prop="according" show-overflow-tooltip />
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180">
         <template slot-scope="scope">
           <el-button
             size="mini"
