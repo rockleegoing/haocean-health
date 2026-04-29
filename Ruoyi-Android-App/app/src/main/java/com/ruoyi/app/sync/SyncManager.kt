@@ -7,6 +7,7 @@ import com.ruoyi.app.api.repository.UnitRepository
 import com.ruoyi.app.data.database.entity.UnitEntity
 import com.ruoyi.app.feature.document.repository.DocumentRepository
 import com.ruoyi.app.feature.normative.repository.NormativeRepository
+import com.ruoyi.app.feature.law.repository.LawTypeRepository
 import com.ruoyi.app.feature.regulatory.repository.RegulatoryRepository
 import com.ruoyi.app.sync.model.SyncProgress
 import com.ruoyi.app.sync.model.SyncResult
@@ -48,6 +49,7 @@ class SyncManager private constructor() {
         const val MODULE_MEDIA_FILE = "媒体文件"
         const val MODULE_ENFORCEMENT_RECORD = "执法记录"
         const val MODULE_EVIDENCE_MATERIAL = "证据材料"
+        const val MODULE_LAW_TYPE = "法律法规类型"
 
         // 全量同步模块列表（阶段二）
         val FULL_SYNC_MODULES = listOf(
@@ -60,7 +62,8 @@ class SyncManager private constructor() {
             MODULE_DOCUMENT_TEMPLATE,
             MODULE_MEDIA_FILE,
             MODULE_ENFORCEMENT_RECORD,
-            MODULE_EVIDENCE_MATERIAL
+            MODULE_EVIDENCE_MATERIAL,
+            MODULE_LAW_TYPE,
         )
     }
 
@@ -149,6 +152,7 @@ class SyncManager private constructor() {
                 MODULE_MEDIA_FILE -> syncMediaFile(context)
                 MODULE_ENFORCEMENT_RECORD -> syncEnforcementRecord(context)
                 MODULE_EVIDENCE_MATERIAL -> syncEvidenceMaterial(context)
+                MODULE_LAW_TYPE -> syncLawType(context)
                 else -> true
             }
         } catch (e: Exception) {
@@ -369,5 +373,20 @@ class SyncManager private constructor() {
         // 更新同步状态
         delay(500) // 模拟网络请求
         return true
+    }
+
+    private suspend fun syncLawType(context: Context?): Boolean {
+        if (context == null) return false
+        return try {
+            val repository = LawTypeRepository(context)
+            val result = repository.syncLawTypes()
+            if (result.isFailure) {
+                Log.e("SyncManager", "法律法规类型同步失败: ${result.exceptionOrNull()?.message}", result.exceptionOrNull())
+            }
+            result.isSuccess
+        } catch (e: Exception) {
+            Log.e("SyncManager", "法律法规类型同步异常: ${e.message}", e)
+            false
+        }
     }
 }
