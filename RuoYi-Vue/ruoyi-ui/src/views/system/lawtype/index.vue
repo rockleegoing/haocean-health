@@ -94,7 +94,7 @@
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['system:lawtype:remove']'"
+            v-hasPermi="['system:lawtype:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
