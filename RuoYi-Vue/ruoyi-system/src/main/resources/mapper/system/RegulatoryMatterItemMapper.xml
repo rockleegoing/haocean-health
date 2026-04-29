@@ -39,7 +39,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <select id="selectRegulatoryMatterItemById" parameterType="Long" resultMap="RegulatoryMatterItemResult">
         <include refid="selectRegulatoryMatterItemVo"/>
-        where id = #{id}
+        where t.id = #{id}
     </select>
 
     <insert id="insertRegulatoryMatterItem" parameterType="RegulatoryMatterItem" useGeneratedKeys="true" keyProperty="id">
