@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "normative_category",
-    indices = [Index(value = ["parentCode"])]
+    indices = [Index(value = ["parentCode"]), Index(value = ["name"])]
 )
 data class NormativeCategoryEntity(
     @PrimaryKey val code: Long,
