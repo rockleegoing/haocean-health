@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.RegulatoryCategoryBindMapper">
+    
+    <resultMap type="RegulatoryCategoryBind" id="RegulatoryCategoryBindResult">
+        <result property="matterId"    column="matter_id"    />
+        <result property="categoryId"    column="category_id"    />
+    </resultMap>
+
+    <sql id="selectRegulatoryCategoryBindVo">
+        select matter_id, category_id from regulatory_category_bind
+    </sql>
+
+    <select id="selectRegulatoryCategoryBindList" parameterType="RegulatoryCategoryBind" resultMap="RegulatoryCategoryBindResult">
+        <include refid="selectRegulatoryCategoryBindVo"/>
+        <where>  
+            <if test="matterId != null "> and matter_id = #{matterId}</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+        </where>
+    </select>
+    
+    <select id="selectRegulatoryCategoryBindByMatterId" parameterType="Long" resultMap="RegulatoryCategoryBindResult">
+        <include refid="selectRegulatoryCategoryBindVo"/>
+        where matter_id = #{matterId}
+    </select>
+
+    <insert id="insertRegulatoryCategoryBind" parameterType="RegulatoryCategoryBind">
+        insert into regulatory_category_bind
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="matterId != null">matter_id,</if>
+            <if test="categoryId != null">category_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="matterId != null">#{matterId},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRegulatoryCategoryBind" parameterType="RegulatoryCategoryBind">
+        update regulatory_category_bind
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+        </trim>
+        where matter_id = #{matterId}
+    </update>
+
+    <delete id="deleteRegulatoryCategoryBindByMatterId" parameterType="Long">
+        delete from regulatory_category_bind where matter_id = #{matterId}
+    </delete>
+
+    <delete id="deleteRegulatoryCategoryBindByMatterIds" parameterType="String">
+        delete from regulatory_category_bind where matter_id in 
+        <foreach item="matterId" collection="array" open="(" separator="," close=")">
+            #{matterId}
+        </foreach>
+    </delete>
+</mapper>

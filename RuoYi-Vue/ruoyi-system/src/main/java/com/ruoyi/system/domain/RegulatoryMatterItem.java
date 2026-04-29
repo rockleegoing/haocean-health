@@ -69,11 +69,6 @@ public class RegulatoryMatterItem extends BaseEntity
         return regulatoryMatterId;
     }
 
-    public void setRegulatoryMatterId(Long regulatoryMatterId)
-    {
-        this.regulatoryMatterId = regulatoryMatterId;
-    }
-
     public String getMainName()
     {
         return mainName;
