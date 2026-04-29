@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.RegulatoryMatterItemMapper">
+    
+    <resultMap type="RegulatoryMatterItem" id="RegulatoryMatterItemResult">
+        <result property="id"    column="id"    />
+        <result property="regulatoryMatterId"    column="regulatory_matter_id"    />
+        <result property="mainName"    column="main_name"    />
+        <result property="countyItemId"    column="county_item_id"    />
+        <result property="codeType"    column="code_type"    />
+        <result property="itemCode"    column="item_code"    />
+        <result property="itemName"    column="item_name"    />
+        <result property="according"    column="according"    />
+        <result property="isDeleted"    column="is_deleted"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectRegulatoryMatterItemVo">
+        select t.id, t.regulatory_matter_id, m.main_name, t.county_item_id, t.code_type, t.item_code, t.item_name, t.according, t.is_deleted, t.create_time, t.update_time
+        from regulatory_matter_item t
+        left join regulatory_matter m on t.regulatory_matter_id = m.id
+    </sql>
+
+    <select id="selectRegulatoryMatterItemList" parameterType="RegulatoryMatterItem" resultMap="RegulatoryMatterItemResult">
+        <include refid="selectRegulatoryMatterItemVo"/>
+        <where>  
+            <if test="regulatoryMatterId != null "> and regulatory_matter_id = #{regulatoryMatterId}</if>
+            <if test="countyItemId != null  and countyItemId != ''"> and county_item_id = #{countyItemId}</if>
+            <if test="codeType != null  and codeType != ''"> and code_type = #{codeType}</if>
+            <if test="itemCode != null  and itemCode != ''"> and item_code = #{itemCode}</if>
+            <if test="itemName != null  and itemName != ''"> and item_name like concat('%', #{itemName}, '%')</if>
+            <if test="according != null  and according != ''"> and according = #{according}</if>
+            <if test="isDeleted != null "> and is_deleted = #{isDeleted}</if>
+        </where>
+    </select>
+    
+    <select id="selectRegulatoryMatterItemById" parameterType="Long" resultMap="RegulatoryMatterItemResult">
+        <include refid="selectRegulatoryMatterItemVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertRegulatoryMatterItem" parameterType="RegulatoryMatterItem" useGeneratedKeys="true" keyProperty="id">
+        insert into regulatory_matter_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="regulatoryMatterId != null">regulatory_matter_id,</if>
+            <if test="countyItemId != null">county_item_id,</if>
+            <if test="codeType != null">code_type,</if>
+            <if test="itemCode != null">item_code,</if>
+            <if test="itemName != null">item_name,</if>
+            <if test="according != null">according,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="regulatoryMatterId != null">#{regulatoryMatterId},</if>
+            <if test="countyItemId != null">#{countyItemId},</if>
+            <if test="codeType != null">#{codeType},</if>
+            <if test="itemCode != null">#{itemCode},</if>
+            <if test="itemName != null">#{itemName},</if>
+            <if test="according != null">#{according},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRegulatoryMatterItem" parameterType="RegulatoryMatterItem">
+        update regulatory_matter_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="regulatoryMatterId != null">regulatory_matter_id = #{regulatoryMatterId},</if>
+            <if test="countyItemId != null">county_item_id = #{countyItemId},</if>
+            <if test="codeType != null">code_type = #{codeType},</if>
+            <if test="itemCode != null">item_code = #{itemCode},</if>
+            <if test="itemName != null">item_name = #{itemName},</if>
+            <if test="according != null">according = #{according},</if>
+            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteRegulatoryMatterItemById" parameterType="Long">
+        delete from regulatory_matter_item where id = #{id}
+    </delete>
+
+    <delete id="deleteRegulatoryMatterItemByIds" parameterType="String">
+        delete from regulatory_matter_item where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.RegulatoryMatterMapper">
+    
+    <resultMap type="RegulatoryMatter" id="RegulatoryMatterResult">
+        <result property="id"    column="id"    />
+        <result property="countyId"    column="county_id"    />
+        <result property="mainCode"    column="main_code"    />
+        <result property="mainName"    column="main_name"    />
+        <result property="isDeleted"    column="is_deleted"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectRegulatoryMatterVo">
+        select id, county_id, main_code, main_name, is_deleted, create_time, update_time from regulatory_matter
+    </sql>
+
+    <select id="selectRegulatoryMatterList" parameterType="RegulatoryMatter" resultMap="RegulatoryMatterResult">
+        <include refid="selectRegulatoryMatterVo"/>
+        <where>  
+            <if test="countyId != null  and countyId != ''"> and county_id = #{countyId}</if>
+            <if test="mainCode != null  and mainCode != ''"> and main_code = #{mainCode}</if>
+            <if test="mainName != null  and mainName != ''"> and main_name like concat('%', #{mainName}, '%')</if>
+            <if test="isDeleted != null "> and is_deleted = #{isDeleted}</if>
+        </where>
+    </select>
+    
+    <select id="selectRegulatoryMatterById" parameterType="Long" resultMap="RegulatoryMatterResult">
+        <include refid="selectRegulatoryMatterVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertRegulatoryMatter" parameterType="RegulatoryMatter" useGeneratedKeys="true" keyProperty="id">
+        insert into regulatory_matter
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="countyId != null">county_id,</if>
+            <if test="mainCode != null">main_code,</if>
+            <if test="mainName != null">main_name,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="countyId != null">#{countyId},</if>
+            <if test="mainCode != null">#{mainCode},</if>
+            <if test="mainName != null">#{mainName},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRegulatoryMatter" parameterType="RegulatoryMatter">
+        update regulatory_matter
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="countyId != null">county_id = #{countyId},</if>
+            <if test="mainCode != null">main_code = #{mainCode},</if>
+            <if test="mainName != null">main_name = #{mainName},</if>
+            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteRegulatoryMatterById" parameterType="Long">
+        delete from regulatory_matter where id = #{id}
+    </delete>
+
+    <delete id="deleteRegulatoryMatterByIds" parameterType="String">
+        delete from regulatory_matter where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
