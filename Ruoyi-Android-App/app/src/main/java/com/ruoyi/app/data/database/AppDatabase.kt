@@ -11,9 +11,14 @@ import com.ruoyi.app.data.database.dao.DeptDao
 import com.ruoyi.app.data.database.dao.EnforcementRecordDao
 import com.ruoyi.app.data.database.dao.EvidenceMaterialDao
 import com.ruoyi.app.data.database.dao.IndustryCategoryDao
-import com.ruoyi.app.data.database.dao.PhraseBookDao
-import com.ruoyi.app.data.database.dao.PhraseDetailDao
-import com.ruoyi.app.data.database.dao.PhraseItemDao
+import com.ruoyi.app.data.database.dao.LegalTermDao
+import com.ruoyi.app.data.database.dao.NormativeCategoryDao
+import com.ruoyi.app.data.database.dao.NormativeLanguageDao
+import com.ruoyi.app.data.database.dao.NormativeMatterBindDao
+import com.ruoyi.app.data.database.dao.NormativeTermBindDao
+import com.ruoyi.app.data.database.dao.RegulatoryCategoryBindDao
+import com.ruoyi.app.data.database.dao.RegulatoryMatterDao
+import com.ruoyi.app.data.database.dao.RegulatoryMatterItemDao
 import com.ruoyi.app.data.database.dao.RoleDao
 import com.ruoyi.app.data.database.dao.SyncQueueDao
 import com.ruoyi.app.data.database.dao.UnitDao
@@ -25,6 +30,7 @@ import com.ruoyi.app.data.database.dao.DocumentVariableDao
 import com.ruoyi.app.data.database.dao.DocumentCategoryDao
 import com.ruoyi.app.data.database.dao.DocumentGroupDao
 import com.ruoyi.app.data.database.dao.DocumentTemplateIndustryDao
+import com.ruoyi.app.data.database.dao.LawDao
 import com.ruoyi.app.data.database.entity.ActivationCodeEntity
 import com.ruoyi.app.data.database.entity.DataVersionEntity
 import com.ruoyi.app.data.database.entity.DeviceEntity
@@ -32,12 +38,14 @@ import com.ruoyi.app.data.database.entity.DeptEntity
 import com.ruoyi.app.data.database.entity.EnforcementRecordEntity
 import com.ruoyi.app.data.database.entity.EvidenceMaterialEntity
 import com.ruoyi.app.data.database.entity.IndustryCategoryEntity
-import com.ruoyi.app.data.database.entity.PhraseBookEntity
-import com.ruoyi.app.data.database.entity.PhraseBookFtsEntity
-import com.ruoyi.app.data.database.entity.PhraseDetailEntity
-import com.ruoyi.app.data.database.entity.PhraseDetailFtsEntity
-import com.ruoyi.app.data.database.entity.PhraseItemEntity
-import com.ruoyi.app.data.database.entity.PhraseItemFtsEntity
+import com.ruoyi.app.data.database.entity.LegalTermEntity
+import com.ruoyi.app.data.database.entity.NormativeCategoryEntity
+import com.ruoyi.app.data.database.entity.NormativeLanguageEntity
+import com.ruoyi.app.data.database.entity.NormativeMatterBindEntity
+import com.ruoyi.app.data.database.entity.NormativeTermBindEntity
+import com.ruoyi.app.data.database.entity.RegulatoryCategoryBindEntity
+import com.ruoyi.app.data.database.entity.RegulatoryMatterEntity
+import com.ruoyi.app.data.database.entity.RegulatoryMatterItemEntity
 import com.ruoyi.app.data.database.entity.RoleEntity
 import com.ruoyi.app.data.database.entity.SyncQueueEntity
 import com.ruoyi.app.data.database.entity.UnitEntity
@@ -49,26 +57,7 @@ import com.ruoyi.app.data.database.entity.DocumentVariableEntity
 import com.ruoyi.app.data.database.entity.DocumentCategoryEntity
 import com.ruoyi.app.data.database.entity.DocumentGroupEntity
 import com.ruoyi.app.data.database.entity.DocumentTemplateIndustryEntity
-import com.ruoyi.app.feature.law.db.dao.ArticleDao
-import com.ruoyi.app.feature.law.db.dao.BasisChapterLinkDao
-import com.ruoyi.app.feature.law.db.dao.ChapterDao
-import com.ruoyi.app.feature.law.db.dao.LegalBasisContentDao
-import com.ruoyi.app.feature.law.db.dao.LegalBasisDao
-import com.ruoyi.app.feature.law.db.dao.LegalTypeDao
-import com.ruoyi.app.feature.law.db.dao.ProcessingBasisContentDao
-import com.ruoyi.app.feature.law.db.dao.ProcessingBasisDao
-import com.ruoyi.app.feature.law.db.dao.RegulationDao
-import com.ruoyi.app.feature.law.db.dao.SupervisionTypeDao
-import com.ruoyi.app.feature.law.db.entity.BasisChapterLinkEntity
-import com.ruoyi.app.feature.law.db.entity.LegalBasisContentEntity
-import com.ruoyi.app.feature.law.db.entity.LegalBasisEntity
-import com.ruoyi.app.feature.law.db.entity.LegalTypeEntity
-import com.ruoyi.app.feature.law.db.entity.ProcessingBasisContentEntity
-import com.ruoyi.app.feature.law.db.entity.ProcessingBasisEntity
-import com.ruoyi.app.feature.law.db.entity.RegulationArticleEntity
-import com.ruoyi.app.feature.law.db.entity.RegulationChapterEntity
-import com.ruoyi.app.feature.law.db.entity.RegulationEntity
-import com.ruoyi.app.feature.law.db.entity.SupervisionTypeEntity
+import com.ruoyi.app.data.database.entity.LawEntity
 
 /**
  * App 数据库
@@ -87,22 +76,15 @@ import com.ruoyi.app.feature.law.db.entity.SupervisionTypeEntity
         UnitEntity::class,
         EnforcementRecordEntity::class,
         EvidenceMaterialEntity::class,
-        RegulationEntity::class,
-        RegulationChapterEntity::class,
-        RegulationArticleEntity::class,
-        LegalBasisEntity::class,
-        LegalTypeEntity::class,
-        SupervisionTypeEntity::class,
-        ProcessingBasisEntity::class,
-        LegalBasisContentEntity::class,
-        ProcessingBasisContentEntity::class,
-        BasisChapterLinkEntity::class,
-        PhraseBookEntity::class,
-        PhraseBookFtsEntity::class,
-        PhraseItemEntity::class,
-        PhraseItemFtsEntity::class,
-        PhraseDetailEntity::class,
-        PhraseDetailFtsEntity::class,
+        LawEntity::class,
+        LegalTermEntity::class,
+        NormativeCategoryEntity::class,
+        NormativeLanguageEntity::class,
+        NormativeMatterBindEntity::class,
+        NormativeTermBindEntity::class,
+        RegulatoryMatterEntity::class,
+        RegulatoryMatterItemEntity::class,
+        RegulatoryCategoryBindEntity::class,
         SupervisionCategoryEntity::class,
         SupervisionItemEntity::class,
         DocumentTemplateEntity::class,
@@ -111,7 +93,7 @@ import com.ruoyi.app.feature.law.db.entity.SupervisionTypeEntity
         DocumentGroupEntity::class,
         DocumentTemplateIndustryEntity::class
     ],
-    version = 15,
+    version = 16,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -127,19 +109,15 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun unitDao(): UnitDao
     abstract fun enforcementRecordDao(): EnforcementRecordDao
     abstract fun evidenceMaterialDao(): EvidenceMaterialDao
-    abstract fun regulationDao(): RegulationDao
-    abstract fun chapterDao(): ChapterDao
-    abstract fun articleDao(): ArticleDao
-    abstract fun legalBasisDao(): LegalBasisDao
-    abstract fun legalBasisContentDao(): LegalBasisContentDao
-    abstract fun legalTypeDao(): LegalTypeDao
-    abstract fun supervisionTypeDao(): SupervisionTypeDao
-    abstract fun processingBasisDao(): ProcessingBasisDao
-    abstract fun processingBasisContentDao(): ProcessingBasisContentDao
-    abstract fun basisChapterLinkDao(): BasisChapterLinkDao
-    abstract fun phraseBookDao(): PhraseBookDao
-    abstract fun phraseItemDao(): PhraseItemDao
-    abstract fun phraseDetailDao(): PhraseDetailDao
+    abstract fun lawDao(): LawDao
+    abstract fun legalTermDao(): LegalTermDao
+    abstract fun normativeCategoryDao(): NormativeCategoryDao
+    abstract fun normativeLanguageDao(): NormativeLanguageDao
+    abstract fun normativeMatterBindDao(): NormativeMatterBindDao
+    abstract fun normativeTermBindDao(): NormativeTermBindDao
+    abstract fun regulatoryMatterDao(): RegulatoryMatterDao
+    abstract fun regulatoryMatterItemDao(): RegulatoryMatterItemDao
+    abstract fun regulatoryCategoryBindDao(): RegulatoryCategoryBindDao
     abstract fun supervisionCategoryDao(): SupervisionCategoryDao
     abstract fun supervisionItemDao(): SupervisionItemDao
     abstract fun documentTemplateDao(): DocumentTemplateDao
