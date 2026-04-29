@@ -98,7 +98,8 @@ class LawRepository(private val context: Context) {
 fun LawDto.toEntity() = LawEntity(
     id = id,
     name = name,
-    releaseTime = null
+    releaseTime = null,
+    typeId = typeId
 )
 
 /**
