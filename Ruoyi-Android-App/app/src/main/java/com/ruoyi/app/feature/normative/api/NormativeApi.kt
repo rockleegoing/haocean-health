@@ -76,21 +76,18 @@ data class LanguageDto(
     val standardCode: String?,
     val standardPhrase: String,
     val supervisoryOpinion: String?,
-    val basisType: Int?,
     val primaryCategory: Long?
 )
 
 @Serializable
 data class MatterBindDto(
-    val id: Long,
-    val normativeLanguageId: Long,
-    val regulatoryMatterId: Long,
+    val matterId: Long,
+    val normativeId: Long,
     val basisType: Int?
 )
 
 @Serializable
 data class TermBindDto(
-    val id: Long,
     val legalTermId: Long,
     val normativeLanguageId: Long,
     val basisType: Int?
