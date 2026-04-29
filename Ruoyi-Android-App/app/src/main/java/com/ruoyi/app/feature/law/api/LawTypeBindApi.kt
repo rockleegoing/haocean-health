@@ -4,6 +4,7 @@ import com.drake.net.Get
 import com.drake.net.Post
 import com.drake.net.Delete
 import com.ruoyi.app.api.ConfigApi
+import com.ruoyi.app.api.OKHttpUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -20,7 +21,7 @@ object LawTypeBindApi {
 
     suspend fun bind(lawId: Long, typeIds: List<Long>): BaseResponse = withContext(Dispatchers.IO) {
         Post<BaseResponse>("${ConfigApi.baseUrl}/app/lawtype/bind/$lawId") {
-            setBody(typeIds)
+            body = OKHttpUtils.getRequestBody(typeIds)
         }.await()
     }
 
