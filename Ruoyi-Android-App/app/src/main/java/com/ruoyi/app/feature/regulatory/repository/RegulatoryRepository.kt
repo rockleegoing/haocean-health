@@ -142,7 +142,6 @@ fun ItemDto.toEntity() = RegulatoryMatterItemEntity(
  * CategoryBindDto 转换为 Entity
  */
 fun CategoryBindDto.toEntity() = RegulatoryCategoryBindEntity(
-    id = id,
     industryCategoryId = industryCategoryId,
     matterId = matterId
 )

@@ -13,6 +13,7 @@ import org.aspectj.lang.annotation.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.NamedThreadLocal;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
@@ -91,8 +92,10 @@ public class LogAspect
         {
             // 获取当前的用户（兼容匿名接口）
             LoginUser loginUser = null;
-            if (SecurityUtils.getAuthentication() != null) {
-                loginUser = SecurityUtils.getLoginUser();
+            Authentication authentication = SecurityUtils.getAuthentication();
+            if (authentication != null && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof LoginUser) {
+                loginUser = (LoginUser) authentication.getPrincipal();
             }
 
             // *========数据库日志=========*//

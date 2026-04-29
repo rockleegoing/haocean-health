@@ -4,12 +4,16 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+/**
+ * 法律目录实体
+ * 对应数据库表：law
+ */
 @Entity(
     tableName = "law",
     indices = [Index(value = ["name"])]
 )
 data class LawEntity(
-    @PrimaryKey val id: Long,
-    val name: String,
-    val releaseTime: Long?  // 时间戳，毫秒
+    @PrimaryKey val id: Long,           // 法律ID
+    val name: String,                    // 法律名称
+    val releaseTime: Long?              // 发布日期
 )

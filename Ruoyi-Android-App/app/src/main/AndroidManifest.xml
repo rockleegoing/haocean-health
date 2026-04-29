@@ -128,48 +128,13 @@
             android:name=".feature.lawenforcement.ui.RecordListActivity"
             android:exported="false"
             android:launchMode="singleTop" />
-        <activity
-            android:name=".feature.law.ui.regulation.RegulationListActivity"
-            android:exported="false"
-            android:launchMode="singleTop" />
-        <activity
-            android:name=".feature.law.ui.regulation.RegulationDetailActivity"
-            android:exported="false"
-            android:launchMode="singleTop" />
-        <activity
-            android:name=".feature.law.ui.regulation.ArticleDetailActivity"
-            android:exported="false"
-            android:launchMode="singleTop" />
-        <activity
-            android:name=".feature.law.ui.basis.LegalBasisListActivity"
-            android:exported="false"
-            android:launchMode="singleTop" />
-        <activity
-            android:name=".feature.law.ui.basis.LegalBasisDetailActivity"
-            android:exported="false"
-            android:launchMode="singleTop" />
-        <activity
-            android:name=".feature.law.ui.basis.ProcessingBasisListActivity"
-            android:exported="false"
-            android:launchMode="singleTop" />
-        <activity
-            android:name=".feature.law.ui.basis.ProcessingBasisDetailActivity"
-            android:exported="false"
-            android:launchMode="singleTop" />
+
         <activity
             android:name=".feature.lawenforcement.ui.RecordDetailActivity"
             android:exported="false"
             android:launchMode="singleTop" />
         <activity
             android:name=".feature.addunit.AddUnitActivity"
-            android:exported="false"
-            android:launchMode="singleTop" />
-        <activity
-            android:name=".feature.phrase.ui.PhraseBookDetailActivity"
-            android:exported="false"
-            android:launchMode="singleTop" />
-        <activity
-            android:name=".feature.phrase.ui.PhraseItemDetailActivity"
             android:exported="false"
             android:launchMode="singleTop" />
         <service

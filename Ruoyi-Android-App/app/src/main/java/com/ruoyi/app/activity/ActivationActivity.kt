@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import androidx.core.content.ContextCompat
+import com.tencent.mmkv.MMKV
 import com.hjq.bar.OnTitleBarListener
 import com.hjq.bar.TitleBar
 import com.ruoyi.app.R
@@ -94,6 +95,8 @@ class ActivationActivity : BaseBindingActivity<ActivityActivationBinding>() {
                 binding.tvStatus.text = state.message
                 binding.tvStatus.setTextColor(ContextCompat.getColor(this, R.color.success_green))
                 binding.tvStatus.visibility = View.VISIBLE
+                // 清除旧的登录 token，确保激活后必须重新登录
+                MMKV.defaultMMKV().removeValueForKey("token")
                 // 2 秒后跳转登录页
                 jumpRunnable = Runnable {
                     LoginActivity.startActivity(this@ActivationActivity)

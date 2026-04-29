@@ -17,8 +17,6 @@ import com.ruoyi.app.databinding.ActivityMainBinding
 import com.ruoyi.app.fragment.HomeFragment
 import com.ruoyi.app.fragment.LawFragment
 import com.ruoyi.app.fragment.MineFragment
-import com.ruoyi.app.fragment.PhraseFragment
-import com.ruoyi.app.fragment.SupervisionFragment
 import com.ruoyi.app.model.Constant
 import com.ruoyi.app.model.UserViewModel
 import com.ruoyi.app.model.entity.ButtomItemEntity
@@ -109,26 +107,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
                 Frame.getDrawable(R.drawable.law_selector)
             )
         )
-        add(
-            ButtomItemEntity(
-                Constant.theme_default_color,
-                Constant.theme_select_color,
-                Frame.getString(R.string.phrase_nav_index),
-                "",
-                "",
-                Frame.getDrawable(R.drawable.phrase_selector)
-            )
-        )
-        add(
-            ButtomItemEntity(
-                Constant.theme_default_color,
-                Constant.theme_select_color,
-                Frame.getString(R.string.supervision_nav_index),
-                "",
-                "",
-                Frame.getDrawable(R.drawable.supervision_selector)
-            )
-        )
     }
 
     private val viewModel: UserViewModel by activityViewModels()
@@ -164,8 +142,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
             addFragment(HomeFragment.newInstance())
             addFragment(MineFragment.newInstance())
             addFragment(LawFragment.newInstance())
-            addFragment(PhraseFragment.newInstance())
-            addFragment(SupervisionFragment.newInstance())
             binding.vpHomePager.adapter = this
         }
     }
@@ -226,7 +202,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
             return
         }
         when (fragmentIndex) {
-            0, 1, 2, 3, 4 -> {
+            0, 1, 2, 3 -> {
                 binding.vpHomePager.currentItem = fragmentIndex
                 navigationAdapter?.setSelectedPosition(fragmentIndex)
             }
@@ -235,7 +211,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(),
 
     override fun onNavigationItemSelected(position: Int): Boolean {
         return when (position) {
-            0, 1, 2, 3, 4 -> {
+            0, 1, 2, 3 -> {
                 binding.vpHomePager.currentItem = position
                 true
             }

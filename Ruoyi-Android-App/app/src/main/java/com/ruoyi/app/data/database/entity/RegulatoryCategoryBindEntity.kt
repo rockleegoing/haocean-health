@@ -4,7 +4,8 @@ import androidx.room.Entity
 import androidx.room.Index
 
 /**
- * 监管事项分类绑定实体
+ * 行业分类与监管事项绑定实体
+ * 对应数据库表：regulatory_category_bind
  */
 @Entity(
     tableName = "regulatory_category_bind",
@@ -15,6 +16,6 @@ import androidx.room.Index
     ]
 )
 data class RegulatoryCategoryBindEntity(
-    val industryCategoryId: Long,
-    val matterId: Long
+    val industryCategoryId: Long,      // 行业分类ID
+    val matterId: Long                 // 监管事项ID
 )

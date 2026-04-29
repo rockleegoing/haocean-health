@@ -9,9 +9,9 @@ enum class SyncStatus {
 }
 
 data class SyncResult(
-    val status: SyncStatus,
-    val message: String = "",
-    val failedModule: String? = null
+    val status: SyncStatus,    // 同步状态
+    val message: String = "",  // 结果消息
+    val failedModule: String? = null  // 失败的模块名称
 ) {
     companion object {
         fun success() = SyncResult(SyncStatus.SUCCESS)
