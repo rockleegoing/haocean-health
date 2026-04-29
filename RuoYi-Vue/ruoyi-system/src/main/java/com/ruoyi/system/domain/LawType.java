@@ -1,7 +1,9 @@
 package com.ruoyi.system.domain;
 
+import java.util.List;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
@@ -41,6 +43,10 @@ public class LawType extends BaseEntity
     /** 状态（0正常 1停用） */
     @Excel(name = "状态", readConverterExp = "0=正常,1=停用")
     private String status;
+
+    /** 子节点列表（用于树形结构） */
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<LawType> children;
 
     public void setId(Long id) 
     {
@@ -102,7 +108,7 @@ public class LawType extends BaseEntity
         return sort;
     }
 
-    public void setStatus(String status) 
+    public void setStatus(String status)
     {
         this.status = status;
     }
@@ -110,6 +116,16 @@ public class LawType extends BaseEntity
     public String getStatus()
     {
         return status;
+    }
+
+    public List<LawType> getChildren()
+    {
+        return children;
+    }
+
+    public void setChildren(List<LawType> children)
+    {
+        this.children = children;
     }
 
     /**
