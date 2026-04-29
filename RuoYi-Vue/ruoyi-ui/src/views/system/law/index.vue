@@ -60,6 +60,16 @@
                 <span>{{ parseTime(scope.row.releaseTime, '{y}-{m}') }}</span>
               </template>
             </el-table-column>
+            <el-table-column label="操作" align="center" width="80">
+              <template slot-scope="scope">
+                <el-button
+                  size="mini"
+                  type="text"
+                  icon="el-icon-edit"
+                  @click.stop="handleEditLaw(scope.row)"
+                >修改</el-button>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
       </el-col>
@@ -275,7 +285,7 @@
 import { listLaw, getLaw, addLaw, updateLaw, delLaw } from "@/api/system/law"
 import { listLegalterm, getLegalterm, addLegalterm, updateLegalterm, delLegalterm } from "@/api/system/legalterm"
 import { treeList } from "@/api/system/lawtype"
-import { bindLawType } from "@/api/system/lawbind"
+import { bindLawType, getLawTypeBind } from "@/api/system/lawbind"
 
 export default {
   name: "LawWithTerm",
@@ -422,6 +432,19 @@ export default {
       this.lawTitle = "新增法律"
       this.lawOpen = true
     },
+    /** 修改法律按钮 */
+    handleEditLaw(row) {
+      this.lawTitle = "修改法律"
+      // 先获取法律详情
+      getLaw(row.id).then(res => {
+        this.lawForm = { ...res.data, typeIds: [] }
+        // 再获取已有的类型绑定
+        getLawTypeBind(row.id).then(bindRes => {
+          this.lawForm.typeIds = (bindRes.data || []).map(b => b.typeId)
+          this.lawOpen = true
+        })
+      })
+    },
     /** 提交法律表单 */
     submitLawForm() {
       this.$refs["lawForm"].validate(valid => {
@@ -435,6 +458,8 @@ export default {
                 this.$modal.msgSuccess("修改成功")
                 this.lawOpen = false
                 this.getLawList()
+              }).catch(() => {
+                this.$modal.msgError("法律已保存但类型绑定失败，请重试")
               })
             })
           } else {
@@ -444,6 +469,8 @@ export default {
                 this.$modal.msgSuccess("新增成功")
                 this.lawOpen = false
                 this.getLawList()
+              }).catch(() => {
+                this.$modal.msgError("法律已保存但类型绑定失败，请重试")
               })
             })
           }
