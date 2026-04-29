@@ -24,7 +24,7 @@ public class AppLawController extends BaseController {
      */
     @Anonymous
     @GetMapping("/list")
-    public AjaxResult listLaw() {
+    public AjaxResult list() {
         return AjaxResult.success(lawService.selectLawList(new Law()));
     }
 
@@ -33,7 +33,7 @@ public class AppLawController extends BaseController {
      */
     @Anonymous
     @GetMapping("/{lawId}")
-    public AjaxResult getLaw(@PathVariable Long lawId) {
+    public AjaxResult getInfo(@PathVariable Long lawId) {
         return AjaxResult.success(lawService.selectLawById(lawId));
     }
 
@@ -42,7 +42,7 @@ public class AppLawController extends BaseController {
      */
     @Anonymous
     @GetMapping("/{lawId}/term/list")
-    public AjaxResult listTermByLaw(@PathVariable Long lawId) {
+    public AjaxResult listTerm(@PathVariable Long lawId) {
         LegalTerm term = new LegalTerm();
         term.setLawId(lawId);
         return AjaxResult.success(lawService.selectLegalTermList(term));
@@ -53,7 +53,7 @@ public class AppLawController extends BaseController {
      */
     @Anonymous
     @GetMapping("/term/{termId}")
-    public AjaxResult getTerm(@PathVariable Long termId) {
+    public AjaxResult getTermInfo(@PathVariable Long termId) {
         return AjaxResult.success(lawService.selectLegalTermById(termId));
     }
 }

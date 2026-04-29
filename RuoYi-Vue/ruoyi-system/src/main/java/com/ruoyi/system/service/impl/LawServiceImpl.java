@@ -10,7 +10,7 @@ import com.ruoyi.system.domain.LegalTerm;
 import com.ruoyi.system.service.ILawService;
 
 /**
- * 法律条款Service业务层处理
+ * 法律目录Service业务层处理
  * 
  * @author ruoyi
  * @date 2026-04-29

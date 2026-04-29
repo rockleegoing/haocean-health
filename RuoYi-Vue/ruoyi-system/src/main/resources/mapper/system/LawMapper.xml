@@ -52,7 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         delete from law where id = #{id}
     </delete>
 
-    <delete id="deleteLawByIds" parameterType="String">
+    <delete id="deleteLawByIds" parameterType="Long">
         delete from law where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
