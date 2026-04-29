@@ -66,6 +66,9 @@ public class LegalTerm extends BaseEntity
     @Excel(name = "远程库id")
     private Long stashTermId;
 
+    /** 法律名称（非数据库字段） */
+    private String lawName;
+
     public void setId(Long id) 
     {
         this.id = id;
@@ -191,9 +194,19 @@ public class LegalTerm extends BaseEntity
         this.stashTermId = stashTermId;
     }
 
-    public Long getStashTermId() 
+    public Long getStashTermId()
     {
         return stashTermId;
+    }
+
+    public String getLawName()
+    {
+        return lawName;
+    }
+
+    public void setLawName(String lawName)
+    {
+        this.lawName = lawName;
     }
 
     @Override

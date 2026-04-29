@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="LegalTerm" id="LegalTermResult">
         <result property="id"    column="id"    />
         <result property="lawId"    column="law_id"    />
+        <result property="lawName"    column="law_name"    />
         <result property="part"    column="part"    />
         <result property="partBranch"    column="part_branch"    />
         <result property="chapter"    column="chapter"    />
@@ -22,7 +23,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectLegalTermVo">
-        select id, law_id, part, part_branch, chapter, quarter, article, section, subparagraph, item, zh_code, content, update_time, stash_term_id from legal_term
+        select t.id, t.law_id, l.name as law_name, t.part, t.part_branch, t.chapter, t.quarter, t.article, t.section, t.subparagraph, t.item, t.zh_code, t.content, t.update_time, t.stash_term_id
+        from legal_term t
+        left join law l on t.law_id = l.id
     </sql>
 
     <select id="selectLegalTermList" parameterType="LegalTerm" resultMap="LegalTermResult">
