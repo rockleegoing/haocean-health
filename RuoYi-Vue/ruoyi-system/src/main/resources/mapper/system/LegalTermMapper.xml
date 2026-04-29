@@ -48,7 +48,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <select id="selectLegalTermById" parameterType="Long" resultMap="LegalTermResult">
         <include refid="selectLegalTermVo"/>
-        where id = #{id}
+        where t.id = #{id}
     </select>
 
     <insert id="insertLegalTerm" parameterType="LegalTerm" useGeneratedKeys="true" keyProperty="id">
