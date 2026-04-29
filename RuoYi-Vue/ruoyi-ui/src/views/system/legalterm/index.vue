@@ -138,7 +138,9 @@
     <el-table v-loading="loading" :data="legaltermList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="id" align="center" prop="id" width="80" />
-      <el-table-column label="法律名称" align="center" prop="lawName" width="200" show-overflow-tooltip />
+      <el-table-column label="法律名称" align="center" prop="lawName" width="150" show-overflow-tooltip />
+      <el-table-column label="条" align="center" prop="article" width="60" />
+      <el-table-column label="款" align="center" prop="section" width="60" />
       <el-table-column label="中文条款编码" align="center" prop="zhCode" width="150" show-overflow-tooltip />
       <el-table-column label="条款内容" align="center" prop="content" show-overflow-tooltip />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180">
