@@ -1,4 +1,4 @@
-package com.ruoyi.web.controller.app;
+package com.ruoyi.web.controller.system;
 
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
@@ -13,6 +13,7 @@ import com.ruoyi.system.service.INormativeMatterBindService;
 import com.ruoyi.system.service.INormativeTermBindService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,6 +61,15 @@ public class AppNormativeController extends BaseController {
             language.setPrimaryCategory(categoryId);
         }
         return AjaxResult.success(languageService.selectNormativeLanguageList(language));
+    }
+
+    /**
+     * 获取规范用语详情
+     */
+    @Anonymous
+    @GetMapping("/language/{id}")
+    public AjaxResult getLanguage(@PathVariable Long id) {
+        return AjaxResult.success(languageService.selectNormativeLanguageById(id));
     }
 
     /**
