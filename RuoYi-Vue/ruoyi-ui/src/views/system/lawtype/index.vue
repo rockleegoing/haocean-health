@@ -46,9 +46,9 @@
 
     <el-table
       v-loading="loading"
+      ref="lawtypeTable"
       :data="lawtypeList"
       row-key="id"
-      :default-expand-all="isExpandAll"
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
     >
       <el-table-column label="类型名称" align="left" prop="name" width="200">
@@ -272,6 +272,16 @@ export default {
     /** 展开/折叠切换 */
     toggleExpandAll() {
       this.isExpandAll = !this.isExpandAll
+      // 遍历所有行，切换展开/折叠状态
+      const toggleTreeNode = (rows) => {
+        rows.forEach(row => {
+          if (row.children && row.children.length > 0) {
+            this.$refs.lawtypeTable.toggleRowExpansion(row, this.isExpandAll)
+            toggleTreeNode(row.children)
+          }
+        })
+      }
+      toggleTreeNode(this.lawtypeList)
     },
     /** 打开图标选择器 */
     openIconPicker() {
