@@ -23,7 +23,13 @@ public class RegulatoryCategoryBind extends BaseEntity
     @Excel(name = "分类id")
     private Long categoryId;
 
-    public void setMatterId(Long matterId) 
+    /** 监管事项名称（非数据库字段） */
+    private String matterName;
+
+    /** 行业分类名称（非数据库字段） */
+    private String categoryName;
+
+    public void setMatterId(Long matterId)
     {
         this.matterId = matterId;
     }
@@ -38,9 +44,29 @@ public class RegulatoryCategoryBind extends BaseEntity
         this.categoryId = categoryId;
     }
 
-    public Long getCategoryId() 
+    public Long getCategoryId()
     {
         return categoryId;
+    }
+
+    public String getMatterName()
+    {
+        return matterName;
+    }
+
+    public void setMatterName(String matterName)
+    {
+        this.matterName = matterName;
+    }
+
+    public String getCategoryName()
+    {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName)
+    {
+        this.categoryName = categoryName;
     }
 
     @Override

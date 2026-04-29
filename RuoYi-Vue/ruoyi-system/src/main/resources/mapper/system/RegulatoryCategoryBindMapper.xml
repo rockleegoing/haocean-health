@@ -7,23 +7,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="RegulatoryCategoryBind" id="RegulatoryCategoryBindResult">
         <result property="matterId"    column="matter_id"    />
         <result property="categoryId"    column="category_id"    />
+        <result property="matterName"    column="matter_name"    />
+        <result property="categoryName"    column="category_name"    />
     </resultMap>
 
     <sql id="selectRegulatoryCategoryBindVo">
-        select matter_id, category_id from regulatory_category_bind
+        select b.matter_id, b.category_id, m.main_name as matter_name, c.category_name
+        from regulatory_category_bind b
+        left join regulatory_matter m on b.matter_id = m.id
+        left join sys_industry_category c on b.category_id = c.category_id
     </sql>
 
     <select id="selectRegulatoryCategoryBindList" parameterType="RegulatoryCategoryBind" resultMap="RegulatoryCategoryBindResult">
         <include refid="selectRegulatoryCategoryBindVo"/>
-        <where>  
-            <if test="matterId != null "> and matter_id = #{matterId}</if>
-            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+        <where>
+            <if test="matterId != null "> and b.matter_id = #{matterId}</if>
+            <if test="categoryId != null "> and b.category_id = #{categoryId}</if>
         </where>
     </select>
-    
+
     <select id="selectRegulatoryCategoryBindByMatterId" parameterType="Long" resultMap="RegulatoryCategoryBindResult">
         <include refid="selectRegulatoryCategoryBindVo"/>
-        where matter_id = #{matterId}
+        where b.matter_id = #{matterId}
     </select>
 
     <insert id="insertRegulatoryCategoryBind" parameterType="RegulatoryCategoryBind">
