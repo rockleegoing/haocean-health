@@ -70,8 +70,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         delete from regulatory_matter where id = #{id}
     </delete>
 
-    <delete id="deleteRegulatoryMatterByIds" parameterType="String">
-        delete from regulatory_matter where id in 
+    <delete id="deleteRegulatoryMatterByIds">
+        delete from regulatory_matter where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

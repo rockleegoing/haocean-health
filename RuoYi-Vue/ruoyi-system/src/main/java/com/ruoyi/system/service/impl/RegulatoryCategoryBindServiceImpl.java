@@ -1,7 +1,10 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.ruoyi.common.utils.DateUtils;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.RegulatoryCategoryBindMapper;
 import com.ruoyi.system.domain.RegulatoryCategoryBind;
@@ -52,6 +55,7 @@ public class RegulatoryCategoryBindServiceImpl implements IRegulatoryCategoryBin
     @Override
     public int insertRegulatoryCategoryBind(RegulatoryCategoryBind regulatoryCategoryBind)
     {
+        regulatoryCategoryBind.setCreateTime(DateUtils.getNowDate());
         return regulatoryCategoryBindMapper.insertRegulatoryCategoryBind(regulatoryCategoryBind);
     }
 
