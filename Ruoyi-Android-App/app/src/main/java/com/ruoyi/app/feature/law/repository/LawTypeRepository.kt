@@ -73,4 +73,13 @@ class LawTypeRepository(private val context: Context) {
             lawTypeDao.getByParentId(0)
         }
     }
+
+    /**
+     * 根据父ID获取子类型
+     */
+    suspend fun getChildrenByParentId(parentId: Long): List<LawTypeEntity> {
+        return withContext(Dispatchers.IO) {
+            lawTypeDao.getByParentId(parentId)
+        }
+    }
 }
